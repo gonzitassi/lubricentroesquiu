@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lubricentro Esquiú — Turnos Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0e0e0f;--bg2:#161618;--bg3:#1e1e21;--border:#2a2a2e;
+  --orange:#f97316;--orange2:#ea580c;--text:#f0ede8;--muted:#7a7878;
+  --success:#22c55e;--warn:#eab308;--danger:#ef4444;--card:#18181b;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+/* PAGES */
+.page{display:none;min-height:100vh;flex-direction:column;}
+.page.active{display:flex;}
+
+/* LANDING */
+#pgLanding{align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden;}
+#pgLanding::before{content:'';position:absolute;top:-40%;left:-20%;width:60%;height:80%;
+  background:radial-gradient(ellipse,rgba(249,115,22,.09) 0%,transparent 70%);pointer-events:none;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,8vw,5rem);letter-spacing:3px;line-height:1;text-align:center;}
+.logo span{color:var(--orange);}
+.land-sub{color:var(--muted);margin:.4rem 0 .1rem;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;text-align:center;}
+.land-owner{color:var(--muted);font-size:.76rem;margin-bottom:2.2rem;text-align:center;}
+.land-cards{display:flex;gap:1.4rem;flex-wrap:wrap;justify-content:center;}
+.lcard{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:2rem 1.8rem;
+  min-width:190px;cursor:pointer;transition:all .2s;text-align:center;}
+.lcard:hover{border-color:var(--orange);transform:translateY(-4px);box-shadow:0 8px 40px rgba(249,115,22,.15);}
+.lcard-ico{font-size:2.2rem;margin-bottom:.6rem;}
+.lcard h3{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:1px;margin-bottom:.25rem;}
+.lcard p{color:var(--muted);font-size:.8rem;}
+.maps-link{margin-top:1.8rem;color:var(--muted);font-size:.76rem;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;}
+.maps-link:hover{color:var(--orange);}
+
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.85rem 1.4rem;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.tbrand{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;}
+.tbrand span{color:var(--orange);}
+.topbar-r{display:flex;align-items:center;gap:.8rem;}
+.back-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.34rem .85rem;
+  border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.78rem;transition:all .15s;}
+.back-btn:hover{border-color:var(--orange);color:var(--text);}
+
+/* TABS */
+.tabs{display:flex;gap:.15rem;padding:.85rem 1.4rem 0;background:var(--bg2);
+  border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;}
+.tab{background:none;border:none;padding:.56rem 1rem;color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:.84rem;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.tab.active{color:var(--orange);border-bottom-color:var(--orange);}
+.tab:hover:not(.active){color:var(--text);}
+
+/* CONTENT */
+.content{padding:1.3rem;max-width:1050px;margin:0 auto;width:100%;flex:1;}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem;}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:1px;margin-bottom:.85rem;color:var(--orange);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.9rem;margin-bottom:1.2rem;}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:1rem;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.3rem;color:var(--orange);line-height:1;}
+.stat-lbl{color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:1px;margin-top:.15rem;}
+
+/* TABLE */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.84rem;}
+th{text-align:left;padding:.5rem .7rem;color:var(--muted);font-size:.68rem;text-transform:uppercase;
+  letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:500;}
+td{padding:.66rem .7rem;border-bottom:1px solid #1e1e21;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg3);}
+
+/* BADGE */
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:20px;font-size:.68rem;font-weight:600;}
+.b-green{background:rgba(34,197,94,.15);color:var(--success);}
+.b-yellow{background:rgba(234,179,8,.15);color:var(--warn);}
+.b-orange{background:rgba(249,115,22,.15);color:var(--orange);}
+.b-red{background:rgba(239,68,68,.15);color:var(--danger);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:.3rem;padding:.5rem 1rem;border-radius:8px;
+  font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+.btn-p{background:var(--orange);color:#fff;}
+.btn-p:hover{background:var(--orange2);}
+.btn-g{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-g:hover{border-color:var(--orange);color:var(--orange);}
+.btn-d{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3);}
+.btn-s{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3);}
+.btn-sm{padding:.26rem .58rem;font-size:.74rem;}
+.btn-full{width:100%;justify-content:center;margin-top:.3rem;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* FORMS */
+.fg{margin-bottom:.85rem;}
+.fl{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem;}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.56rem .8rem;
+  border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;transition:border .15s;outline:none;}
+.fi:focus{border-color:var(--orange);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;}
+@media(max-width:480px){.fr{grid-template-columns:1fr;}}
+select.fi option{background:var(--bg2);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:none;align-items:center;justify-content:center;padding:1rem;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.6rem;
+  width:100%;max-width:460px;max-height:90vh;overflow-y:auto;}
+.mtitle{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:1px;margin-bottom:1.2rem;}
+.mact{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1.2rem;}
+
+/* SERVICE GRID */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.65rem;}
+.sc{border:2px solid var(--border);border-radius:10px;padding:.85rem;cursor:pointer;transition:all .15s;text-align:center;}
+.sc:hover,.sc.sel{border-color:var(--orange);background:rgba(249,115,22,.07);}
+.sc-name{font-weight:600;font-size:.84rem;margin-bottom:.16rem;}
+.sc-price{color:var(--orange);font-size:.78rem;font-weight:700;}
+.sc-dur{color:var(--muted);font-size:.7rem;}
+
+/* TIME GRID */
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:.4rem;}
+.tb{border:1px solid var(--border);background:var(--bg3);color:var(--text);padding:.42rem;border-radius:8px;
+  cursor:pointer;font-size:.8rem;transition:all .15s;text-align:center;font-family:'DM Sans',sans-serif;}
+.tb:hover,.tb.sel{border-color:var(--orange);color:var(--orange);background:rgba(249,115,22,.07);}
+.tb.taken{opacity:.28;cursor:not-allowed;}
+
+/* MISC */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.95rem;}
+.st{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:1px;}
+.sn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;
+  background:var(--orange);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.9rem;margin-right:.4rem;flex-shrink:0;}
+.stitle{display:flex;align-items:center;font-weight:600;margin-bottom:.85rem;font-size:.92rem;}
+.divider{border:none;border-top:1px solid var(--border);margin:1.1rem 0;}
+.alert{padding:.8rem .95rem;border-radius:8px;margin-bottom:.85rem;font-size:.84rem;}
+.ao{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:var(--orange);}
+.ag{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--success);}
+.ar{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--danger);}
+.ri{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:var(--bg3);
+  border:1px solid rgba(249,115,22,.2);border-radius:10px;margin-bottom:.65rem;flex-wrap:wrap;gap:.65rem;}
+.empty{text-align:center;padding:2.2rem 1rem;color:var(--muted);}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.8rem;width:100%;max-width:330px;}
+.wa-btn{background:#25D366;color:#fff;border:none;border-radius:8px;padding:.5rem 1rem;font-family:'DM Sans';
+  font-weight:600;font-size:.84rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .15s;}
+.wa-btn:hover{background:#128C7E;}
+.sum-box{background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.3);border-radius:12px;padding:1rem;margin-bottom:.9rem;}
+.appt-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.95rem;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.6rem;margin-bottom:.6rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(249,115,22,.25);
+  border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;}
+.loader-full{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1rem;}
+.loader-full .big-spin{width:40px;height:40px;border:3px solid rgba(249,115,22,.2);border-top-color:var(--orange);
+  border-radius:50%;animation:spin .8s linear infinite;}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div class="loader-full" id="appLoader">
+  <div class="big-spin"></div>
+  <div style="color:var(--muted);font-size:.9rem;font-family:'DM Sans'">Conectando con la base de datos...</div>
+</div>
+
+<!-- ══════════ LANDING ══════════ -->
+<div class="page" id="pgLanding">
+  <div class="logo">LUBRICENTRO <span>ESQUIÚ</span></div>
+  <div class="land-sub">Sistema de turnos online</div>
+  <div class="land-owner">👤 Roger Ariel Tassi &nbsp;·&nbsp; Córdoba, Argentina</div>
+  <div class="land-cards">
+    <div class="lcard" onclick="go('pgClient')">
+      <div class="lcard-ico">🚗</div><h3>SOY CLIENTE</h3><p>Sacá tu turno online</p>
+    </div>
+    <div class="lcard" onclick="go('pgAdminLogin')">
+      <div class="lcard-ico">⚙️</div><h3>ADMINISTRAR</h3><p>Panel del lubricentro</p>
+    </div>
+  </div>
+  <a class="maps-link" href="https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8" target="_blank">📍 Ver ubicación en Google Maps</a>
+</div>
+
+<!-- ══════════ ADMIN LOGIN ══════════ -->
+<div class="page" id="pgAdminLogin" style="align-items:center;justify-content:center;padding:2rem;">
+  <div class="logo" style="font-size:2rem;margin-bottom:1.5rem;">LUBRICENTRO <span style="color:var(--orange)">ESQUIÚ</span></div>
+  <div class="login-box">
+    <div style="font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:1px;margin-bottom:1.1rem;">ACCESO ADMINISTRADOR</div>
+    <div id="loginErr" class="alert ar" style="display:none"></div>
+    <div class="fg"><label class="fl">Usuario</label><input class="fi" id="loginU" placeholder="roger" onkeydown="if(event.key==='Enter')tryLogin()"/></div>
+    <div class="fg"><label class="fl">Contraseña</label><input class="fi" type="password" id="loginP" placeholder="••••••••" onkeydown="if(event.key==='Enter')tryLogin()"/></div>
+    <button class="btn btn-p btn-full" onclick="tryLogin()">Ingresar →</button>
+    <button class="back-btn btn-full" style="margin-top:.75rem" onclick="go('pgLanding')">← Volver</button>
+  </div>
+</div>
+
+<!-- ══════════ ADMIN APP ══════════ -->
+<div class="page" id="pgAdmin">
+  <div class="topbar">
+    <div class="tbrand">LUBRICENTRO <span>ESQUIÚ</span> <span style="font-size:.72rem;color:var(--muted);font-family:'DM Sans';letter-spacing:0">ADMIN</span></div>
+    <div class="topbar-r">
+      <span id="savingLbl" style="display:none;font-size:.72rem;color:var(--muted);align-items:center;gap:.4rem"><span class="spinner"></span>Guardando...</span>
+      <button class="back-btn" onclick="go('pgLanding')">← Salir</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="aTab(this,'tDash')">📊 Panel</button>
+    <button class="tab" onclick="aTab(this,'tTurnos')">📅 Turnos</button>
+    <button class="tab" onclick="aTab(this,'tClientes')">👥 Clientes</button>
+    <button class="tab" onclick="aTab(this,'tRecord')">🔔 Recordatorios</button>
+  </div>
+  <div class="content">
+    <div id="tDash"></div>
+    <div id="tTurnos" style="display:none"></div>
+    <div id="tClientes" style="display:none"></div>
+    <div id="tRecord" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══════════ CLIENT APP ══════════ -->
+<div class="page" id="pgClient">
+  <div class="topbar">
+    <div class="tbrand">LUBRICENTRO <span>ESQUIÚ</span></div>
+    <div class="topbar-r">
+      <span id="clientNameLbl" style="color:var(--muted);font-size:.8rem;display:none"></span>
+      <button class="back-btn" onclick="go('pgLanding')">← Inicio</button>
+    </div>
+  </div>
+  <div class="content" id="clientArea"></div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+<div class="overlay" id="mNewAppt">
+  <div class="modal">
+    <div class="mtitle">NUEVO TURNO</div>
+    <div class="fg"><label class="fl">Cliente</label><select class="fi" id="mAClient"></select></div>
+    <div class="fg"><label class="fl">Servicio</label><select class="fi" id="mAService"></select></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Fecha</label><input type="date" class="fi" id="mADate"/></div>
+      <div class="fg"><label class="fl">Horario</label><select class="fi" id="mATime"></select></div>
+    </div>
+    <div class="fg"><label class="fl">KM</label><input class="fi" id="mAKm" placeholder="85000"/></div>
+    <div class="mact">
+      <button class="btn btn-g" onclick="closeM('mNewAppt')">Cancelar</button>
+      <button class="btn btn-p" onclick="doSaveAppt()">Guardar Turno</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="mNewClient">
+  <div class="modal">
+    <div class="mtitle">NUEVO CLIENTE</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Nombre</label><input class="fi" id="mCName" placeholder="Juan García"/></div>
+      <div class="fg"><label class="fl">WhatsApp</label><input class="fi" id="mCWa" placeholder="1155443322"/></div>
+    </div>
+    <div class="fg"><label class="fl">Patente</label><input class="fi" id="mCPatent" placeholder="AB123CD" oninput="this.value=this.value.toUpperCase()"/></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Marca</label><input class="fi" id="mCBrand" placeholder="Volkswagen"/></div>
+      <div class="fg"><label class="fl">Modelo</label><input class="fi" id="mCModel" placeholder="Gol"/></div>
+    </div>
+    <div class="fg"><label class="fl">Año</label><input class="fi" id="mCYear" placeholder="2020"/></div>
+    <div class="mact">
+      <button class="btn btn-g" onclick="closeM('mNewClient')">Cancelar</button>
+      <button class="btn btn-p" onclick="doSaveClient()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="mViewClient">
+  <div class="modal">
+    <div class="mtitle" id="mVCName"></div>
+    <div id="mVCBody"></div>
+    <div class="mact"><button class="btn btn-g" onclick="closeM('mViewClient')">Cerrar</button></div>
+  </div>
+</div>
+
+<script>
+// ══════════ FIREBASE INIT ══════════
+const firebaseConfig = {
+  apiKey: "AIzaSyCKu6dYKVNv1GnefclT7avPSDu7S53xBf4",
+  authDomain: "lubricentroesquiu-1759a.firebaseapp.com",
+  projectId: "lubricentroesquiu-1759a",
+  storageBucket: "lubricentroesquiu-1759a.firebasestorage.app",
+  messagingSenderId: "278002254429",
+  appId: "1:278002254429:web:91ad2912c248978df183b4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ══════════ CONFIG ══════════
+const ADMINS = [{u:"roger",p:"lubri2024"},{u:"admin2",p:"esquiu2024"}];
+const SERVICES = [
+  {id:"aceite",        n:"Cambio de Aceite",      dur:"30 min",price:"$8.500"},
+  {id:"filtro",        n:"Cambio de Filtro",       dur:"20 min",price:"$3.200"},
+  {id:"aceite_filtro", n:"Aceite + Filtro",        dur:"45 min",price:"$11.000"},
+  {id:"liquido",       n:"Líquido de Frenos",      dur:"20 min",price:"$4.500"},
+  {id:"revision",      n:"Revisión General",       dur:"60 min",price:"$6.000"},
+  {id:"neumaticos",    n:"Rotación Neumáticos",    dur:"30 min",price:"$2.800"},
+];
+const HOURS = ["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00",
+               "15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00"];
+
+const todayISO = new Date().toISOString().split("T")[0];
+const fmtD = s => { if(!s) return ""; const [y,m,d]=s.split("-"); return `${d}/${m}/${y}`; };
+const uid  = () => Math.random().toString(36).substr(2,9);
+
+// ══════════ FIRESTORE HELPERS ══════════
+async function fsGet(col) {
+  try {
+    const snap = await db.collection("lubricentro").doc(col).get();
+    return snap.exists ? (snap.data().data || []) : [];
+  } catch(e){ console.error(e); return []; }
+}
+async function fsPut(col, arr) {
+  setSaving(true);
+  try { await db.collection("lubricentro").doc(col).set({data: arr}); }
+  catch(e){ console.error(e); }
+  setSaving(false);
+}
+function setSaving(v){
+  const el=document.getElementById("savingLbl");
+  if(el) el.style.display=v?"inline-flex":"none";
+}
+
+// ══════════ IN-MEMORY STATE ══════════
+let CLIENTS = [];
+let APPTS   = [];
+let ME = null;   // current client
+let BK = {};     // booking state
+
+// ══════════ INIT ══════════
+(async () => {
+  CLIENTS = await fsGet("clients");
+  APPTS   = await fsGet("appointments");
+  document.getElementById("appLoader").style.display = "none";
+  go("pgLanding");
+})();
+
+// ══════════ NAVIGATION ══════════
+function go(pgId) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(pgId).classList.add("active");
+  if (pgId === "pgAdmin")  renderAdmin();
+  if (pgId === "pgClient") renderIdentify();
+}
+
+// ══════════ BADGE ══════════
+function bdg(s) {
+  const m = {pendiente:["b-yellow","⏳ Pendiente"],confirmado:["b-orange","✅ Confirmado"],completado:["b-green","🔧 Completado"],cancelado:["b-red","❌ Cancelado"]};
+  const [c,l] = m[s]||["b-yellow",s];
+  return `<span class="badge ${c}">${l}</span>`;
+}
+
+// ══════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════
+function tryLogin() {
+  const u = document.getElementById("loginU").value.trim();
+  const p = document.getElementById("loginP").value;
+  const e = document.getElementById("loginErr");
+  if (ADMINS.find(a => a.u===u && a.p===p)) { e.style.display="none"; go("pgAdmin"); }
+  else { e.textContent="⚠️ Usuario o contraseña incorrectos."; e.style.display="block"; }
+}
+
+function renderAdmin() {
+  document.querySelectorAll(".tab").forEach((t,i)=>{t.classList.remove("active");if(i===0)t.classList.add("active");});
+  ["tTurnos","tClientes","tRecord"].forEach(id=>document.getElementById(id).style.display="none");
+  document.getElementById("tDash").style.display="block";
+  drawTab("tDash");
+}
+
+function aTab(btn, id) {
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  btn.classList.add("active");
+  ["tDash","tTurnos","tClientes","tRecord"].forEach(x=>document.getElementById(x).style.display="none");
+  document.getElementById(id).style.display="block";
+  drawTab(id);
+}
+
+function drawTab(id) {
+  const todayA = APPTS.filter(a=>a.date===todayISO);
+  const pending = APPTS.filter(a=>a.status==="pendiente");
+  const cutoff  = new Date(); cutoff.setDate(cutoff.getDate()-165);
+  const seen = new Set();
+  const reminders = APPTS
+    .filter(a=>(a.service==="aceite"||a.service==="aceite_filtro")&&a.status==="completado"&&new Date(a.date)<=cutoff)
+    .filter(a=>{if(seen.has(a.clientId))return false;seen.add(a.clientId);return true;})
+    .map(a=>({...a,cl:CLIENTS.find(c=>c.id===a.clientId)}));
+
+  if (id==="tDash") {
+    document.getElementById("tDash").innerHTML = `
+      <div class="stats">
+        <div class="stat"><div class="stat-num">${todayA.length}</div><div class="stat-lbl">Turnos hoy</div></div>
+        <div class="stat"><div class="stat-num">${pending.length}</div><div class="stat-lbl">Pendientes</div></div>
+        <div class="stat"><div class="stat-num">${CLIENTS.length}</div><div class="stat-lbl">Clientes</div></div>
+        <div class="stat"><div class="stat-num" style="color:var(--warn)">${reminders.length}</div><div class="stat-lbl">Recordatorios</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">TURNOS DE HOY</div>
+        ${todayA.length===0?'<div class="empty">🎉 Sin turnos para hoy</div>':`
+        <div class="tw"><table>
+          <thead><tr><th>Hora</th><th>Cliente</th><th>Patente</th><th>Servicio</th><th>Estado</th><th></th></tr></thead>
+          <tbody>${todayA.sort((a,b)=>a.time.localeCompare(b.time)).map(a=>{
+            const cl=CLIENTS.find(c=>c.id===a.clientId);
+            return `<tr>
+              <td><strong>${a.time}</strong></td><td>${cl?.name||"—"}</td><td>${a.patent}</td>
+              <td>${a.serviceName}</td><td>${bdg(a.status)}</td>
+              <td style="display:flex;gap:.25rem">
+                ${a.status==="pendiente"?`<button class="btn btn-s btn-sm" onclick="updAppt('${a.id}','confirmado')">✓ Confirmar</button>`:""}
+                ${a.status==="confirmado"?`<button class="btn btn-g btn-sm" onclick="updAppt('${a.id}','completado')">✓ Completar</button>`:""}
+              </td></tr>`;
+          }).join("")}</tbody>
+        </table></div>`}
+      </div>`;
+  }
+
+  if (id==="tTurnos") {
+    const sorted = [...APPTS].sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    document.getElementById("tTurnos").innerHTML = `
+      <div class="sh"><div class="st">TODOS LOS TURNOS</div><button class="btn btn-p" onclick="openNewAppt()">+ Nuevo Turno</button></div>
+      <div class="card">${sorted.length===0?'<div class="empty">📅 No hay turnos</div>':`
+        <div class="tw"><table>
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Patente</th><th>Servicio</th><th>KM</th><th>Estado</th><th></th></tr></thead>
+          <tbody>${sorted.map(a=>{
+            const cl=CLIENTS.find(c=>c.id===a.clientId);
+            return `<tr>
+              <td>${fmtD(a.date)}</td><td>${a.time}</td><td>${cl?.name||"—"}</td>
+              <td>${a.patent}</td><td>${a.serviceName}</td><td>${a.km?a.km+"km":"—"}</td>
+              <td>${bdg(a.status)}</td>
+              <td style="display:flex;gap:.22rem">
+                ${a.status==="pendiente"?`<button class="btn btn-s btn-sm" onclick="updAppt('${a.id}','confirmado')">✓</button>`:""}
+                ${a.status==="confirmado"?`<button class="btn btn-g btn-sm" onclick="updAppt('${a.id}','completado')">✓</button>`:""}
+                <button class="btn btn-d btn-sm" onclick="delAppt('${a.id}')">✕</button>
+              </td></tr>`;
+          }).join("")}</tbody>
+        </table></div>`}
+      </div>`;
+  }
+
+  if (id==="tClientes") {
+    document.getElementById("tClientes").innerHTML = `
+      <div class="sh"><div class="st">CLIENTES</div><button class="btn btn-p" onclick="openNewClient()">+ Nuevo Cliente</button></div>
+      <div class="card">${CLIENTS.length===0?'<div class="empty">👥 No hay clientes</div>':`
+        <div class="tw"><table>
+          <thead><tr><th>Nombre</th><th>WhatsApp</th><th>Patente</th><th>Vehículo</th><th>Turnos</th><th></th></tr></thead>
+          <tbody>${CLIENTS.map(c=>`<tr>
+            <td><strong>${c.name}</strong></td><td>${c.whatsapp}</td><td>${c.patent}</td>
+            <td>${c.brand} ${c.model} ${c.year}</td>
+            <td>${APPTS.filter(a=>a.clientId===c.id).length}</td>
+            <td style="display:flex;gap:.22rem">
+              <button class="btn btn-g btn-sm" onclick="openViewClient('${c.id}')">Ver</button>
+              <button class="wa-btn" style="padding:.25rem .55rem;font-size:.72rem" onclick="sendWA('${c.id}')">💬 WA</button>
+            </td></tr>`).join("")}
+          </tbody></table></div>`}
+      </div>`;
+  }
+
+  if (id==="tRecord") {
+    document.getElementById("tRecord").innerHTML = `
+      <div class="st" style="margin-bottom:.9rem">RECORDATORIOS DE ACEITE</div>
+      ${reminders.length===0
+        ?'<div class="alert ag">✅ No hay clientes pendientes de recordatorio.</div>'
+        :`<div class="alert ao">⚠️ ${reminders.length} cliente${reminders.length>1?"s":""} hace más de 6 meses sin cambio de aceite.</div>`}
+      ${reminders.map(r=>`
+        <div class="ri">
+          <div>
+            <div style="font-weight:600;font-size:.88rem">🚗 ${r.cl?.name||"—"} — ${r.vehicleDesc}</div>
+            <div style="color:var(--muted);font-size:.75rem;margin-top:.1rem">Último aceite: ${fmtD(r.date)} · ${r.patent}</div>
+          </div>
+          <button class="wa-btn" onclick="sendWAReminder('${r.clientId}','${r.vehicleDesc}','${r.date}')">💬 Enviar WhatsApp</button>
+        </div>`).join("")}`;
+  }
+}
+
+// ── Admin actions ──────────────────────────────────────────
+async function updAppt(id, status) {
+  APPTS = APPTS.map(a=>a.id===id?{...a,status}:a);
+  await fsPut("appointments", APPTS);
+  const activeTab = document.querySelector(".tab.active");
+  const tabMap={"📊 Panel":"tDash","📅 Turnos":"tTurnos","👥 Clientes":"tClientes","🔔 Recordatorios":"tRecord"};
+  drawTab(tabMap[activeTab?.textContent.trim()]||"tDash");
+}
+
+async function delAppt(id) {
+  if(!confirm("¿Eliminar este turno?")) return;
+  APPTS = APPTS.filter(a=>a.id!==id);
+  await fsPut("appointments", APPTS);
+  drawTab("tTurnos");
+}
+
+function sendWA(clientId) {
+  const cl=CLIENTS.find(c=>c.id===clientId);
+  if(!cl)return;
+  window.open(`https://wa.me/54${cl.whatsapp}?text=${encodeURIComponent(`Hola ${cl.name.split(" ")[0]}! Te escribimos del Lubricentro Esquiú. ¿Podemos ayudarte?`)}`,"_blank");
+}
+function sendWAReminder(clientId, vDesc, date) {
+  const cl=CLIENTS.find(c=>c.id===clientId);
+  if(!cl)return;
+  const msg=`Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda Lubricentro Esquiú que tu ${vDesc} ya cumplió 6 meses desde el último cambio de aceite (${fmtD(date)}). ¡Te esperamos para cuidar tu motor! 🔧`;
+  window.open(`https://wa.me/54${cl.whatsapp}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+
+// ── New Appt Modal ─────────────────────────────────────────
+function openNewAppt() {
+  document.getElementById("mAClient").innerHTML = CLIENTS.map(c=>`<option value="${c.id}">${c.name} — ${c.patent}</option>`).join("");
+  document.getElementById("mAService").innerHTML = SERVICES.map(s=>`<option value="${s.id}">${s.n} — ${s.price}</option>`).join("");
+  document.getElementById("mATime").innerHTML = HOURS.map(h=>`<option value="${h}">${h}</option>`).join("");
+  document.getElementById("mADate").value = todayISO;
+  document.getElementById("mADate").min = todayISO;
+  document.getElementById("mAKm").value = "";
+  openM("mNewAppt");
+}
+async function doSaveAppt() {
+  const cid = document.getElementById("mAClient").value;
+  const svc = document.getElementById("mAService").value;
+  const dt  = document.getElementById("mADate").value;
+  const tm  = document.getElementById("mATime").value;
+  const km  = document.getElementById("mAKm").value;
+  const cl  = CLIENTS.find(c=>c.id===cid);
+  const sv  = SERVICES.find(s=>s.id===svc);
+  APPTS.push({id:uid(),clientId:cid,patent:cl?.patent||"",vehicleDesc:`${cl?.brand||""} ${cl?.model||""} ${cl?.year||""}`.trim(),date:dt,time:tm,service:svc,serviceName:sv.n,status:"pendiente",km,notes:""});
+  await fsPut("appointments",APPTS);
+  closeM("mNewAppt");
+  drawTab("tTurnos");
+}
+
+// ── New Client Modal ───────────────────────────────────────
+function openNewClient() {
+  ["mCName","mCWa","mCPatent","mCBrand","mCModel","mCYear"].forEach(id=>document.getElementById(id).value="");
+  openM("mNewClient");
+}
+async function doSaveClient() {
+  const name=document.getElementById("mCName").value.trim();
+  const wa=document.getElementById("mCWa").value.trim();
+  const patent=document.getElementById("mCPatent").value.trim().toUpperCase();
+  const brand=document.getElementById("mCBrand").value.trim();
+  const model=document.getElementById("mCModel").value.trim();
+  const year=document.getElementById("mCYear").value.trim();
+  if(!name||!patent){alert("Nombre y patente son obligatorios.");return;}
+  CLIENTS.push({id:uid(),name,whatsapp:wa,patent,brand,model,year});
+  await fsPut("clients",CLIENTS);
+  closeM("mNewClient");
+  drawTab("tClientes");
+}
+
+// ── View Client Modal ──────────────────────────────────────
+function openViewClient(id) {
+  const cl=CLIENTS.find(c=>c.id===id); if(!cl)return;
+  const ca=APPTS.filter(a=>a.clientId===id).sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById("mVCName").textContent=cl.name;
+  document.getElementById("mVCBody").innerHTML=`
+    <div style="color:var(--muted);font-size:.84rem;margin-bottom:.25rem">📱 ${cl.whatsapp}</div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.55rem .82rem;font-size:.86rem;margin-bottom:1.1rem">
+      🚗 ${cl.brand} ${cl.model} ${cl.year} — <strong>${cl.patent}</strong>
+    </div>
+    <div style="font-family:'Bebas Neue';font-size:1rem;letter-spacing:1px;margin-bottom:.65rem;color:var(--orange)">HISTORIAL</div>
+    ${ca.length===0?'<div style="color:var(--muted);font-size:.84rem">Sin turnos aún.</div>':ca.map(a=>`
+      <div style="border-bottom:1px solid var(--border);padding-bottom:.46rem;margin-bottom:.46rem;font-size:.84rem">
+        <div><strong>${a.serviceName}</strong> ${bdg(a.status)}</div>
+        <div style="color:var(--muted);font-size:.73rem">📅 ${fmtD(a.date)} ${a.time}${a.km?` · ${a.km}km`:""}</div>
+      </div>`).join("")}`;
+  openM("mViewClient");
+}
+
+function openM(id){document.getElementById(id).classList.add("open");}
+function closeM(id){document.getElementById(id).classList.remove("open");}
+
+// ══════════════════════════════════════
+// CLIENT FLOW
+// ══════════════════════════════════════
+function renderIdentify() {
+  ME=null;
+  document.getElementById("clientNameLbl").style.display="none";
+  document.getElementById("clientArea").innerHTML=`
+    <div style="max-width:400px;padding-top:2rem">
+      <h2 style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:1px;margin-bottom:.3rem">BIENVENIDO</h2>
+      <p style="color:var(--muted);margin-bottom:1.2rem;font-size:.84rem">Ingresá la patente de tu auto para continuar.</p>
+      <div id="cErr" class="alert ao" style="display:none"></div>
+      <div class="fg"><label class="fl">Patente del auto</label>
+        <input class="fi" id="cPat" placeholder="Ej: AB123CD" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')tryIdentify()"/>
+      </div>
+      <div id="newFields" style="display:none">
+        <hr class="divider"/>
+        <p style="color:var(--orange);font-size:.82rem;margin-bottom:.85rem;font-weight:600">¡Primera vez! Completá tus datos:</p>
+        <div class="fg"><label class="fl">Nombre completo</label><input class="fi" id="cName" placeholder="Juan García"/></div>
+        <div class="fg"><label class="fl">Número de WhatsApp</label><input class="fi" id="cWa" placeholder="Ej: 1155443322"/></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Marca</label><input class="fi" id="cBrand" placeholder="Volkswagen"/></div>
+          <div class="fg"><label class="fl">Modelo</label><input class="fi" id="cModel" placeholder="Gol"/></div>
+        </div>
+        <div class="fg"><label class="fl">Año</label><input class="fi" id="cYear" placeholder="2020"/></div>
+      </div>
+      <button class="btn btn-p btn-full" id="cEnterBtn" onclick="tryIdentify()">Entrar →</button>
+    </div>`;
+}
+
+async function tryIdentify() {
+  const pat=(document.getElementById("cPat")?.value||"").trim().toUpperCase();
+  const err=document.getElementById("cErr");
+  if(!pat){err.textContent="⚠️ Ingresá la patente de tu auto.";err.style.display="block";return;}
+  const found=CLIENTS.find(c=>c.patent===pat);
+  if(found){ME=found;renderClientHome();return;}
+  const nf=document.getElementById("newFields");
+  if(nf.style.display==="none"){
+    nf.style.display="block";
+    document.getElementById("cEnterBtn").textContent="Registrarme y entrar →";
+    err.textContent="⚠️ No encontramos esa patente. Completá tus datos para registrarte.";
+    err.style.display="block";
+    return;
+  }
+  const name=(document.getElementById("cName")?.value||"").trim();
+  const wa=(document.getElementById("cWa")?.value||"").trim();
+  const brand=(document.getElementById("cBrand")?.value||"").trim();
+  const model=(document.getElementById("cModel")?.value||"").trim();
+  const year=(document.getElementById("cYear")?.value||"").trim();
+  if(!name||!wa||!brand||!model||!year){err.textContent="⚠️ Completá todos los campos.";err.style.display="block";return;}
+  const nc={id:uid(),name,whatsapp:wa,patent:pat,brand,model,year};
+  CLIENTS.push(nc);
+  await fsPut("clients",CLIENTS);
+  ME=nc; renderClientHome();
+}
+
+function renderClientHome() {
+  const lbl=document.getElementById("clientNameLbl");
+  lbl.textContent="👤 "+ME.name.split(" ")[0]; lbl.style.display="inline";
+  document.getElementById("clientArea").innerHTML=`
+    <div style="padding-top:1.8rem">
+      <h2 style="font-family:'Bebas Neue';font-size:1.8rem;margin-bottom:.3rem">HOLA, ${ME.name.split(" ")[0].toUpperCase()} 👋</h2>
+      <p style="color:var(--muted);margin-bottom:1.7rem;font-size:.86rem">🚗 ${ME.brand} ${ME.model} ${ME.year} — <strong>${ME.patent}</strong></p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1rem;max-width:480px">
+        <div class="lcard" onclick="renderBooking()"><div class="lcard-ico">📅</div><h3>SACAR TURNO</h3><p>Elegí servicio, día y horario</p></div>
+        <div class="lcard" onclick="renderMyAppts()"><div class="lcard-ico">🔧</div><h3>MIS TURNOS</h3><p>Ver historial y próximos</p></div>
+      </div>
+      <a class="maps-link" href="https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8" target="_blank" style="margin-top:1.7rem">📍 Ver ubicación en Google Maps</a>
+    </div>`;
+}
+
+function renderMyAppts(msg) {
+  const myA=APPTS.filter(a=>a.clientId===ME.id).sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById("clientArea").innerHTML=`
+    ${msg?`<div class="alert ag">✅ ${msg}</div>`:""}
+    <div class="sh"><div class="st">MIS TURNOS</div><button class="btn btn-p" onclick="renderBooking()">+ Nuevo Turno</button></div>
+    ${myA.length===0?'<div class="empty"><div style="font-size:2rem;margin-bottom:.5rem">📋</div><p>No tenés turnos aún.</p></div>':
+      myA.map(a=>`<div class="appt-card">
+        <div>
+          <div style="font-weight:600;margin-bottom:.14rem">${a.serviceName}</div>
+          <div style="color:var(--muted);font-size:.8rem">📅 ${fmtD(a.date)} a las ${a.time} · 🚗 ${a.vehicleDesc}</div>
+          ${a.km?`<div style="color:var(--muted);font-size:.74rem">KM: ${a.km}</div>`:""}
+        </div>${bdg(a.status)}
+      </div>`).join("")}
+    <button class="btn btn-g" style="margin-top:1.1rem" onclick="renderClientHome()">← Volver</button>`;
+}
+
+// ── BOOKING ────────────────────────────────────────────────
+function renderBooking() {
+  BK={step:1,service:null,date:todayISO,time:"",km:""};
+  drawBooking();
+}
+function drawBooking() {
+  const taken=APPTS.filter(a=>a.date===BK.date).map(a=>a.time);
+  document.getElementById("clientArea").innerHTML=`
+    <div style="max-width:520px">
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.2rem">
+        <button class="back-btn" onclick="renderClientHome()">← Volver</button>
+        <h2 style="font-family:'Bebas Neue';font-size:1.6rem;letter-spacing:1px">SACAR TURNO</h2>
+      </div>
+
+      <div class="card" style="margin-bottom:.85rem">
+        <div class="stitle"><span class="sn">1</span> Elegí el servicio</div>
+        <div class="sg">${SERVICES.map(s=>`
+          <div class="sc${BK.service===s.id?" sel":""}" onclick="bkService('${s.id}')">
+            <div class="sc-name">${s.n}</div><div class="sc-price">${s.price}</div><div class="sc-dur">${s.dur}</div>
+          </div>`).join("")}</div>
+      </div>
+
+      ${BK.step>=2?`<div class="card" style="margin-bottom:.85rem">
+        <div class="stitle"><span class="sn">2</span> Elegí el día y horario</div>
+        <div class="fg"><label class="fl">Fecha</label>
+          <input type="date" class="fi" value="${BK.date}" min="${todayISO}" onchange="bkDate(this.value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Horario disponible</label>
+          <div style="color:var(--muted);font-size:.74rem;margin-bottom:.38rem">🕐 8:00–13:00 &nbsp;|&nbsp; 15:30–19:00</div>
+          <div class="tg">${HOURS.map(h=>{
+            const t=taken.includes(h);
+            return `<button class="tb${BK.time===h?" sel":""}${t?" taken":""}" ${t?"disabled":""} onclick="bkTime('${h}')">${h}</button>`;
+          }).join("")}</div>
+        </div>
+      </div>`:""}
+
+      ${BK.step>=3?`<div class="card" style="margin-bottom:.85rem">
+        <div class="stitle"><span class="sn">3</span> Tu vehículo</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.55rem .8rem;font-size:.86rem;margin-bottom:.8rem">
+          🚗 <strong>${ME.brand} ${ME.model} ${ME.year}</strong> — ${ME.patent}
+        </div>
+        <div class="fg"><label class="fl">Kilómetros actuales (opcional)</label>
+          <input class="fi" id="bkKm" value="${BK.km}" oninput="BK.km=this.value" placeholder="Ej: 85000"/>
+        </div>
+      </div>`:""}
+
+      ${BK.step>=3&&BK.service&&BK.time?`<div class="sum-box">
+        <div style="font-family:'Bebas Neue';font-size:1.05rem;letter-spacing:1px;margin-bottom:.7rem;color:var(--orange)">RESUMEN</div>
+        <div style="display:grid;gap:.34rem;font-size:.86rem">
+          <div>🔧 <strong>${SERVICES.find(s=>s.id===BK.service)?.n}</strong></div>
+          <div>📅 <strong>${fmtD(BK.date)}</strong> a las <strong>${BK.time}</strong></div>
+          <div>🚗 <strong>${ME.brand} ${ME.model} ${ME.year}</strong> — ${ME.patent}</div>
+          ${BK.km?`<div>📏 ${BK.km} km</div>`:""}
+        </div>
+        <button class="btn btn-p btn-full" style="margin-top:.85rem" onclick="confirmBk()">✅ Confirmar Turno</button>
+      </div>`:""}
+    </div>`;
+}
+
+function bkService(id){BK.service=id;if(BK.step<2)BK.step=2;drawBooking();}
+function bkDate(d){BK.date=d;BK.time="";drawBooking();}
+function bkTime(h){BK.time=h;if(BK.step<3)BK.step=3;drawBooking();}
+
+async function confirmBk() {
+  const sv=SERVICES.find(s=>s.id===BK.service);
+  APPTS.push({id:uid(),clientId:ME.id,patent:ME.patent,vehicleDesc:`${ME.brand} ${ME.model} ${ME.year}`,date:BK.date,time:BK.time,service:BK.service,serviceName:sv.n,status:"pendiente",km:BK.km,notes:""});
+  await fsPut("appointments",APPTS);
+  renderMyAppts("¡Turno reservado con éxito!");
+}
+</script>
+</body>
+</html>
