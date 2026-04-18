@@ -156,6 +156,35 @@ select.fi option{background:var(--bg2);}
 .search-bar::before{content:'🔍';position:absolute;left:.6rem;top:50%;
   transform:translateY(-50%);font-size:.82rem;pointer-events:none;}
 
+/* ══ CLIENT AUTOCOMPLETE ══════════════════════════════
+   Used in the Admin "New Appointment" modal
+══════════════════════════════════════════════════════ */
+.autocomplete-wrap{position:relative;}
+.autocomplete-wrap .fi{padding-right:2rem;}
+.autocomplete-clear{position:absolute;right:.6rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;
+  line-height:1;padding:0;display:none;}
+.autocomplete-clear.visible{display:block;}
+.autocomplete-list{position:absolute;top:calc(100% + .3rem);left:0;right:0;
+  background:var(--bg2);border:1px solid var(--orange);border-radius:10px;
+  z-index:500;max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);}
+.autocomplete-item{padding:.65rem .9rem;cursor:pointer;transition:background .12s;
+  border-bottom:1px solid var(--border);font-size:.85rem;}
+.autocomplete-item:last-child{border-bottom:none;}
+.autocomplete-item:hover,.autocomplete-item.ac-focused{background:rgba(249,115,22,.1);}
+.autocomplete-item-name{font-weight:700;color:var(--text);}
+.autocomplete-item-sub{color:var(--muted);font-size:.75rem;margin-top:.1rem;}
+.autocomplete-empty{padding:.65rem .9rem;color:var(--muted);font-size:.82rem;text-align:center;}
+
+/* ══ CLIENT PREVIEW CARD (inside modal) ══════════════ */
+.client-preview{background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.3);
+  border-radius:10px;padding:.75rem 1rem;margin-bottom:.8rem;font-size:.86rem;line-height:1.6;
+  display:none;}
+.client-preview.visible{display:block;}
+.client-preview-title{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:1px;
+  color:var(--orange);margin-bottom:.28rem;}
+
 /* ══ MODAL ═══════════════════════════════════════════ */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;
   align-items:center;justify-content:center;padding:1rem;-webkit-overflow-scrolling:touch;}
@@ -185,17 +214,56 @@ select.fi option{background:var(--bg2);}
 .tb.taken{opacity:.22;cursor:not-allowed;pointer-events:none;text-decoration:line-through;}
 
 /* ══ CHECKLIST ═══════════════════════════════════════ */
-.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(142px,1fr));
-  gap:.4rem;margin-top:.28rem;}
-.cl-btn{display:flex;align-items:center;gap:.36rem;border-radius:8px;padding:.44rem .68rem;
-  cursor:pointer;transition:all .15s;font-size:.78rem;font-weight:500;
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));
+  gap:.42rem;margin-top:.28rem;}
+.cl-btn{display:flex;align-items:center;gap:.38rem;border-radius:8px;padding:.48rem .72rem;
+  cursor:pointer;transition:all .15s;font-size:.82rem;font-weight:500;
   text-align:left;touch-action:manipulation;width:100%;border:1.5px solid;}
 .cl-neutral{background:var(--bg3);border-color:var(--border);color:var(--muted);}
 .cl-done   {background:rgba(34,197,94,.11);border-color:var(--success);color:var(--success);}
 .cl-skip   {background:rgba(239,68,68,.09);border-color:var(--danger);color:var(--danger);}
-.cl-ico{font-size:.88rem;flex-shrink:0;width:13px;text-align:center;}
+.cl-ico{font-size:.92rem;flex-shrink:0;width:14px;text-align:center;}
+
+/* ══ LIBRETITO — REDESIGNED for readability (Fix 1) ══ */
+.libretito-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;
+  padding:1.2rem 1.2rem 1rem;margin-bottom:1rem;overflow:hidden;}
+.libretito-header{display:flex;align-items:flex-start;justify-content:space-between;
+  flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem;padding-bottom:.8rem;
+  border-bottom:1px solid var(--border);}
+.libretito-service{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;
+  color:var(--text);line-height:1.15;}
+.libretito-date{color:var(--muted);font-size:.82rem;margin-top:.18rem;}
+
+/* Key data pills — big and readable */
+.libretito-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem;}
+.libretito-pill{display:inline-flex;flex-direction:column;background:var(--bg2);
+  border:1px solid var(--border);border-radius:10px;padding:.5rem .8rem;min-width:110px;flex:1;}
+.libretito-pill-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:.18rem;}
+.libretito-pill-value{font-size:1.05rem;font-weight:700;color:var(--text);line-height:1.2;}
+.libretito-pill.pill-km    .libretito-pill-value{color:var(--orange);}
+.libretito-pill.pill-oil   .libretito-pill-value{color:#60a5fa;}
+.libretito-pill.pill-next  .libretito-pill-value{color:var(--success);font-size:.95rem;}
+
+/* Checklist inside libretito */
+.libretito-cl-title{font-size:.72rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:.5rem;font-weight:600;}
+.libretito-cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.36rem;margin-bottom:.8rem;}
+.libretito-cl-item{display:flex;align-items:center;gap:.38rem;font-size:.84rem;
+  font-weight:600;padding:.36rem .58rem;border-radius:7px;}
+.libretito-cl-done{background:rgba(34,197,94,.1);color:var(--success);}
+.libretito-cl-skip{background:rgba(239,68,68,.08);color:var(--danger);}
+.libretito-cl-ico{font-size:.9rem;flex-shrink:0;}
+
+/* Observations box — bigger text */
+.libretito-obs{background:var(--bg2);border:1px solid var(--border);border-radius:9px;
+  padding:.75rem .9rem;font-size:.9rem;color:var(--text);line-height:1.65;margin-top:.1rem;}
+.libretito-obs-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:.32rem;font-weight:600;}
+
+/* Admin view client modal uses same libretito cards */
 .hist-checklist{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.38rem;}
-.hist-cl-item{font-size:.68rem;padding:.12rem .42rem;border-radius:12px;font-weight:600;}
+.hist-cl-item{font-size:.7rem;padding:.14rem .44rem;border-radius:12px;font-weight:600;}
 .hist-cl-done{background:rgba(34,197,94,.12);color:var(--success);}
 .hist-cl-skip{background:rgba(239,68,68,.1);color:var(--danger);}
 
@@ -216,7 +284,6 @@ select.fi option{background:var(--bg2);}
 .ri{display:flex;align-items:flex-start;justify-content:space-between;padding:.82rem .92rem;
   background:var(--bg3);border:1px solid rgba(249,115,22,.2);border-radius:10px;
   margin-bottom:.6rem;flex-wrap:wrap;gap:.6rem;}
-.ri-notified{border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.03);}
 .empty{text-align:center;padding:2rem 1rem;color:var(--muted);}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
   padding:1.72rem;width:100%;max-width:318px;}
@@ -225,10 +292,6 @@ select.fi option{background:var(--bg2);}
 .appt-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
   padding:.88rem;display:flex;justify-content:space-between;align-items:center;
   flex-wrap:wrap;gap:.52rem;margin-bottom:.52rem;}
-.hist-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;
-  padding:.92rem;margin-bottom:.66rem;}
-.hist-obs{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
-  padding:.5rem .75rem;font-size:.77rem;color:var(--muted);margin-top:.36rem;line-height:1.5;}
 .next-svc{background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(249,115,22,.04));
   border:1px solid rgba(249,115,22,.35);border-radius:14px;padding:1rem 1.1rem;
   margin-bottom:1.3rem;}
@@ -244,8 +307,18 @@ select.fi option{background:var(--bg2);}
 .pit-camion{background:rgba(168,85,247,.15);color:#c084fc;}
 .closed-msg{text-align:center;padding:1.4rem;color:var(--danger);font-size:.88rem;
   background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:10px;}
-
-/* ══ SUCCESS BANNER ══════════════════════════════════ */
+.rem-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:.92rem;margin-bottom:.65rem;}
+.rem-card.notified{border-color:rgba(34,197,94,.3);opacity:.55;}
+.rem-card-head{display:flex;align-items:flex-start;justify-content:space-between;
+  flex-wrap:wrap;gap:.5rem;margin-bottom:.42rem;}
+.rem-card-info h4{font-size:.9rem;font-weight:700;margin-bottom:.14rem;}
+.rem-card-info p{font-size:.74rem;color:var(--muted);line-height:1.4;}
+.rem-card-actions{display:flex;gap:.38rem;flex-wrap:wrap;flex-shrink:0;}
+.rem-reason{display:inline-flex;align-items:center;gap:.28rem;font-size:.7rem;
+  padding:.12rem .4rem;border-radius:6px;font-weight:600;}
+.rem-reason-time{background:rgba(234,179,8,.15);color:var(--warn);}
+.rem-reason-km  {background:rgba(249,115,22,.15);color:var(--orange);}
 .success-banner{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.38);
   border-radius:14px;padding:1.28rem;margin-bottom:.88rem;text-align:center;}
 .sb-icon{font-size:2.2rem;margin-bottom:.36rem;}
@@ -257,20 +330,6 @@ select.fi option{background:var(--bg2);}
   gap:.46rem;transition:all .15s;touch-action:manipulation;width:100%;justify-content:center;}
 .btn-wa-big:active{background:var(--wa2);}
 .btn-wa-big-hint{color:var(--muted);font-size:.7rem;margin-top:.42rem;}
-
-/* ══ REMINDER CARD ═══════════════════════════════════ */
-.rem-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;
-  padding:.92rem;margin-bottom:.65rem;transition:opacity .3s;}
-.rem-card.notified{border-color:rgba(34,197,94,.3);opacity:.55;}
-.rem-card-head{display:flex;align-items:flex-start;justify-content:space-between;
-  flex-wrap:wrap;gap:.5rem;margin-bottom:.42rem;}
-.rem-card-info h4{font-size:.9rem;font-weight:700;margin-bottom:.14rem;}
-.rem-card-info p{font-size:.74rem;color:var(--muted);line-height:1.4;}
-.rem-card-actions{display:flex;gap:.38rem;flex-wrap:wrap;flex-shrink:0;}
-.rem-reason{display:inline-flex;align-items:center;gap:.28rem;font-size:.7rem;
-  padding:.12rem .4rem;border-radius:6px;font-weight:600;}
-.rem-reason-time{background:rgba(234,179,8,.15);color:var(--warn);}
-.rem-reason-km  {background:rgba(249,115,22,.15);color:var(--orange);}
 
 /* ══ LOADER ══════════════════════════════════════════ */
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -285,18 +344,13 @@ select.fi option{background:var(--bg2);}
 </head>
 <body>
 
-<!-- TOAST CONTAINER -->
 <div id="toastBox"></div>
-
-<!-- LOADER -->
 <div class="loader-full" id="appLoader">
   <div class="big-spin"></div>
   <div style="color:var(--muted);font-size:.86rem">Conectando con Firebase...</div>
 </div>
 
-<!-- ═══════════════════════════════════
-     LANDING
-═══════════════════════════════════ -->
+<!-- ═══════════ LANDING ═══════════ -->
 <div class="page" id="pgLanding">
   <div class="logo">LUBRICENTRO <span>ESQUIÚ</span></div>
   <div class="land-sub">Turnos Online · Córdoba</div>
@@ -314,9 +368,7 @@ select.fi option{background:var(--bg2);}
     onclick="window.open('https://wa.me/5493513880155','_blank')">💬 Consultas por WhatsApp</button>
 </div>
 
-<!-- ═══════════════════════════════════
-     ADMIN LOGIN  — Fix 3: clean on load, allow autocomplete on click
-═══════════════════════════════════ -->
+<!-- ═══════════ ADMIN LOGIN ═══════════ -->
 <div class="page" id="pgAdminLogin"
   style="align-items:center;justify-content:center;padding:2rem;">
   <div class="logo" style="font-size:1.85rem;margin-bottom:1.4rem;">
@@ -325,12 +377,7 @@ select.fi option{background:var(--bg2);}
     <div style="font-family:'Bebas Neue';font-size:1.32rem;letter-spacing:1px;margin-bottom:1.05rem;">
       ACCESO ADMINISTRADOR</div>
     <div id="loginErr" class="alert ar" style="display:none"></div>
-    <!--
-      FIX 3: Chrome pre-fill fix.
-      - Two invisible trap fields fool Chrome's credential manager.
-      - Real fields use autocomplete="off" with unique random names.
-      - On DOMContentLoaded we force both to empty (covers Samsung Browser too).
-    -->
+    <!-- FIX 3: Honey-pot trap fields defeat Chrome autocomplete -->
     <input type="text"     style="opacity:0;position:absolute;height:0;width:0;z-index:-1" tabindex="-1"/>
     <input type="password" style="opacity:0;position:absolute;height:0;width:0;z-index:-1" tabindex="-1"/>
     <div class="fg"><label class="fl">Usuario</label>
@@ -346,9 +393,7 @@ select.fi option{background:var(--bg2);}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     ADMIN APP
-═══════════════════════════════════ -->
+<!-- ═══════════ ADMIN APP ═══════════ -->
 <div class="page" id="pgAdmin">
   <div class="topbar">
     <div class="tbrand">LUBRICENTRO <span>ESQUIÚ</span>
@@ -375,9 +420,7 @@ select.fi option{background:var(--bg2);}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
-     CLIENT APP
-═══════════════════════════════════ -->
+<!-- ═══════════ CLIENT APP ═══════════ -->
 <div class="page" id="pgClient">
   <div class="topbar">
     <div class="tbrand">LUBRICENTRO <span>ESQUIÚ</span></div>
@@ -389,17 +432,35 @@ select.fi option{background:var(--bg2);}
   <div class="content" id="clientArea"></div>
 </div>
 
-<!-- ═══════════════════════════════════
-     MODALS
-═══════════════════════════════════ -->
+<!-- ═══════════ MODALS ═══════════ -->
 
-<!-- New / Edit Appt (Admin) -->
+<!-- ── New / Edit Appointment (Admin) — FIX 2: autocomplete search ── -->
 <div class="overlay" id="mAppt">
   <div class="modal">
     <div class="mtitle" id="mApptTitle">NUEVO TURNO</div>
     <input type="hidden" id="mApptId"/>
-    <div class="fg"><label class="fl">Cliente</label>
-      <select class="fi" id="mAClient" onchange="syncApptSvcs()"></select></div>
+    <input type="hidden" id="mApptClientId"/>
+
+    <!-- Client autocomplete search -->
+    <div class="fg">
+      <label class="fl">Buscar cliente</label>
+      <div class="autocomplete-wrap">
+        <input class="fi" id="mAClientSearch"
+          placeholder="Nombre o patente…"
+          autocomplete="off"
+          oninput="acSearch(this.value)"
+          onkeydown="acKeyNav(event)"/>
+        <button class="autocomplete-clear" id="mAClientClear" onclick="acClear()">×</button>
+        <div class="autocomplete-list" id="mAClientList" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Client preview once selected -->
+    <div class="client-preview" id="mAClientPreview">
+      <div class="client-preview-title">CLIENTE SELECCIONADO</div>
+      <div id="mAClientPreviewBody"></div>
+    </div>
+
     <div class="fg"><label class="fl">Servicio</label>
       <select class="fi" id="mAService" onchange="buildAdminTimes()"></select></div>
     <div class="fr">
@@ -460,7 +521,7 @@ select.fi option{background:var(--bg2);}
   </div>
 </div>
 
-<!-- View Client (full libretito) -->
+<!-- View Client -->
 <div class="overlay" id="mViewClient">
   <div class="modal">
     <div class="mtitle" id="mVCName"></div>
@@ -538,9 +599,9 @@ select.fi option{background:var(--bg2);}
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
+<!-- ═══════════════════════════════════════
      JAVASCRIPT
-═══════════════════════════════════ -->
+═══════════════════════════════════════ -->
 <script>
 /* ══ FIREBASE ══════════════════════════════════════ */
 firebase.initializeApp({
@@ -575,17 +636,9 @@ const PHONE_LUBRI = "5493513880155";
 const APP_URL     = "https://gonzitassi.github.io/lubricentroesquiu/";
 const ADMINS      = [{u:"roger tassi",p:"pirata1968"}];
 const BRANDS_LIST = ["Fiat","Renault","Volkswagen","Chevrolet","Toyota","Ford","Peugeot","Honda","Otro"];
-
-/* Fix 2: Service intervals by vehicle type */
-const SVC_INTERVAL = {
-  auto:  {months:6, km:10000},
-  camion:{months:3, km:25000}
-};
-
-/* Hours — Lun-Vie: no 13:00, no 19:00 | Sab: morning only | Dom: closed */
+const SVC_INTERVAL = { auto:{months:6,km:10000}, camion:{months:3,km:25000} };
 const HRS_MORNING   = ["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30"];
 const HRS_AFTERNOON = ["15:30","16:00","16:30","17:00","17:30","18:00","18:30"];
-
 const CHECKLIST = [
   {id:"aceite_motor",       label:"Aceite Motor"},
   {id:"filtro_aceite",      label:"Filtro Aceite"},
@@ -599,7 +652,6 @@ const CHECKLIST = [
   {id:"aceite_caja",        label:"Aceite Caja"},
   {id:"aceite_diferencial", label:"Aceite Diferencial"},
 ];
-
 const DEFAULT_SVC = [
   {id:"s1",name:"Cambio de Aceite",       price:"$8.500", duration:30, type:"auto"},
   {id:"s2",name:"Cambio de Filtro",        price:"$3.200", duration:30, type:"auto"},
@@ -611,17 +663,16 @@ const DEFAULT_SVC = [
   {id:"s8",name:"Aceite + Filtros Camión", price:"$25.000",duration:120,type:"camion"},
   {id:"s9",name:"Revisión Camión",         price:"$12.000",duration:120,type:"camion"},
 ];
-
 const todayISO = new Date().toISOString().split("T")[0];
 
 /* ══ STATE ══════════════════════════════════════════ */
 let CLIENTS=[], APPTS=[], SERVICES=[], NOTIFIED={};
 let ME=null, BK={};
 let clItems={};
-let _activeCompleteApptType="auto"; // track vtype for interval calc
+let _acFocusIdx = -1; // autocomplete keyboard nav index
 
 /* ══ TOAST ══════════════════════════════════════════ */
-function toast(msg, type="success", ms=3400){
+function toast(msg,type="success",ms=3400){
   const box=document.getElementById("toastBox");
   const el=document.createElement("div");
   el.className=`toast toast-${type}`;
@@ -637,7 +688,6 @@ const fmtD   = s=>{ if(!s)return""; const[y,m,d]=s.split("-"); return`${d}/${m}/
 const uid    = ()=>Math.random().toString(36).substr(2,9);
 const esc    = s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/'/g,"&#39;");
 const fmtNum = n=>parseInt(n||0).toLocaleString("es-AR");
-
 function cleanWA(num){
   let c=(num||"").replace(/\D/g,"");
   if(c.startsWith("549")) return c;
@@ -645,7 +695,6 @@ function cleanWA(num){
   return "549"+c;
 }
 function validateWA(num){ const c=(num||"").replace(/\D/g,""); return c.length>=8&&c.length<=15; }
-
 function bdg(s){
   const m={pendiente:["b-yellow","⏳ Pendiente"],confirmado:["b-orange","✅ Confirmado"],
            completado:["b-green","🔧 Completado"],cancelado:["b-red","❌ Cancelado"]};
@@ -667,35 +716,32 @@ function getMotor(appt){
   return CLIENTS.find(c=>c.id===appt.clientId)?.motor||"—";
 }
 
-/* ══ FIX 2: Dynamic next-service calc ══════════════ */
-function calcNextService(km, dateStr, vtype){
+/* ══ SERVICE INTERVALS ══════════════════════════════ */
+function calcNextService(km,dateStr,vtype){
   const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
   const nextKm=(parseInt(km)||0)+iv.km;
   const dt=new Date((dateStr||todayISO)+"T12:00:00");
   dt.setMonth(dt.getMonth()+iv.months);
-  const nextDate=dt.toISOString().split("T")[0];
-  return {nextKm, nextDate, iv};
+  return{nextKm, nextDate:dt.toISOString().split("T")[0], iv};
 }
 function calcNextKm(val){
   const apptId=document.getElementById("mCompId")?.value;
   const appt=APPTS.find(a=>a.id===apptId);
   const vtype=appt?CLIENTS.find(c=>c.id===appt.clientId)?.vehicleType||"auto":"auto";
-  _activeCompleteApptType=vtype;
   const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
   const n=parseInt(val);
   const kmEl=document.getElementById("mCompNextKm");
   const dtEl=document.getElementById("mCompNextDate");
-  const dtWrap=document.getElementById("mCompNextDateWrap");
+  const wrap=document.getElementById("mCompNextDateWrap");
   if(!isNaN(n)){
     if(kmEl) kmEl.value=n+iv.km;
-    // Next date
     const nd=new Date(todayISO+"T12:00:00"); nd.setMonth(nd.getMonth()+iv.months);
-    if(dtEl){ dtEl.value=fmtD(nd.toISOString().split("T")[0]); }
-    if(dtWrap) dtWrap.style.display="block";
+    if(dtEl) dtEl.value=fmtD(nd.toISOString().split("T")[0]);
+    if(wrap)  wrap.style.display="block";
   } else {
     if(kmEl) kmEl.value="";
     if(dtEl) dtEl.value="";
-    if(dtWrap) dtWrap.style.display="none";
+    if(wrap)  wrap.style.display="none";
   }
 }
 
@@ -708,17 +754,17 @@ function getHoursForDate(dateStr){
 }
 function isDayClosed(dateStr){ return new Date(dateStr+"T12:00:00").getDay()===0; }
 
-/* ══ FIX 5: Independent pit (fosa) availability ════ */
+/* ══ SLOT / PIT LOGIC ═══════════════════════════════ */
 function getPit(svcId){
-  return (SERVICES.find(s=>s.id===svcId)?.type||"auto")==="camion"?"camion":"auto";
+  return(SERVICES.find(s=>s.id===svcId)?.type||"auto")==="camion"?"camion":"auto";
 }
-function getTaken(date, pit, excludeId=null){
+function getTaken(date,pit,excludeId=null){
   const s=new Set();
   APPTS.filter(a=>a.date===date&&a.id!==excludeId&&(a.pit||"auto")===pit)
        .forEach(a=>(a.blockedSlots||[a.time]).forEach(t=>s.add(t)));
   return s;
 }
-function getSlots(startTime, durMins, dateStr){
+function getSlots(startTime,durMins,dateStr){
   const n=Math.max(1,Math.ceil((durMins||30)/30));
   const dayH=getHoursForDate(dateStr);
   const idx=dayH.indexOf(startTime);
@@ -734,7 +780,7 @@ function getSlots(startTime, durMins, dateStr){
   }
   return slots;
 }
-function isAvail(time, durMins, takenSet, dateStr){
+function isAvail(time,durMins,takenSet,dateStr){
   const slots=getSlots(time,durMins,dateStr);
   return slots!==null&&!slots.some(s=>takenSet.has(s));
 }
@@ -745,10 +791,9 @@ function go(pgId){
   document.getElementById(pgId).classList.add("active");
   if(pgId==="pgAdmin")  renderAdmin();
   if(pgId==="pgClient") renderIdentify();
-  // Fix 3: force login fields empty every time the page is shown
   if(pgId==="pgAdminLogin"){
     setTimeout(()=>{
-      const u=document.getElementById("loginU"), p=document.getElementById("loginP");
+      const u=document.getElementById("loginU"),p=document.getElementById("loginP");
       if(u) u.value=""; if(p) p.value="";
     },80);
   }
@@ -759,18 +804,14 @@ function tryLogin(){
   const u=document.getElementById("loginU").value.trim();
   const p=document.getElementById("loginP").value;
   const e=document.getElementById("loginErr");
-  if(ADMINS.find(a=>a.u===u&&a.p===p)){
-    e.style.display="none"; go("pgAdmin");
-  } else {
-    e.textContent="⚠️ Usuario o contraseña incorrectos.";
-    e.style.display="block";
-  }
+  if(ADMINS.find(a=>a.u===u&&a.p===p)){e.style.display="none";go("pgAdmin");}
+  else{e.textContent="⚠️ Usuario o contraseña incorrectos.";e.style.display="block";}
 }
 
 /* ══ ADMIN TABS ════════════════════════════════════ */
 function renderAdmin(){
   document.querySelectorAll("#adminTabs .tab").forEach((t,i)=>{
-    t.classList.remove("active"); if(i===0) t.classList.add("active");
+    t.classList.remove("active");if(i===0) t.classList.add("active");
   });
   ["tTurnos","tClientes","tRecord","tConfig"].forEach(id=>
     document.getElementById(id).style.display="none");
@@ -799,9 +840,9 @@ function drawTab(id){
   if(id==="tConfig")  drawConfig();
 }
 
-/* ── DASHBOARD ─────────────────────────────────── */
+/* ── DASHBOARD ───────────────────────────────────── */
 function drawDash(){
-  const todayA =APPTS.filter(a=>a.date===todayISO);
+  const todayA=APPTS.filter(a=>a.date===todayISO);
   const pending=APPTS.filter(a=>a.status==="pendiente");
   const remCount=calcAllReminders().filter(r=>!r.notified).length;
   document.getElementById("tDash").innerHTML=`
@@ -834,7 +875,7 @@ function drawDash(){
     </div>`;
 }
 
-/* ── TURNOS ────────────────────────────────────── */
+/* ── TURNOS ──────────────────────────────────────── */
 function drawTurnos(){
   const sorted=[...APPTS].sort((a,b)=>b.date.localeCompare(a.date)||a.time.localeCompare(b.time));
   document.getElementById("tTurnos").innerHTML=`
@@ -869,7 +910,7 @@ function drawTurnos(){
     </div>`;
 }
 
-/* ── CLIENTES ──────────────────────────────────── */
+/* ── CLIENTES ────────────────────────────────────── */
 function drawClientes(){
   document.getElementById("tClientes").innerHTML=`
     <div class="sh">
@@ -901,99 +942,67 @@ function drawClientes(){
     </div>`;
 }
 
-/* ══════════════════════════════════════════════════
-   FIX 1: RECORDATORIOS MODULE with "Ya avisado"
-══════════════════════════════════════════════════ */
-
-// Compute ALL reminder candidates, enriched with notified status & reason
+/* ── RECORDATORIOS ───────────────────────────────── */
 function calcAllReminders(){
-  // For each client, find their latest completed oil service
   const result=[];
   for(const cl of CLIENTS){
     const vtype=cl.vehicleType||"auto";
     const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
     const oilAppts=APPTS
       .filter(a=>a.clientId===cl.id&&a.status==="completado"&&a.km)
-      .filter(a=>{
-        const n=(a.serviceName||"").toLowerCase();
-        return n.includes("aceite")||n.includes("oil")||n.includes("service");
-      })
+      .filter(a=>{const n=(a.serviceName||"").toLowerCase();return n.includes("aceite")||n.includes("oil")||n.includes("service");})
       .sort((a,b)=>b.date.localeCompare(a.date));
-    if(oilAppts.length===0) continue;
+    if(!oilAppts.length) continue;
     const last=oilAppts[0];
     const lastDate=new Date(last.date+"T12:00:00");
     const lastKm=parseInt(last.km)||0;
-    // Thresholds
     const limitDate=new Date(lastDate); limitDate.setMonth(limitDate.getMonth()+iv.months);
     const limitKm=lastKm+iv.km;
     const now=new Date();
     const overdueByTime=now>=limitDate;
-    // Current km unknown from client side, but if nextKm saved on appt, check against it
-    // We flag overdue-by-time always; km overdue if client has a recent appt with km > limitKm
-    const latestKmAppt=APPTS.filter(a=>a.clientId===cl.id&&a.km)
-      .sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const latestKmAppt=APPTS.filter(a=>a.clientId===cl.id&&a.km).sort((a,b)=>b.date.localeCompare(a.date))[0];
     const currentKm=latestKmAppt?parseInt(latestKmAppt.km)||0:0;
     const overdueByKm=currentKm>0&&currentKm>=limitKm;
     if(!overdueByTime&&!overdueByKm) continue;
-
-    // Check notified state — must re-check if a new cycle started
     const notifKey=`${cl.id}_${last.date}`;
-    const notifData=NOTIFIED[notifKey]||null;
-    const notified=!!notifData;
-
-    result.push({
-      cl, last, limitDate, limitKm, currentKm,
-      overdueByTime, overdueByKm, notified, notifKey,
-      vtype, iv
-    });
+    const notified=!!(NOTIFIED[notifKey]);
+    result.push({cl,last,limitDate,limitKm,currentKm,overdueByTime,overdueByKm,notified,notifKey,vtype,iv});
   }
   return result;
 }
-
 function drawRecord(){
   const all=calcAllReminders();
   const pending=all.filter(r=>!r.notified);
   const done   =all.filter(r=>r.notified);
-  const total=all.length;
-
   document.getElementById("tRecord").innerHTML=`
     <div class="sh">
       <div class="st">RECORDATORIOS DE ACEITE</div>
-      <span style="color:var(--muted);font-size:.8rem">${pending.length} pendiente${pending.length!==1?"s":""} · ${done.length} avisado${done.length!==1?"s":""}</span>
+      <span style="color:var(--muted);font-size:.8rem">
+        ${pending.length} pendiente${pending.length!==1?"s":""} · ${done.length} avisado${done.length!==1?"s":""}</span>
     </div>
-
-    ${total===0?'<div class="alert ag">✅ Ningún cliente necesita recordatorio por ahora.</div>':""}
-
+    ${all.length===0?'<div class="alert ag">✅ Ningún cliente necesita recordatorio.</div>':""}
     ${pending.length>0?`
       <div class="alert ao">⚠️ ${pending.length} cliente${pending.length!==1?"s":""} pendiente${pending.length!==1?"s":""} de aviso.</div>
-      ${pending.map(r=>remCard(r)).join("")}
-    `:""}
-
+      ${pending.map(r=>remCard(r)).join("")}`:""}
     ${done.length>0?`
       <div style="margin-top:1.2rem">
         <div style="font-family:'Bebas Neue';font-size:1rem;letter-spacing:1px;
           color:var(--muted);margin-bottom:.7rem">YA AVISADOS</div>
         ${done.map(r=>remCard(r)).join("")}
-      </div>
-    `:""}`;
+      </div>`:""}`;
 }
-
 function remCard(r){
   const cl=r.cl;
   const reasons=[];
   if(r.overdueByTime) reasons.push(`<span class="rem-reason rem-reason-time">📅 Tiempo</span>`);
   if(r.overdueByKm)  reasons.push(`<span class="rem-reason rem-reason-km">📏 KM</span>`);
-  const notifiedClass=r.notified?" rem-card-notified":"";
-  return`<div class="rem-card${notifiedClass}" id="remcard_${esc(r.notifKey.replace(/[^a-z0-9]/gi,'_'))}">
+  return`<div class="rem-card${r.notified?" notified":""}">
     <div class="rem-card-head">
       <div class="rem-card-info">
         <h4>${cl.vehicleType==="camion"?"🚛":"🚗"} ${esc(cl.name)}</h4>
-        <p>
-          Patente: <strong>${cl.patent}</strong> · ${esc(cl.brand)} ${esc(cl.model)} ${cl.year}<br/>
+        <p>Patente: <strong>${cl.patent}</strong> · ${esc(cl.brand)} ${esc(cl.model)} ${cl.year}<br/>
           Último aceite: ${fmtD(r.last.date)} · ${fmtNum(parseInt(r.last.km)||0)} km<br/>
-          ${reasons.join(" ")} ·
-          Vence: ${fmtD(r.limitDate.toISOString().split("T")[0])} / ${fmtNum(r.limitKm)} km
-        </p>
+          ${reasons.join(" ")} · Vence: ${fmtD(r.limitDate.toISOString().split("T")[0])} / ${fmtNum(r.limitKm)} km</p>
       </div>
       <div class="rem-card-actions">
         ${!r.notified?`
@@ -1004,26 +1013,23 @@ function remCard(r){
     </div>
   </div>`;
 }
-
 async function markNotified(key){
-  NOTIFIED[key]={ ts: Date.now() };
-  await fsPut("notified", NOTIFIED);
+  NOTIFIED[key]={ts:Date.now()};
+  await fsPut("notified",NOTIFIED);
   toast("Marcado como avisado ✔","success");
   drawRecord();
 }
-
-function sendReminder(cid, lastDate, patent, notifKey){
+function sendReminder(cid,lastDate,patent,notifKey){
   const cl=CLIENTS.find(c=>c.id===cid); if(!cl) return;
-  const vtype=cl.vehicleType||"auto";
-  const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
+  const iv=SVC_INTERVAL[cl.vehicleType||"auto"]||SVC_INTERVAL.auto;
   const msg=`Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu `+
-    `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o superó los `+
-    `*${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n`+
-    `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno online: ${APP_URL}`;
+    `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o `+
+    `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n`+
+    `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
   window.open(`https://wa.me/${cleanWA(cl.whatsapp)}?text=${encodeURIComponent(msg)}`,"_blank");
 }
 
-/* ── CONFIG ────────────────────────────────────── */
+/* ── CONFIG ──────────────────────────────────────── */
 function drawConfig(){
   const autos   =SERVICES.filter(s=>(s.type||"auto")==="auto");
   const camiones=SERVICES.filter(s=>s.type==="camion");
@@ -1051,15 +1057,116 @@ function drawConfig(){
     <div class="card"><div class="card-title">🚛 FOSA CAMIONES</div>${tbl(camiones)}</div>`;
 }
 
-/* ── FILTER TABLE ─────────────────────────────── */
-function filterTbl(inputId, tbodyId){
+/* ── FILTER TABLE ────────────────────────────────── */
+function filterTbl(inputId,tbodyId){
   const q=document.getElementById(inputId)?.value.toLowerCase()||"";
   document.querySelectorAll(`#${tbodyId} tr`).forEach(r=>{
     r.classList.toggle("hidden-row",q!==""&&!(r.dataset.search||r.textContent).toLowerCase().includes(q));
   });
 }
 
-/* ══ ADMIN ACTIONS ══════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   FIX 2: CLIENT AUTOCOMPLETE for Admin New Appt
+══════════════════════════════════════════════════ */
+let _acSelectedClient = null;
+
+function acSearch(q){
+  const list=document.getElementById("mAClientList");
+  const clr =document.getElementById("mAClientClear");
+  if(clr) clr.className="autocomplete-clear"+(q?"  visible":"");
+  _acFocusIdx=-1;
+  if(!q||q.trim().length<1){list.style.display="none";return;}
+  const term=q.toLowerCase();
+  const matches=CLIENTS.filter(c=>
+    c.name.toLowerCase().includes(term)||
+    c.patent.toLowerCase().includes(term)
+  ).slice(0,8);
+  if(!matches.length){
+    list.innerHTML=`<div class="autocomplete-empty">Sin resultados para "${esc(q)}"</div>`;
+    list.style.display="block"; return;
+  }
+  list.innerHTML=matches.map((c,i)=>`
+    <div class="autocomplete-item" data-idx="${i}" data-cid="${c.id}"
+      onmousedown="acSelect('${c.id}')">
+      <div class="autocomplete-item-name">${esc(c.name)}</div>
+      <div class="autocomplete-item-sub">
+        ${c.vehicleType==="camion"?"🚛":"🚗"} ${esc(c.brand)} ${esc(c.model)} ${c.year}
+        — ${c.patent} · Motor: ${esc(c.motor||"—")}
+      </div>
+    </div>`).join("");
+  list.style.display="block";
+  list.dataset.matches=JSON.stringify(matches.map(c=>c.id));
+}
+
+function acKeyNav(e){
+  const list=document.getElementById("mAClientList");
+  if(list.style.display==="none") return;
+  const items=[...list.querySelectorAll(".autocomplete-item")];
+  if(!items.length) return;
+  if(e.key==="ArrowDown"){
+    e.preventDefault();
+    _acFocusIdx=(_acFocusIdx+1)%items.length;
+    items.forEach((el,i)=>el.classList.toggle("ac-focused",i===_acFocusIdx));
+  } else if(e.key==="ArrowUp"){
+    e.preventDefault();
+    _acFocusIdx=(_acFocusIdx-1+items.length)%items.length;
+    items.forEach((el,i)=>el.classList.toggle("ac-focused",i===_acFocusIdx));
+  } else if(e.key==="Enter"&&_acFocusIdx>=0){
+    e.preventDefault();
+    const cid=items[_acFocusIdx].dataset.cid;
+    if(cid) acSelect(cid);
+  } else if(e.key==="Escape"){
+    list.style.display="none";
+  }
+}
+
+function acSelect(cid){
+  const cl=CLIENTS.find(c=>c.id===cid); if(!cl) return;
+  _acSelectedClient=cl;
+  // Fill hidden field and search input
+  document.getElementById("mApptClientId").value=cl.id;
+  document.getElementById("mAClientSearch").value=cl.name;
+  document.getElementById("mAClientList").style.display="none";
+  const clr=document.getElementById("mAClientClear");
+  if(clr) clr.className="autocomplete-clear visible";
+  // Show preview card
+  const preview=document.getElementById("mAClientPreview");
+  const body   =document.getElementById("mAClientPreviewBody");
+  if(preview&&body){
+    body.innerHTML=`
+      <div style="display:flex;flex-wrap:wrap;gap:.35rem .9rem;font-size:.86rem">
+        <span>${cl.vehicleType==="camion"?"🚛":"🚗"} <strong>${esc(cl.brand)} ${esc(cl.model)} ${cl.year}</strong></span>
+        <span>🔑 ${cl.patent}</span>
+        <span>⚙️ Motor: ${esc(cl.motor||"—")}</span>
+        <span>📱 ${cl.whatsapp}</span>
+      </div>`;
+    preview.className="client-preview visible";
+  }
+  // Load services for this vehicle type
+  syncApptSvcs(cl.vehicleType||"auto");
+}
+
+function acClear(){
+  _acSelectedClient=null;
+  document.getElementById("mApptClientId").value="";
+  document.getElementById("mAClientSearch").value="";
+  document.getElementById("mAClientList").style.display="none";
+  document.getElementById("mAClientPreview").className="client-preview";
+  const clr=document.getElementById("mAClientClear");
+  if(clr) clr.className="autocomplete-clear";
+  document.getElementById("mAService").innerHTML="";
+  document.getElementById("mATime").innerHTML="";
+}
+
+// Close autocomplete when clicking outside
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".autocomplete-wrap")){
+    const list=document.getElementById("mAClientList");
+    if(list) list.style.display="none";
+  }
+});
+
+/* ══ ADMIN ACTIONS ══════════════════════════════════ */
 async function updAppt(id,status){
   APPTS=APPTS.map(a=>a.id===id?{...a,status}:a);
   await fsPut("appointments",APPTS);
@@ -1074,7 +1181,7 @@ async function delAppt(id){
   reDrawCur();
 }
 
-/* ── Libretito ─────────────────────────────────── */
+/* ── Libretito (Complete Turn) ───────────────────── */
 function renderChecklistUI(){
   const grid=document.getElementById("checklistGrid"); if(!grid) return;
   grid.innerHTML=CHECKLIST.map(item=>{
@@ -1099,23 +1206,19 @@ function openComplete(id){
   document.getElementById("mCompOil").value="";
   document.getElementById("mCompObs").value="";
   clItems={};
-  // Pre-show vtype interval hint
-  const appt=APPTS.find(a=>a.id===id);
-  const vtype=appt?CLIENTS.find(c=>c.id===appt.clientId)?.vehicleType||"auto":"auto";
-  _activeCompleteApptType=vtype;
   renderChecklistUI();
   openM("mComplete");
 }
 async function doCompleteAppt(){
-  const id  =document.getElementById("mCompId").value;
-  const km  =document.getElementById("mCompKm").value.trim();
-  const oil =document.getElementById("mCompOil").value.trim();
-  const obs =document.getElementById("mCompObs").value.trim();
-  if(!km)  { toast("El kilometraje es obligatorio","error"); return; }
-  if(!oil) { toast("La marca de aceite es obligatoria","error"); return; }
+  const id =document.getElementById("mCompId").value;
+  const km =document.getElementById("mCompKm").value.trim();
+  const oil=document.getElementById("mCompOil").value.trim();
+  const obs=document.getElementById("mCompObs").value.trim();
+  if(!km) { toast("El kilometraje es obligatorio","error"); return; }
+  if(!oil){ toast("La marca de aceite es obligatoria","error"); return; }
   const appt=APPTS.find(a=>a.id===id);
   const vtype=appt?CLIENTS.find(c=>c.id===appt.clientId)?.vehicleType||"auto":"auto";
-  const {nextKm,nextDate}=calcNextService(km,todayISO,vtype);
+  const{nextKm,nextDate}=calcNextService(km,todayISO,vtype);
   APPTS=APPTS.map(a=>a.id===id?{
     ...a,status:"completado",km,nextKm,nextDate,oilBrand:oil,notes:obs,
     checklist:{...clItems}
@@ -1126,7 +1229,7 @@ async function doCompleteAppt(){
   reDrawCur();
 }
 
-/* ── WA ────────────────────────────────────────── */
+/* ── WA ──────────────────────────────────────────── */
 function sendWAClient(cid){
   const cl=CLIENTS.find(c=>c.id===cid); if(!cl) return;
   window.open(`https://wa.me/${cleanWA(cl.whatsapp)}?text=${encodeURIComponent(
@@ -1134,63 +1237,67 @@ function sendWAClient(cid){
   )}`,"_blank");
 }
 
-/* ── Admin Appt Modal ──────────────────────────── */
+/* ── Admin Appt Modal ─────────────────────────────── */
 function openNewAppt(){
   document.getElementById("mApptTitle").textContent="NUEVO TURNO";
   document.getElementById("mApptId").value="";
-  const cSel=document.getElementById("mAClient");
-  cSel.innerHTML=CLIENTS.map(c=>`<option value="${c.id}">${esc(c.name)} — ${c.patent}</option>`).join("");
-  syncApptSvcs();
+  // Reset autocomplete
+  acClear();
   document.getElementById("mADate").value=todayISO;
   document.getElementById("mADate").min=todayISO;
   document.getElementById("mAKm").value="";
+  // Show empty service/time until client selected
+  document.getElementById("mAService").innerHTML=
+    `<option value="">— Seleccioná un cliente primero —</option>`;
+  document.getElementById("mATime").innerHTML=
+    `<option value="">— Seleccioná un cliente y servicio —</option>`;
   openM("mAppt");
 }
-function syncApptSvcs(){
-  const cid=document.getElementById("mAClient")?.value;
-  const cl=CLIENTS.find(c=>c.id===cid);
-  const vt=cl?.vehicleType||"auto";
+function syncApptSvcs(vtype){
+  const vt=vtype||(CLIENTS.find(c=>c.id===document.getElementById("mApptClientId")?.value)?.vehicleType)||"auto";
+  const svcs=SERVICES.filter(s=>(s.type||"auto")===vt);
   document.getElementById("mAService").innerHTML=
-    SERVICES.filter(s=>(s.type||"auto")===vt)
-    .map(s=>`<option value="${s.id}">${esc(s.name)} — ${s.price}</option>`).join("");
+    svcs.length?svcs.map(s=>`<option value="${s.id}">${esc(s.name)} — ${s.price}</option>`).join("")
+    :`<option value="">Sin servicios para este tipo</option>`;
   buildAdminTimes();
 }
 function buildAdminTimes(){
   const svcId=document.getElementById("mAService")?.value;
-  const dt=document.getElementById("mADate")?.value;
+  const dt   =document.getElementById("mADate")?.value;
   const apptId=document.getElementById("mApptId")?.value||null;
-  if(!svcId||!dt){ document.getElementById("mATime").innerHTML=""; return; }
+  if(!svcId||!dt){
+    document.getElementById("mATime").innerHTML=`<option value="">— Elegí servicio y fecha —</option>`;
+    return;
+  }
   const svc=SERVICES.find(s=>s.id===svcId);
   const dur=svc?.duration||30;
   const pit=getPit(svcId);
   const dayH=getHoursForDate(dt);
   const taken=getTaken(dt,pit,apptId);
   const tmSel=document.getElementById("mATime");
-  if(dayH.length===0){
-    tmSel.innerHTML=`<option value="">Cerrado este día</option>`; return;
-  }
+  if(!dayH.length){tmSel.innerHTML=`<option value="">Cerrado este día</option>`;return;}
   tmSel.innerHTML=dayH.map(h=>{
     const ok=isAvail(h,dur,taken,dt);
     return`<option value="${h}" ${ok?"":"disabled"}>${h}${ok?"":" (ocupado)"}</option>`;
   }).join("");
 }
 async function doSaveAppt(){
-  const cid  =document.getElementById("mAClient").value;
+  const cid  =document.getElementById("mApptClientId").value;
   const svcId=document.getElementById("mAService").value;
   const dt   =document.getElementById("mADate").value;
   const tm   =document.getElementById("mATime").value;
   const km   =document.getElementById("mAKm").value;
-  if(!cid||!svcId||!dt||!tm){ toast("Completá todos los campos","error"); return; }
+  if(!cid)  { toast("Seleccioná un cliente usando el buscador","error"); return; }
+  if(!svcId||!dt||!tm){ toast("Completá todos los campos","error"); return; }
   if(isDayClosed(dt)){ toast("El lubricentro está cerrado ese día","error"); return; }
   const cl =CLIENTS.find(c=>c.id===cid);
   const sv =SERVICES.find(s=>s.id===svcId);
   const dur=sv?.duration||30;
   const pit=getPit(svcId);
-  // Strict re-read to prevent race condition
   const freshAppts=await fsGet("appointments",[]);
   APPTS=freshAppts;
   const taken=getTaken(dt,pit);
-  if(!isAvail(tm,dur,taken,dt)){ toast("Ese horario ya está ocupado","error"); buildAdminTimes(); return; }
+  if(!isAvail(tm,dur,taken,dt)){toast("Ese horario ya está ocupado","error");buildAdminTimes();return;}
   const slots=getSlots(tm,dur,dt)||[tm];
   APPTS.push({
     id:uid(),clientId:cid,patent:cl?.patent||"",
@@ -1204,19 +1311,19 @@ async function doSaveAppt(){
   drawTab("tTurnos");
 }
 
-/* ── Client CRUD ───────────────────────────────── */
+/* ── Client CRUD ──────────────────────────────────── */
 function openNewClient(){
   document.getElementById("mClientTitle").textContent="NUEVO CLIENTE";
   document.getElementById("mClientId").value="";
   ["mCName","mCWa","mCPatent","mCModel","mCYear","mCMotor","mCBrandOther"]
     .forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
-  const br=document.getElementById("mCBrand"); if(br) br.value="";
-  const vt=document.getElementById("mCVtype"); if(vt) vt.value="auto";
-  const oth=document.getElementById("mCBrandOther"); if(oth) oth.style.display="none";
+  const br=document.getElementById("mCBrand");if(br)br.value="";
+  const vt=document.getElementById("mCVtype");if(vt)vt.value="auto";
+  const oth=document.getElementById("mCBrandOther");if(oth)oth.style.display="none";
   openM("mClient");
 }
 function openEditClient(id){
-  const c=CLIENTS.find(x=>x.id===id); if(!c) return;
+  const c=CLIENTS.find(x=>x.id===id);if(!c)return;
   document.getElementById("mClientTitle").textContent="EDITAR CLIENTE";
   document.getElementById("mClientId").value=c.id;
   document.getElementById("mCName").value=c.name||"";
@@ -1247,11 +1354,9 @@ async function doSaveClient(){
   const model =document.getElementById("mCModel").value.trim();
   const year  =document.getElementById("mCYear").value.trim();
   const motor =document.getElementById("mCMotor").value.trim();
-  if(!name||!patent||!brand||!model||!year||!motor){
-    toast("Todos los campos son obligatorios","error"); return; }
-  if(!validateWA(wa)){ toast("WhatsApp inválido (solo números, 8-15 dígitos)","error"); return; }
-  if(!editId&&CLIENTS.find(c=>c.patent===patent)){
-    toast("Ya existe un cliente con esa patente","error"); return; }
+  if(!name||!patent||!brand||!model||!year||!motor){toast("Todos los campos son obligatorios","error");return;}
+  if(!validateWA(wa)){toast("WhatsApp inválido (solo números, 8-15 dígitos)","error");return;}
+  if(!editId&&CLIENTS.find(c=>c.patent===patent)){toast("Ya existe un cliente con esa patente","error");return;}
   const obj={name,whatsapp:wa,patent,vehicleType:vtype,brand,model,year,motor};
   if(editId) CLIENTS=CLIENTS.map(c=>c.id===editId?{...c,...obj}:c);
   else       CLIENTS.push({id:uid(),...obj});
@@ -1261,7 +1366,7 @@ async function doSaveClient(){
   drawTab("tClientes");
 }
 async function delClient(id){
-  if(!confirm("¿Eliminar este cliente y todos sus turnos?")) return;
+  if(!confirm("¿Eliminar este cliente y todos sus turnos?"))return;
   CLIENTS=CLIENTS.filter(c=>c.id!==id);
   APPTS=APPTS.filter(a=>a.clientId!==id);
   await fsPut("clients",CLIENTS);
@@ -1271,43 +1376,68 @@ async function delClient(id){
 }
 
 /* ══════════════════════════════════════════════════
-   FIX 4: Full libretito in client history card
+   FIX 4 — FULL LIBRETITO RENDER (shared helper)
+   Used in both admin ViewClient and client Historial
 ══════════════════════════════════════════════════ */
-function renderLibretitoItem(a){
-  const cl=a.checklist||{};
-  const doneItems=CHECKLIST.filter(c=>cl[c.id]==="done");
-  const skipItems=CHECKLIST.filter(c=>cl[c.id]==="skip");
-  const hasCl=doneItems.length>0||skipItems.length>0;
+function buildLibretitoCard(a){
+  const cl2=a.checklist||{};
+  const doneItems=CHECKLIST.filter(c=>cl2[c.id]==="done");
+  const skipItems=CHECKLIST.filter(c=>cl2[c.id]==="skip");
   return`
-    <div style="border-bottom:1px solid var(--border);padding-bottom:.55rem;margin-bottom:.55rem;font-size:.8rem">
-      <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.2rem">
-        <strong>${esc(a.serviceName)}</strong> ${bdg(a.status)}
+    <div class="libretito-card">
+      <div class="libretito-header">
+        <div>
+          <div class="libretito-service">🔧 ${esc(a.serviceName)}</div>
+          <div class="libretito-date">📅 ${fmtD(a.date)} a las ${a.time} · 🚗 ${esc(a.vehicleDesc||"")}</div>
+        </div>
+        ${bdg(a.status)}
       </div>
-      <div style="display:flex;gap:.9rem;flex-wrap:wrap;color:var(--muted);font-size:.72rem;margin-bottom:.25rem">
-        <span>📅 ${fmtD(a.date)} ${a.time}</span>
-        ${a.km?`<span>📏 ${fmtNum(a.km)} km</span>`:""}
-        ${a.nextKm?`<span>🎯 Próx: ${fmtNum(a.nextKm)} km</span>`:""}
-        ${a.nextDate?`<span>📆 Próx: ${fmtD(a.nextDate)}</span>`:""}
-        ${a.oilBrand?`<span>🛢 ${esc(a.oilBrand)}</span>`:""}
+
+      <!-- Key data pills — large and readable -->
+      <div class="libretito-pills">
+        ${a.km?`<div class="libretito-pill pill-km">
+          <span class="libretito-pill-label">📏 KM registrado</span>
+          <span class="libretito-pill-value">${fmtNum(a.km)} km</span>
+        </div>`:""}
+        ${a.oilBrand?`<div class="libretito-pill pill-oil">
+          <span class="libretito-pill-label">🛢 Aceite usado</span>
+          <span class="libretito-pill-value">${esc(a.oilBrand)}</span>
+        </div>`:""}
+        ${a.nextKm?`<div class="libretito-pill pill-next">
+          <span class="libretito-pill-label">🎯 Próximo service</span>
+          <span class="libretito-pill-value">${fmtNum(a.nextKm)} km${a.nextDate?`<br/><span style="font-size:.78rem;font-weight:400;color:var(--muted)">${fmtD(a.nextDate)}</span>`:""}</span>
+        </div>`:""}
       </div>
-      ${hasCl?`<div class="hist-checklist">
-        ${doneItems.map(c=>`<span class="hist-cl-item hist-cl-done">✔ ${esc(c.label)}</span>`).join("")}
-        ${skipItems.map(c=>`<span class="hist-cl-item hist-cl-skip">✖ ${esc(c.label)}</span>`).join("")}
-      </div>`:""}
-      ${a.notes?`<div style="color:var(--muted);font-size:.7rem;margin-top:.22rem;
-        font-style:italic">💬 ${esc(a.notes)}</div>`:""}
+
+      <!-- Checklist items -->
+      ${(doneItems.length||skipItems.length)?`
+        <div class="libretito-cl-title">ÍTEMS DEL SERVICE</div>
+        <div class="libretito-cl-grid">
+          ${doneItems.map(c=>`
+            <div class="libretito-cl-item libretito-cl-done">
+              <span class="libretito-cl-ico">✔</span>${esc(c.label)}
+            </div>`).join("")}
+          ${skipItems.map(c=>`
+            <div class="libretito-cl-item libretito-cl-skip">
+              <span class="libretito-cl-ico">✖</span>${esc(c.label)}
+            </div>`).join("")}
+        </div>`:""}
+
+      <!-- Observations — bigger font -->
+      ${a.notes?`
+        <div class="libretito-obs-label">💬 OBSERVACIONES</div>
+        <div class="libretito-obs">${esc(a.notes)}</div>`:""}
     </div>`;
 }
 
 function openViewClient(id){
-  const cl=CLIENTS.find(c=>c.id===id); if(!cl) return;
+  const cl=CLIENTS.find(c=>c.id===id);if(!cl)return;
   const ca=APPTS.filter(a=>a.clientId===id).sort((a,b)=>b.date.localeCompare(a.date));
   const vtype=cl.vehicleType||"auto";
   const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
   document.getElementById("mVCName").textContent=cl.name;
   document.getElementById("mVCBody").innerHTML=`
-    <div style="color:var(--muted);font-size:.8rem;margin-bottom:.2rem">
-      📱 ${cl.whatsapp}</div>
+    <div style="color:var(--muted);font-size:.8rem;margin-bottom:.2rem">📱 ${cl.whatsapp}</div>
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
       padding:.5rem .75rem;font-size:.82rem;margin-bottom:.5rem">
       ${cl.vehicleType==="camion"?"🚛":"🚗"}
@@ -1321,11 +1451,11 @@ function openViewClient(id){
       margin-bottom:.65rem;color:var(--orange)">HISTORIAL COMPLETO</div>
     ${ca.length===0
       ?'<div style="color:var(--muted);font-size:.8rem">Sin turnos aún.</div>'
-      :ca.map(a=>renderLibretitoItem(a)).join("")}`;
+      :ca.map(a=>buildLibretitoCard(a)).join("")}`;
   openM("mViewClient");
 }
 
-/* ── Services CRUD ─────────────────────────────── */
+/* ── Services CRUD ────────────────────────────────── */
 function openNewSvc(){
   document.getElementById("mSvcTitle").textContent="NUEVO SERVICIO";
   ["mSvcId","mSvcName","mSvcPrice"].forEach(id=>document.getElementById(id).value="");
@@ -1334,7 +1464,7 @@ function openNewSvc(){
   openM("mSvc");
 }
 function openEditSvc(id){
-  const s=SERVICES.find(x=>x.id===id); if(!s) return;
+  const s=SERVICES.find(x=>x.id===id);if(!s)return;
   document.getElementById("mSvcTitle").textContent="EDITAR SERVICIO";
   document.getElementById("mSvcId").value=s.id;
   document.getElementById("mSvcName").value=s.name;
@@ -1349,7 +1479,7 @@ async function doSaveSvc(){
   const price=document.getElementById("mSvcPrice").value.trim();
   const dur  =parseInt(document.getElementById("mSvcDur").value);
   const type =document.getElementById("mSvcType").value;
-  if(!name||!price){ toast("Nombre y precio son obligatorios","error"); return; }
+  if(!name||!price){toast("Nombre y precio son obligatorios","error");return;}
   if(id) SERVICES=SERVICES.map(s=>s.id===id?{...s,name,price,duration:dur,type}:s);
   else   SERVICES.push({id:uid(),name,price,duration:dur,type});
   await fsPut("services",SERVICES);
@@ -1358,7 +1488,7 @@ async function doSaveSvc(){
   drawConfig();
 }
 async function delSvc(id){
-  if(!confirm("¿Eliminar este servicio?")) return;
+  if(!confirm("¿Eliminar este servicio?"))return;
   SERVICES=SERVICES.filter(s=>s.id!==id);
   await fsPut("services",SERVICES);
   toast("Servicio eliminado","success");
@@ -1425,15 +1555,15 @@ function selVtype(v){
 async function tryIdentify(){
   const pat=(document.getElementById("cPat")?.value||"").trim().toUpperCase().replace(/[\s-]/g,"");
   const err=document.getElementById("cErr");
-  const showErr=m=>{ err.textContent="⚠️ "+m; err.style.display="block"; };
-  if(!pat){ showErr("Ingresá la patente de tu auto."); return; }
+  const showErr=m=>{err.textContent="⚠️ "+m;err.style.display="block";};
+  if(!pat){showErr("Ingresá la patente de tu auto.");return;}
   const found=CLIENTS.find(c=>c.patent===pat);
-  if(found){ ME=found; renderClientHome(); return; }
+  if(found){ME=found;renderClientHome();return;}
   const nf=document.getElementById("newFields");
   if(nf.style.display==="none"){
     nf.style.display="block";
     document.getElementById("cEnterBtn").textContent="Registrarme y entrar →";
-    showErr("No encontramos esa patente. Completá tus datos para registrarte."); return;
+    showErr("No encontramos esa patente. Completá tus datos para registrarte.");return;
   }
   const name =document.getElementById("cName")?.value.trim()||"";
   const wa   =document.getElementById("cWa")?.value.trim()||"";
@@ -1442,23 +1572,22 @@ async function tryIdentify(){
   const model=document.getElementById("cModel")?.value.trim()||"";
   const year =document.getElementById("cYear")?.value.trim()||"";
   const motor=document.getElementById("cMotor")?.value.trim()||"";
-  if(!name||!wa||!brand||!model||!year||!motor){ showErr("Completá todos los campos."); return; }
-  if(!validateWA(wa)){ showErr("WhatsApp inválido (solo números, sin espacios)."); return; }
-  if(CLIENTS.find(c=>c.patent===pat)){ showErr("Ya existe un cliente con esa patente."); return; }
+  if(!name||!wa||!brand||!model||!year||!motor){showErr("Completá todos los campos.");return;}
+  if(!validateWA(wa)){showErr("WhatsApp inválido (solo números, sin espacios).");return;}
+  if(CLIENTS.find(c=>c.patent===pat)){showErr("Ya existe un cliente con esa patente.");return;}
   const nc={id:uid(),name,whatsapp:wa,patent:pat,vehicleType:vtype,brand,model,year,motor};
   CLIENTS.push(nc);
   await fsPut("clients",CLIENTS);
-  ME=nc; renderClientHome();
+  ME=nc;renderClientHome();
   toast("¡Registro exitoso! Bienvenido 🎉","success");
 }
 
-/* ── CLIENT HOME ─────────────────────────────── */
+/* ── CLIENT HOME ─────────────────────────────────── */
 function renderClientHome(){
   const lbl=document.getElementById("clientNameLbl");
-  lbl.textContent="👤 "+ME.name.split(" ")[0]; lbl.style.display="inline";
+  lbl.textContent="👤 "+ME.name.split(" ")[0];lbl.style.display="inline";
   const vtype=ME.vehicleType||"auto";
   const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
-  // FIX 2: use vehicle-specific interval for next service card
   const done=APPTS.filter(a=>a.clientId===ME.id&&a.status==="completado"&&a.km)
     .sort((a,b)=>b.date.localeCompare(a.date));
   let nextCard="";
@@ -1467,11 +1596,11 @@ function renderClientHome(){
     const ns=calcNextService(last.km,last.date,vtype);
     nextCard=`<div class="next-svc">
       <div class="next-svc-title">🔧 PRÓXIMO SERVICE ESTIMADO</div>
-      <div style="font-size:.82rem;margin-bottom:.14rem">
+      <div style="font-size:.86rem;margin-bottom:.14rem">
         📏 Al llegar a <strong>${fmtNum(ns.nextKm)} km</strong></div>
-      <div style="font-size:.82rem;margin-bottom:.14rem">
+      <div style="font-size:.86rem;margin-bottom:.14rem">
         📅 O en <strong>${fmtD(ns.nextDate)}</strong></div>
-      <div style="color:var(--muted);font-size:.7rem;margin-top:.28rem">
+      <div style="color:var(--muted);font-size:.72rem;margin-top:.28rem">
         Basado en: ${fmtD(last.date)} · ${fmtNum(last.km)} km
         ${last.oilBrand?` · ${esc(last.oilBrand)}`:""}
         · <em>${iv.months} meses / ${fmtNum(iv.km)} km para ${vtype==="camion"?"camiones":"autos"}</em>
@@ -1501,7 +1630,7 @@ function renderClientHome(){
     </div>`;
 }
 
-/* ── MY APPTS ────────────────────────────────── */
+/* ── MY APPTS ────────────────────────────────────── */
 function renderMyAppts(msg){
   const myA=APPTS.filter(a=>a.clientId===ME.id).sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById("clientArea").innerHTML=`
@@ -1519,47 +1648,28 @@ function renderMyAppts(msg){
     <button class="btn btn-g" style="margin-top:.9rem" onclick="renderClientHome()">← Volver</button>`;
 }
 
-/* ── HISTORIAL LIBRETITO (CLIENT) ───────────── */
+/* ── HISTORIAL LIBRETITO (CLIENT) ─────────────────── */
 function renderHistorial(){
   const vtype=ME.vehicleType||"auto";
   const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
   const done=APPTS.filter(a=>a.clientId===ME.id&&a.status==="completado")
     .sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById("clientArea").innerHTML=`
-    <div class="sh"><div class="st">📖 LIBRETITO DE SERVICE</div></div>
-    <div class="alert ab" style="margin-bottom:.9rem;font-size:.76rem">
-      ℹ️ Tu vehículo necesita service cada <strong>${iv.months} meses</strong>
-      o <strong>${fmtNum(iv.km)} km</strong>.</div>
-    ${done.length===0?'<div class="empty">📖 Aún no hay services completados.</div>':
-      done.map(a=>{
-        const cl2=a.checklist||{};
-        const doneItems=CHECKLIST.filter(c=>cl2[c.id]==="done");
-        const skipItems=CHECKLIST.filter(c=>cl2[c.id]==="skip");
-        return`<div class="hist-card">
-          <div style="font-weight:700;font-size:.9rem;margin-bottom:.28rem">
-            🔧 ${esc(a.serviceName)}</div>
-          <div style="display:flex;gap:.9rem;flex-wrap:wrap;font-size:.76rem;color:var(--muted)">
-            <span>📅 ${fmtD(a.date)}</span>
-            ${a.km?`<span>📏 ${fmtNum(a.km)} km</span>`:""}
-            ${a.nextKm?`<span>🎯 Próx: ${fmtNum(a.nextKm)} km</span>`:""}
-            ${a.nextDate?`<span>📆 Próx: ${fmtD(a.nextDate)}</span>`:""}
-            ${a.oilBrand?`<span>🛢 ${esc(a.oilBrand)}</span>`:""}
-          </div>
-          ${(doneItems.length||skipItems.length)?`<div class="hist-checklist">
-            ${doneItems.map(c=>`<span class="hist-cl-item hist-cl-done">✔ ${esc(c.label)}</span>`).join("")}
-            ${skipItems.map(c=>`<span class="hist-cl-item hist-cl-skip">✖ ${esc(c.label)}</span>`).join("")}
-          </div>`:""}
-          ${a.notes?`<div class="hist-obs">💬 <strong>Obs:</strong> ${esc(a.notes)}</div>`:""}
-        </div>`;
-      }).join("")}
+    <div class="sh"><div class="st">📖 MI LIBRETITO</div></div>
+    <div class="alert ab" style="margin-bottom:.9rem;font-size:.78rem">
+      ℹ️ Tu vehículo necesita service cada
+      <strong>${iv.months} meses</strong> o <strong>${fmtNum(iv.km)} km</strong>.</div>
+    ${done.length===0
+      ?'<div class="empty">📖 Aún no hay services completados.</div>'
+      :done.map(a=>buildLibretitoCard(a)).join("")}
     <button class="btn btn-g" style="margin-top:.9rem" onclick="renderClientHome()">← Volver</button>`;
 }
 
-/* ══ BOOKING FLOW ════════════════════════════════ */
+/* ══ BOOKING FLOW ════════════════════════════════════ */
 function renderBooking(){
   BK={step:1,service:null,date:todayISO,time:"",km:""};
   while(isDayClosed(BK.date)){
-    const d=new Date(BK.date+"T12:00:00"); d.setDate(d.getDate()+1);
+    const d=new Date(BK.date+"T12:00:00");d.setDate(d.getDate()+1);
     BK.date=d.toISOString().split("T")[0];
   }
   drawBooking();
@@ -1579,7 +1689,6 @@ function drawBooking(){
         <h2 style="font-family:'Bebas Neue';font-size:1.52rem;letter-spacing:1px">SACAR TURNO</h2>
       </div>
 
-      <!-- PASO 1 -->
       <div class="card" style="margin-bottom:.8rem">
         <div class="stitle"><span class="sn">1</span> Elegí el servicio</div>
         ${myServices.length===0
@@ -1592,7 +1701,6 @@ function drawBooking(){
             </div>`).join("")}</div>`}
       </div>
 
-      <!-- PASO 2 -->
       ${BK.step>=2?`<div class="card" style="margin-bottom:.8rem">
         <div class="stitle"><span class="sn">2</span> Elegí el día y horario</div>
         <div class="fg"><label class="fl">Fecha</label>
@@ -1615,7 +1723,6 @@ function drawBooking(){
         </div>`}
       </div>`:""}
 
-      <!-- PASO 3 -->
       ${BK.step>=3?`<div class="card" style="margin-bottom:.8rem">
         <div class="stitle"><span class="sn">3</span> Confirmá tu vehículo</div>
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
@@ -1629,7 +1736,6 @@ function drawBooking(){
             oninput="BK.km=this.value" placeholder="85000"/></div>
       </div>`:""}
 
-      <!-- RESUMEN -->
       ${BK.step>=3&&BK.service&&BK.time&&!isClosed?`<div class="sum-box">
         <div style="font-family:'Bebas Neue';font-size:.98rem;letter-spacing:1px;
           margin-bottom:.62rem;color:var(--orange)">RESUMEN</div>
@@ -1647,30 +1753,29 @@ function drawBooking(){
     </div>`;
 }
 
-function bkSvc(id){ BK.service=id; BK.time=""; if(BK.step<2) BK.step=2; drawBooking(); }
-function bkTime(h){ BK.time=h; if(BK.step<3) BK.step=3; drawBooking(); }
+function bkSvc(id){BK.service=id;BK.time="";if(BK.step<2)BK.step=2;drawBooking();}
+function bkTime(h){BK.time=h;if(BK.step<3)BK.step=3;drawBooking();}
 function bkDate(d){
   if(isDayClosed(d)){
     toast("Domingos cerrado. Avanzando al lunes.","warn");
-    const nd=new Date(d+"T12:00:00"); nd.setDate(nd.getDate()+1);
+    const nd=new Date(d+"T12:00:00");nd.setDate(nd.getDate()+1);
     BK.date=nd.toISOString().split("T")[0];
-  } else { BK.date=d; }
-  BK.time=""; drawBooking();
+  } else {BK.date=d;}
+  BK.time="";drawBooking();
 }
 
-/* ══ CONFIRM BOOKING — Safe-Click ════════════════ */
+/* ══ CONFIRM BOOKING — Safe-Click ════════════════════ */
 async function confirmBk(){
-  const sv=SERVICES.find(s=>s.id===BK.service); if(!sv) return;
-  if(isDayClosed(BK.date)){ toast("Cerrado ese día","error"); return; }
+  const sv=SERVICES.find(s=>s.id===BK.service);if(!sv)return;
+  if(isDayClosed(BK.date)){toast("Cerrado ese día","error");return;}
   const dur=sv.duration||30;
   const pit=getPit(BK.service);
-  // Re-read Firebase: strict race-condition prevention
   const freshAppts=await fsGet("appointments",[]);
   APPTS=freshAppts;
   const taken=getTaken(BK.date,pit);
   if(!isAvail(BK.time,dur,taken,BK.date)){
     toast("Ese horario ya fue tomado. Elegí otro.","error");
-    BK.time=""; drawBooking(); return;
+    BK.time="";drawBooking();return;
   }
   const slots=getSlots(BK.time,dur,BK.date)||[BK.time];
   const appt={
@@ -1682,7 +1787,6 @@ async function confirmBk(){
   };
   APPTS.push(appt);
   await fsPut("appointments",APPTS);
-
   const waMsg=`¡Hola! Reservé un turno en Lubricentro Esquiú.\n\n`+
     `🔧 *Servicio:* ${sv.name}\n`+
     `📅 *Fecha:* ${fmtD(BK.date)} a las ${BK.time}\n`+
@@ -1691,7 +1795,6 @@ async function confirmBk(){
     `⚙️ *Motor:* ${ME.motor||"—"}\n`+
     `🔩 *Fosa:* ${pit==="camion"?"Camiones":"Autos"}`;
   const waURL=`https://wa.me/${PHONE_LUBRI}?text=${encodeURIComponent(waMsg)}`;
-
   document.getElementById("clientArea").innerHTML=`
     <div style="max-width:480px;padding-top:1.5rem">
       <div class="success-banner">
@@ -1713,36 +1816,31 @@ async function confirmBk(){
     </div>`;
 }
 
-/* ══ INIT ════════════════════════════════════════ */
+/* ══ INIT ════════════════════════════════════════════ */
 (async()=>{
-  try {
-    [CLIENTS, APPTS, SERVICES, NOTIFIED] = await Promise.all([
-      fsGet("clients",     []),
+  try{
+    [CLIENTS,APPTS,SERVICES,NOTIFIED]=await Promise.all([
+      fsGet("clients",    []),
       fsGet("appointments",[]),
-      fsGet("services",    DEFAULT_SVC),
-      fsGet("notified",    {}),
+      fsGet("services",   DEFAULT_SVC),
+      fsGet("notified",   {}),
     ]);
-    // NOTIFIED is stored as object, not array — handle both
     if(Array.isArray(NOTIFIED)) NOTIFIED={};
-    if(SERVICES.length===0){
-      SERVICES=DEFAULT_SVC;
-      await fsPut("services",SERVICES);
-    }
-  } catch(e){
+    if(!SERVICES.length){SERVICES=DEFAULT_SVC;await fsPut("services",SERVICES);}
+  }catch(e){
     console.error("Init:",e);
-    SERVICES=DEFAULT_SVC;
-    NOTIFIED={};
+    SERVICES=DEFAULT_SVC;NOTIFIED={};
     toast("Error al conectar con Firebase","error",5000);
   }
   document.getElementById("appLoader").style.display="none";
   go("pgLanding");
 })();
 
-/* ══ FIX 3: Force login fields clean on every page load ══ */
+/* ══ FIX 3: force login clean on every load ══ */
 document.addEventListener("DOMContentLoaded",()=>{
-  const u=document.getElementById("loginU"), p=document.getElementById("loginP");
-  if(u) u.value=""; if(p) p.value="";
-  setTimeout(()=>{ if(u) u.value=""; if(p) p.value=""; },200);
+  const u=document.getElementById("loginU"),p=document.getElementById("loginP");
+  if(u)u.value="";if(p)p.value="";
+  setTimeout(()=>{if(u)u.value="";if(p)p.value="";},200);
 });
 </script>
 </body>
