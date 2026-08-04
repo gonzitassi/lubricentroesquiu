@@ -166,6 +166,12 @@ select.fi option{background:var(--bg2);}
   flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
 .big-spin{width:38px;height:38px;border:3px solid rgba(249,115,22,.2);
   border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;}
+
+.record-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:.88rem;margin-bottom:.62rem;}
+.record-client{font-weight:600;margin-bottom:.26rem;}
+.record-info{color:var(--muted);font-size:.77rem;margin-bottom:.36rem;line-height:1.4;}
+.record-actions{display:flex;gap:.36rem;flex-wrap:wrap;}
 </style>
 </head>
 <body>
@@ -214,12 +220,14 @@ select.fi option{background:var(--bg2);}
     <button class="tab active" onclick="aTab(this,'tDash')">📊 Panel</button>
     <button class="tab" onclick="aTab(this,'tTurnos')">📅 Turnos</button>
     <button class="tab" onclick="aTab(this,'tClientes')">👥 Clientes</button>
+    <button class="tab" onclick="aTab(this,'tRecord')">🔔 Recordatorios</button>
     <button class="tab" onclick="aTab(this,'tConfig')">⚙️ Config</button>
   </div>
   <div class="content">
     <div id="tDash"></div>
     <div id="tTurnos"   style="display:none"></div>
     <div id="tClientes" style="display:none"></div>
+    <div id="tRecord"   style="display:none"></div>
     <div id="tConfig"   style="display:none"></div>
   </div>
 </div>
@@ -504,7 +512,7 @@ function renderAdmin(){
   document.querySelectorAll("#adminTabs .tab").forEach((t,i)=>{
     t.classList.remove("active");if(i===0) t.classList.add("active");
   });
-  ["tTurnos","tClientes","tConfig"].forEach(id=>
+  ["tTurnos","tClientes","tRecord","tConfig"].forEach(id=>
     document.getElementById(id).style.display="none");
   document.getElementById("tDash").style.display="block";
   drawTab("tDash");
@@ -512,20 +520,21 @@ function renderAdmin(){
 function aTab(btn,id){
   document.querySelectorAll("#adminTabs .tab").forEach(t=>t.classList.remove("active"));
   btn.classList.add("active");
-  ["tDash","tTurnos","tClientes","tConfig"].forEach(x=>
+  ["tDash","tTurnos","tClientes","tRecord","tConfig"].forEach(x=>
     document.getElementById(x).style.display="none");
   document.getElementById(id).style.display="block";
   drawTab(id);
 }
 function reDrawCur(){
   const a=document.querySelector("#adminTabs .tab.active");
-  const m={"📊 Panel":"tDash","📅 Turnos":"tTurnos","👥 Clientes":"tClientes","⚙️ Config":"tConfig"};
+  const m={"📊 Panel":"tDash","📅 Turnos":"tTurnos","👥 Clientes":"tClientes","🔔 Recordatorios":"tRecord","⚙️ Config":"tConfig"};
   drawTab(m[a?.textContent?.trim()]||"tDash");
 }
 function drawTab(id){
   if(id==="tDash")    drawDash();
   if(id==="tTurnos")  drawTurnos();
   if(id==="tClientes")drawClientes();
+  if(id==="tRecord")  drawRecord();
   if(id==="tConfig")  drawConfig();
 }
 
@@ -624,6 +633,86 @@ function drawClientes(){
             </td></tr>`).join("")}
         </tbody></table></div>`}
     </div>`;
+}
+
+/* ── RECORDATORIOS ───────────────────────────── */
+function drawRecord(){
+  const reminders=calcAllReminders();
+  document.getElementById("tRecord").innerHTML=`
+    <div class="sh">
+      <div class="st">RECORDATORIOS DE SERVICE</div>
+      <button class="btn btn-p" onclick="sendAllReminders()">📧 Enviar Todos</button>
+    </div>
+    ${reminders.length===0?'<div class="empty">✅ Todos al día con su service</div>':`
+      ${reminders.map(r=>`
+        <div class="record-card">
+          <div class="record-client">👤 ${esc(r.clientName)}</div>
+          <div class="record-info">
+            <div>🚗 ${esc(r.vehicleDesc)} · ${r.patent}</div>
+            <div>📏 Último service: ${fmtD(r.lastDate)} con ${fmtNum(r.lastKm)} km</div>
+            <div style="color:var(--warn)"><strong>⚠️ Próximo: ${fmtNum(r.nextKm)} km o ${fmtD(r.nextDate)}</strong></div>
+            <div style="font-size:.72rem;color:var(--muted)">Motor: ${esc(r.motor)}</div>
+          </div>
+          <div class="record-actions">
+            <button class="btn btn-wa btn-sm" onclick="sendWAReminder('${r.clientId}','${r.clientName}')">💬 Enviar WA</button>
+            <button class="btn btn-b btn-sm" onclick="openNewAppt_Client('${r.clientId}')">📅 Crear Turno</button>
+          </div>
+        </div>
+      `).join("")}
+    `}`;
+}
+
+function calcAllReminders(){
+  const reminders=[];
+  CLIENTS.forEach(cl=>{
+    const done=APPTS.filter(a=>a.clientId===cl.id&&a.status==="completado"&&a.km)
+      .sort((a,b)=>b.date.localeCompare(a.date));
+    if(done.length>0){
+      const last=done[0];
+      const vtype=cl.vehicleType||"auto";
+      const ns=calcNextService(last.km,last.date,vtype);
+      const daysLeft=Math.floor((new Date(ns.nextDate)-new Date())/(1000*60*60*24));
+      const kmPercent=Math.round((parseInt(last.km||0)/ns.nextKm)*100);
+      if(daysLeft<=30||kmPercent>=70){
+        reminders.push({
+          clientId:cl.id,clientName:cl.name,patent:cl.patent,motor:cl.motor,
+          vehicleDesc:`${cl.brand} ${cl.model} ${cl.year}`,lastDate:last.date,lastKm:last.km,
+          nextKm:ns.nextKm,nextDate:ns.nextDate,daysLeft,kmPercent
+        });
+      }
+    }
+  });
+  return reminders.sort((a,b)=>a.daysLeft-b.daysLeft);
+}
+
+function sendWAReminder(clientId,clientName){
+  const cl=CLIENTS.find(c=>c.id===clientId);if(!cl)return;
+  const msg=`Hola ${cl.name.split(" ")[0]}! 👋\n\n` +
+    `Recordamos que tu ${cl.vehicleType==="camion"?"camión":"auto"} ${cl.brand} ${cl.model} necesita service pronto.\n\n` +
+    `🚗 ${cl.brand} ${cl.model} ${cl.year} · ${cl.patent}\n` +
+    `⚙️ Motor: ${cl.motor}\n\n` +
+    `📅 Reservá tu turno en: https://gonzitassi.github.io/lubricentroesquiu/`;
+  window.open(`https://wa.me/${cleanWA(cl.whatsapp)}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+
+function sendAllReminders(){
+  const reminders=calcAllReminders();
+  if(!reminders.length){toast("No hay recordatorios pendientes","info");return;}
+  reminders.forEach(r=>sendWAReminder(r.clientId,r.clientName));
+  toast(`Se abrieron ${reminders.length} chats de WhatsApp`,"success");
+}
+
+function openNewAppt_Client(clientId){
+  document.getElementById("mApptClientId").value=clientId;
+  const cl=CLIENTS.find(c=>c.id===clientId);
+  document.getElementById("mAClientSearch").value=cl?.name||"";
+  document.getElementById("mApptTitle").textContent="NUEVO TURNO";
+  document.getElementById("mApptId").value="";
+  document.getElementById("mADate").value=todayISO;
+  document.getElementById("mADate").min=todayISO;
+  document.getElementById("mAKm").value="";
+  syncApptSvcs(cl?.vehicleType||"auto");
+  openM("mAppt");
 }
 
 /* ── CONFIG ──────────────────────────────────── */
@@ -929,7 +1018,6 @@ async function delSvc(id){
   }
   document.getElementById("appLoader").style.display="none";
   
-  // Verificar si ya está logueado
   if(sessionStorage.getItem("adminLoggedIn")){
     go("pgAdmin");
   } else {
