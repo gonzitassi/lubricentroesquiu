@@ -274,6 +274,17 @@ select.fi option{background:var(--bg2);}
 .pit-auto  {background:rgba(59,130,246,.15);color:var(--blue);}
 .pit-camion{background:rgba(168,85,247,.15);color:#c084fc;}
 
+/* ══ CHECKLIST ITEMS ════════════════════════════════ */
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));
+  gap:.42rem;margin-top:.28rem;}
+.cl-btn{display:flex;align-items:center;gap:.38rem;border-radius:8px;padding:.48rem .72rem;
+  cursor:pointer;transition:all .15s;font-size:.82rem;font-weight:500;
+  text-align:left;touch-action:manipulation;width:100%;border:1.5px solid;}
+.cl-neutral{background:var(--bg3);border-color:var(--border);color:var(--muted);}
+.cl-done   {background:rgba(34,197,94,.11);border-color:var(--success);color:var(--success);}
+.cl-skip   {background:rgba(239,68,68,.09);border-color:var(--danger);color:var(--danger);}
+.cl-ico{font-size:.92rem;flex-shrink:0;width:14px;text-align:center;}
+
 /* ══ SECTION HEADER ════════════════════════════════ */
 .section-header{display:flex;align-items:center;justify-content:space-between;
   margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;}
@@ -1090,6 +1101,13 @@ function drawRecord() {
         ${pending.length} pendiente${pending.length !== 1 ? "s" : ""} · ${done.length} avisado${done.length !== 1 ? "s" : ""}</span>
     </div>
     
+    ${urgent.length > 0 ? `
+      <button class="btn btn-p btn-full" style="margin-bottom:1rem;background:var(--danger)" 
+        onclick="sendAllUrgentReminders()">
+        📲 ENVIAR A TODOS LOS ${urgent.length} URGENTES
+      </button>
+    ` : ""}
+    
     <div class="reminder-summary">
       <div class="reminder-stat">
         <div class="reminder-stat-num" style="color:var(--danger)">${urgent.length}</div>
@@ -1180,6 +1198,43 @@ function sendReminder(cid, lastDate, patent, notifKey) {
     `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
   
   window.open(`https://wa.me/${cleanWA(cl.whatsapp)}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+function sendAllUrgentReminders() {
+  const all = calcAllReminders();
+  const urgent = all.filter(r => r.urgencia === "urgent" && !r.notified);
+  
+  if(!urgent.length) {
+    toast("No hay clientes urgentes para avisar", "warn");
+    return;
+  }
+  
+  let count = 0;
+  const interval = setInterval(() => {
+    if(count >= urgent.length) {
+      clearInterval(interval);
+      toast(`✔️ Se enviaron ${urgent.length} recordatorios`, "success");
+      setTimeout(() => drawRecord(), 1000);
+      return;
+    }
+    
+    const r = urgent[count];
+    const cl = r.cl;
+    const iv = SVC_INTERVAL[r.vtype] || SVC_INTERVAL.auto;
+    
+    const msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
+      `*${cl.brand} ${cl.model}* (Patente: *${r.last.patent || cl.patent}*) ya cumplió *${iv.months} meses* o ` +
+      `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(r.last.date)}.\n\n` +
+      `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
+    
+    // Guardar como "avisado"
+    AppState.notified[r.notifKey] = {ts: Date.now()};
+    
+    // Abrir en nueva pestaña (se abre automático)
+    window.open(`https://wa.me/${cleanWA(cl.whatsapp)}?text=${encodeURIComponent(msg)}`, "_blank");
+    
+    count++;
+  }, 800); // 800ms entre cada envío (para evitar bloqueo)
 }
 
 /* ════════════════════════════════════════════════════════
@@ -1429,10 +1484,18 @@ async function doCompleteAppt() {
   }
   
   const appt = AppState.appointments.find(a => a.id === id);
-  const vtype = appt ? AppState.clients.find(c => c.id === appt.clientId)?.vehicleType || "auto" : "auto";
+  if(!appt) return;
+  
+  const cl = AppState.clients.find(c => c.id === appt.clientId);
+  const vtype = cl?.vehicleType || "auto";
   const {nextKm, nextDate} = calcNextService(km, todayISO, vtype);
   
-  // Optimistic update
+  // Armar lista de filtros cambiados
+  const cl2 = clItems || {};
+  const doneItems = CHECKLIST.filter(c => cl2[c.id] === "done").map(c => c.label);
+  const filtrosText = doneItems.length > 0 ? doneItems.join(", ") : "Según lo acordado";
+  
+  // Guardar primero
   Object.assign(appt, {
     status: "completado",
     km,
@@ -1445,11 +1508,35 @@ async function doCompleteAppt() {
   
   const saved = await AppState.saveToFirebase("appointments", AppState.appointments);
   
-  if(saved) {
-    closeM("mComplete");
-    toast("Service completado y guardado ✔", "success");
-    reDrawCur();
+  if(!saved) {
+    toast("Error al guardar", "error");
+    return;
   }
+  
+  // Si guardó correctamente, generar y enviar mensaje
+  const nombre = cl?.name.split(" ")[0] || "Cliente";
+  const mensaje = `Hola, ${nombre}! 👋 Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model}.
+
+Acá te dejamos tu Libretito Digital para que lo tengas a mano 📝:
+
+🗓️ Fecha: ${fmtD(appt.date)} a las ${appt.time}
+🏎️ KMs actuales: ${fmtNum(parseInt(km))}
+🛢️ Aceite: ${oil}
+🔧 Filtros: ${filtrosText}
+⚠️ Próximo Service: a los ${fmtNum(nextKm)} KMs (aprox. ${fmtD(nextDate)})
+
+${obs ? `💬 Observaciones: ${obs}\n` : ""}
+PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: ${APP_URL} ⭐⭐⭐⭐⭐
+
+¡Gracias por confiar en nosotros!`;
+  
+  // Abrir WhatsApp
+  const waUrl = `https://wa.me/${cleanWA(cl?.whatsapp)}?text=${encodeURIComponent(mensaje)}`;
+  window.open(waUrl, "_blank");
+  
+  closeM("mComplete");
+  toast("Service guardado ✔ Abriendo WhatsApp...", "success");
+  reDrawCur();
 }
 
 /* ════════════════════════════════════════════════════════
