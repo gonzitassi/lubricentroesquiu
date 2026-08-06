@@ -1351,13 +1351,8 @@ async function updAppt(id, status) {
   
   appt.status = status;
   
-  // Si se confirma → auto-enviar WA confirmatorio
-  if(status === "confirmado") {
-    const cl = AppState.clients.find(c => c.id === appt.clientId);
-    const msg = `Hola ${cl?.name.split(" ")[0]}! ✅ Confirmamos tu turno del ${fmtD(appt.date)} a las ${appt.time}.\n` +
-      `🔧 ${appt.serviceName}\n🚗 ${appt.vehicleDesc}\n🔑 ${appt.patent}\n\n¡Te esperamos! 🙌`;
-    window.open(`https://wa.me/${PHONE_LUBRI}?text=${encodeURIComponent(`ADMIN - Enviar a ${cl?.name}:\n\n${msg}`)}`, "_blank");
-  }
+  // NO enviar mensaje automático en confirmación
+  // El admin decide cuándo y cómo comunicar
   
   const saved = await AppState.saveToFirebase("appointments", AppState.appointments);
   
