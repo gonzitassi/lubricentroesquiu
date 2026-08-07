@@ -31,8 +31,8 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
   box-shadow:0 4px 20px rgba(0,0,0,.5);}
 .toast.show{transform:translateX(0);}
 .toast-success{border-left:3px solid var(--success);}
-.toast-error{border-left:3px solid var(--danger);}
-.toast-warn{border-left:3px solid var(--warn);}
+.toast-error  {border-left:3px solid var(--danger);}
+.toast-warn   {border-left:3px solid var(--warn);}
 .toast-msg{flex:1;line-height:1.4;}
 .toast-close{background:none;border:none;color:var(--muted);cursor:pointer;
   font-size:1.05rem;padding:0 .15rem;line-height:1;flex-shrink:0;}
@@ -47,11 +47,11 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 #pgLanding::before{content:'';position:absolute;top:-40%;left:-20%;width:60%;height:80%;
   background:radial-gradient(ellipse,rgba(249,115,22,.09) 0%,transparent 70%);pointer-events:none;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,9vw,4.8rem);
-  letter-spacing:3px;line-height:1;position:relative;z-index:10;}
+  letter-spacing:3px;line-height:1;}
 .logo span{color:var(--orange);}
 .land-sub{color:var(--muted);margin:.38rem 0 1.8rem;font-size:.78rem;
-  letter-spacing:2px;text-transform:uppercase;position:relative;z-index:10;}
-.land-cards{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.4rem;position:relative;z-index:10;}
+  letter-spacing:2px;text-transform:uppercase;}
+.land-cards{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.4rem;}
 .lcard{background:var(--bg3);border:1px solid var(--border);border-radius:16px;
   padding:1.8rem 1.6rem;min-width:172px;cursor:pointer;transition:all .2s;text-align:center;}
 .lcard:hover,.lcard:active{border-color:var(--orange);transform:translateY(-3px);
@@ -60,10 +60,10 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 .lcard h3{font-family:'Bebas Neue',sans-serif;font-size:1.42rem;letter-spacing:1px;margin-bottom:.2rem;}
 .lcard p{color:var(--muted);font-size:.77rem;}
 .maps-link{color:var(--muted);font-size:.75rem;text-decoration:none;
-  display:inline-flex;align-items:center;gap:.3rem;margin-bottom:.72rem;position:relative;z-index:10;}
+  display:inline-flex;align-items:center;gap:.3rem;margin-bottom:.72rem;}
 .maps-link:hover{color:var(--orange);}
 
-/* ══ TOPBAR ═════════════════════════════════════════ */
+/* ══ TOPBAR ══════════════════════════════════════════ */
 .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.8rem 1.3rem;
   display:flex;align-items:center;justify-content:space-between;
   position:sticky;top:0;z-index:100;flex-shrink:0;}
@@ -74,7 +74,6 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
   padding:.3rem .78rem;border-radius:8px;cursor:pointer;font-size:.76rem;
   transition:all .15s;touch-action:manipulation;}
 .back-btn:hover{border-color:var(--orange);color:var(--text);}
-.client-name{color:var(--muted);font-size:.78rem;}
 
 /* ══ CONTENT ════════════════════════════════════════ */
 .content{padding:1.2rem;max-width:1050px;margin:0 auto;width:100%;flex:1;}
@@ -84,30 +83,13 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 .card-title{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:1px;
   margin-bottom:.8rem;color:var(--orange);}
 
-/* ══ STATS ═══════════════════════════════════════════ */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
-  gap:.82rem;margin-bottom:1.1rem;}
-.stat{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:.92rem;}
-.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--orange);line-height:1;}
-.stat-lbl{color:var(--muted);font-size:.67rem;text-transform:uppercase;
-  letter-spacing:1px;margin-top:.12rem;}
-
-/* ══ TABLE ═══════════════════════════════════════════ */
-.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-table{width:100%;border-collapse:collapse;font-size:.8rem;}
-th{text-align:left;padding:.46rem .66rem;color:var(--muted);font-size:.65rem;
-  text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:500;}
-td{padding:.62rem .66rem;border-bottom:1px solid #1e1e21;vertical-align:middle;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--bg3);}
-
 /* ══ BADGE ═══════════════════════════════════════════ */
-.badge{display:inline-block;padding:.13rem .46rem;border-radius:20px;font-size:.65rem;font-weight:600;}
-.b-green{background:rgba(34,197,94,.15);color:var(--success);}
+.badge{display:inline-block;padding:.15rem .5rem;border-radius:20px;font-size:.7rem;font-weight:700;}
+.b-green {background:rgba(34,197,94,.15);color:var(--success);}
 .b-yellow{background:rgba(234,179,8,.15);color:var(--warn);}
 .b-orange{background:rgba(249,115,22,.15);color:var(--orange);}
-.b-red{background:rgba(239,68,68,.15);color:var(--danger);}
-.b-blue{background:rgba(59,130,246,.15);color:var(--blue);}
+.b-red   {background:rgba(239,68,68,.15);color:var(--danger);}
+.b-blue  {background:rgba(59,130,246,.15);color:var(--blue);}
 
 /* ══ BUTTONS ════════════════════════════════════════ */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.26rem;
@@ -119,118 +101,118 @@ tr:hover td{background:var(--bg3);}
 .btn-g:hover,.btn-g:active{border-color:var(--orange);color:var(--orange);}
 .btn-d{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3);}
 .btn-s{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3);}
+.btn-b{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3);}
 .btn-wa{background:var(--wa);color:#fff;border:none;}
 .btn-wa:hover,.btn-wa:active{background:var(--wa2);}
-.btn-wa-big{background:var(--wa);color:#fff;border:none;border-radius:10px;padding:.8rem 1.5rem;
-  font-size:.98rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;
-  gap:.46rem;transition:all .15s;touch-action:manipulation;width:100%;justify-content:center;}
-.btn-wa-big:active{background:var(--wa2);}
 .btn-sm{padding:.22rem .52rem;font-size:.7rem;}
 .btn-full{width:100%;margin-top:.26rem;}
 .btn:disabled{opacity:.38;cursor:not-allowed;pointer-events:none;}
+.btn.loading{position:relative;color:transparent;}
+.btn.loading::after{content:'';position:absolute;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
 
 /* ══ FORMS ═══════════════════════════════════════════ */
 .fg{margin-bottom:.8rem;}
-.fl{display:block;font-size:.68rem;color:var(--muted);text-transform:uppercase;
-  letter-spacing:1px;margin-bottom:.26rem;}
+.fl{display:block;font-size:.75rem;color:var(--muted);text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:.26rem;line-height:1.2;}
 .fi{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);
   padding:.52rem .76rem;border-radius:8px;font-size:.88rem;transition:border .15s;
   outline:none;-webkit-appearance:none;}
 .fi:focus{border-color:var(--orange);}
+.fi[readonly]{opacity:.6;cursor:not-allowed;}
 textarea.fi{resize:vertical;min-height:82px;line-height:1.5;}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
 @media(max-width:480px){.fr{grid-template-columns:1fr;}}
 select.fi option{background:var(--bg2);}
-.search-bar{position:relative;margin-bottom:.8rem;}
-.search-bar input{width:100%;background:var(--bg3);border:1px solid var(--border);
-  color:var(--text);padding:.5rem .8rem .5rem 2.1rem;border-radius:8px;font-size:.82rem;outline:none;}
-.search-bar input:focus{border-color:var(--orange);}
-.search-bar::before{content:'🔍';position:absolute;left:.6rem;top:50%;
-  transform:translateY(-50%);font-size:.82rem;pointer-events:none;}
 
-/* ══ SERVICE GRID ════════════════════════════════════ */
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(136px,1fr));gap:.58rem;}
-.sc{border:2px solid var(--border);border-radius:10px;padding:.8rem;cursor:pointer;
-  transition:all .15s;text-align:center;touch-action:manipulation;}
+/* ══ CLIENT AUTOCOMPLETE ══════════════════════════════ */
+.autocomplete-wrap{position:relative;}
+.autocomplete-wrap .fi{padding-right:2rem;}
+.autocomplete-clear{position:absolute;right:.6rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;
+  line-height:1;padding:0;display:none;}
+.autocomplete-clear.visible{display:block;}
+.autocomplete-list{position:absolute;top:calc(100% + .3rem);left:0;right:0;
+  background:var(--bg2);border:1px solid var(--orange);border-radius:10px;
+  z-index:500;max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);}
+.autocomplete-item{padding:.65rem .9rem;cursor:pointer;transition:background .12s;
+  border-bottom:1px solid var(--border);font-size:.85rem;}
+.autocomplete-item:last-child{border-bottom:none;}
+.autocomplete-item:hover,.autocomplete-item.ac-focused{background:rgba(249,115,22,.1);}
+.autocomplete-item-name{font-weight:700;color:var(--text);}
+.autocomplete-item-sub{color:var(--muted);font-size:.75rem;margin-top:.1rem;}
+.autocomplete-empty{padding:.65rem .9rem;color:var(--muted);font-size:.82rem;text-align:center;}
+
+/* ══ CLIENT PREVIEW ══════════════════════════════════ */
+.client-preview{background:rgba(249,115,22,.06);border:1px solid rgba(249,115,22,.3);
+  border-radius:10px;padding:.75rem 1rem;margin-bottom:.8rem;font-size:.86rem;line-height:1.6;
+  display:none;}
+.client-preview.visible{display:block;}
+.client-preview-title{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:1px;
+  color:var(--orange);margin-bottom:.28rem;}
+
+/* ══ MODAL ═══════════════════════════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;
+  align-items:center;justify-content:center;padding:1rem;-webkit-overflow-scrolling:touch;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  padding:1.5rem;width:100%;max-width:490px;max-height:93vh;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;padding-bottom:2rem;}
+.mtitle{font-family:'Bebas Neue',sans-serif;font-size:1.38rem;letter-spacing:1px;margin-bottom:1.1rem;}
+.mact{display:flex;gap:.55rem;justify-content:flex-end;margin-top:1.1rem;flex-wrap:wrap;}
+
+/* ══ SERVICE GRID (FIX 2) ════════════════════════════ */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;}
+.sc{border:2px solid var(--border);border-radius:10px;padding:1.2rem;cursor:pointer;
+  transition:all .15s;text-align:center;touch-action:manipulation;
+  min-height:160px;display:flex;flex-direction:column;justify-content:center;}
 .sc:hover,.sc:active,.sc.sel{border-color:var(--orange);background:rgba(249,115,22,.07);}
-.sc-name{font-weight:600;font-size:.8rem;margin-bottom:.13rem;}
-.sc-price{color:var(--orange);font-size:.75rem;font-weight:700;}
-.sc-meta{color:var(--muted);font-size:.67rem;}
+.sc-name{font-weight:600;font-size:.88rem;margin-bottom:.25rem;line-height:1.3;}
+.sc-price{color:var(--orange);font-size:.82rem;font-weight:700;margin:.35rem 0 .15rem;}
+.sc-meta{color:var(--muted);font-size:.75rem;}
 
-/* ══ TIME GRID ═══════════════════════════════════════ */
+/* ══ TIME GRID (FIX 3) ═══════════════════════════════ */
 .tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:.36rem;}
 .tb{border:1px solid var(--border);background:var(--bg3);color:var(--text);padding:.38rem;
   border-radius:8px;cursor:pointer;font-size:.77rem;transition:all .15s;text-align:center;
   touch-action:manipulation;}
 .tb:hover,.tb:active,.tb.sel{border-color:var(--orange);color:var(--orange);
   background:rgba(249,115,22,.07);}
-.tb.taken{opacity:.22;cursor:not-allowed;pointer-events:none;text-decoration:line-through;}
+.tb.taken{opacity:.45;background:rgba(239,68,68,.08);color:var(--danger);
+  cursor:not-allowed;text-decoration:line-through;border-color:var(--danger);}
 
-/* ══ ALERT ════════════════════════════════════════════ */
-.alert{padding:.74rem .9rem;border-radius:8px;margin-bottom:.8rem;font-size:.8rem;line-height:1.5;}
-.ao{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:var(--orange);}
-.ag{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--success);}
-.ar{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--danger);}
-.ab{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:var(--blue);}
+/* ══ STEP INDICATOR (FIX 1) ══════════════════════════ */
+.step-indicator{display:flex;gap:1rem;margin-bottom:1.5rem;justify-content:center;}
+.step-dot{display:flex;align-items:center;justify-content:center;width:32px;height:32px;
+  border-radius:50%;background:var(--bg3);border:2px solid var(--border);
+  color:var(--muted);font-size:.8rem;font-weight:600;transition:all .2s;}
+.step-dot.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+.step-dot.completed{background:var(--success);border-color:var(--success);}
 
-/* ══ SECTION HEADER ═════════════════════════════════ */
-.sh{display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:.9rem;flex-wrap:wrap;gap:.46rem;}
-.st{font-family:'Bebas Neue',sans-serif;font-size:1.38rem;letter-spacing:1px;}
-
-/* ══ VEHICLE INFO BOX ════════════════════════════════ */
-.vinfo{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-  padding:.5rem .75rem;font-size:.82rem;margin-bottom:.76rem;}
-
-/* ══ VEHICLE TYPE BUTTONS ════════════════════════════ */
-.vtype-btns{display:flex;gap:.5rem;margin-top:.26rem;}
-.vtype-btn{flex:1;padding:.5rem;border:2px solid var(--border);border-radius:8px;
-  background:transparent;color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;
-  transition:all .15s;text-align:center;touch-action:manipulation;}
-.vtype-btn.sel{border-color:var(--orange);background:rgba(249,115,22,.08);color:var(--orange);}
-
-/* ══ SUMMARY BOX ═════════════════════════════════════ */
-.sum-box{background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.3);
-  border-radius:12px;padding:.92rem;margin-bottom:.85rem;}
-
-/* ══ NEXT SERVICE ════════════════════════════════════ */
-.next-svc{background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(249,115,22,.04));
-  border:1px solid rgba(249,115,22,.35);border-radius:14px;padding:1rem 1.1rem;
-  margin-bottom:1.3rem;}
-.next-svc-title{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:1px;
-  color:var(--orange);margin-bottom:.36rem;}
-
-/* ══ SUCCESS BANNER ══════════════════════════════════ */
-.success-banner{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.38);
-  border-radius:14px;padding:1.28rem;margin-bottom:.88rem;text-align:center;}
-.sb-icon{font-size:2.2rem;margin-bottom:.36rem;}
-.sb-title{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:1px;
-  color:var(--success);margin-bottom:.26rem;}
-.sb-sub{color:var(--muted);font-size:.8rem;margin-bottom:.88rem;line-height:1.55;}
-.btn-wa-big-hint{color:var(--muted);font-size:.7rem;margin-top:.42rem;}
-
-/* ══ APPT CARD ════════════════════════════════════════ */
-.appt-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
-  padding:.88rem;display:flex;justify-content:space-between;align-items:center;
-  flex-wrap:wrap;gap:.52rem;margin-bottom:.52rem;}
-
-/* ══ LIBRETITO ════════════════════════════════════════ */
-.libretito-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;
-  padding:1.2rem 1.2rem 1rem;margin-bottom:1rem;overflow:hidden;}
+/* ══ LIBRETITO — HIERARCHY (FIX 4) ═══════════════════ */
+.libretito-card{background:var(--bg3);border:1px solid rgba(249,115,22,.25);border-radius:14px;
+  padding:1.2rem 1.2rem 1rem;margin-bottom:1.2rem;overflow:hidden;}
 .libretito-header{display:flex;align-items:flex-start;justify-content:space-between;
-  flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem;padding-bottom:.8rem;border-bottom:1px solid var(--border);}
+  flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem;padding-bottom:.8rem;
+  border-bottom:1px solid var(--border);}
 .libretito-service{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;
   color:var(--text);line-height:1.15;}
 .libretito-date{color:var(--muted);font-size:.82rem;margin-top:.18rem;}
-.libretito-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem;}
+
+.libretito-pills{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:.85rem;}
 .libretito-pill{display:inline-flex;flex-direction:column;background:var(--bg2);
   border:1px solid var(--border);border-radius:10px;padding:.5rem .8rem;min-width:110px;flex:1;}
 .libretito-pill-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;
   letter-spacing:.8px;margin-bottom:.18rem;}
 .libretito-pill-value{font-size:1.05rem;font-weight:700;color:var(--text);line-height:1.2;}
-.libretito-pill.pill-km .libretito-pill-value{color:var(--orange);}
-.libretito-pill.pill-oil .libretito-pill-value{color:#60a5fa;}
-.libretito-pill.pill-next .libretito-pill-value{color:var(--success);font-size:.95rem;}
+.libretito-pill.pill-km    .libretito-pill-value{color:var(--orange);}
+.libretito-pill.pill-oil   .libretito-pill-value{color:#60a5fa;}
+.libretito-pill.pill-next{grid-column:span 2;min-width:unset;
+  background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(34,197,94,.04));
+  border:1.5px solid var(--success);padding:.65rem 1rem;}
+.libretito-pill.pill-next .libretito-pill-value{font-size:1.15rem;}
+
 .libretito-cl-title{font-size:.72rem;color:var(--muted);text-transform:uppercase;
   letter-spacing:.8px;margin-bottom:.5rem;font-weight:600;}
 .libretito-cl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.36rem;margin-bottom:.8rem;}
@@ -239,42 +221,86 @@ select.fi option{background:var(--bg2);}
 .libretito-cl-done{background:rgba(34,197,94,.1);color:var(--success);}
 .libretito-cl-skip{background:rgba(239,68,68,.08);color:var(--danger);}
 .libretito-cl-ico{font-size:.9rem;flex-shrink:0;}
+
 .libretito-obs{background:var(--bg2);border:1px solid var(--border);border-radius:9px;
   padding:.75rem .9rem;font-size:.9rem;color:var(--text);line-height:1.65;margin-top:.1rem;}
 .libretito-obs-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;
   letter-spacing:.8px;margin-bottom:.32rem;font-weight:600;}
 
-/* ══ STEP INDICATOR ══════════════════════════════════ */
-.step-title{display:flex;align-items:center;font-weight:600;margin-bottom:.8rem;font-size:.88rem;}
+/* ══ MISC ════════════════════════════════════════════ */
+.sh{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:.9rem;flex-wrap:wrap;gap:.46rem;}
+.st{font-family:'Bebas Neue',sans-serif;font-size:1.38rem;letter-spacing:1px;}
 .sn{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;
   border-radius:50%;background:var(--orange);color:#fff;font-family:'Bebas Neue',sans-serif;
   font-size:.88rem;margin-right:.38rem;flex-shrink:0;}
-
-/* ══ EMPTY ═══════════════════════════════════════════ */
-.empty{text-align:center;padding:2rem 1rem;color:var(--muted);}
-
-/* ══ CLOSED MSG ═════════════════════════════════════ */
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0;}
+.alert{padding:.74rem .9rem;border-radius:8px;margin-bottom:.8rem;font-size:.8rem;line-height:1.5;}
+.ao{background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.3);color:var(--orange);}
+.ag{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--success);}
+.ar{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--danger);}
+.ab{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.3);color:var(--blue);}
+.vtype-btns{display:flex;gap:.5rem;margin-top:.26rem;}
+.vtype-btn{flex:1;padding:.5rem;border:2px solid var(--border);border-radius:8px;
+  background:transparent;color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;
+  transition:all .15s;text-align:center;touch-action:manipulation;}
+.vtype-btn.sel{border-color:var(--orange);background:rgba(249,115,22,.08);color:var(--orange);}
+.pit-badge{display:inline-block;padding:.11rem .4rem;border-radius:6px;font-size:.65rem;font-weight:700;margin-left:.3rem;}
+.pit-auto  {background:rgba(59,130,246,.15);color:var(--blue);}
+.pit-camion{background:rgba(168,85,247,.15);color:#c084fc;}
 .closed-msg{text-align:center;padding:1.4rem;color:var(--danger);font-size:.88rem;
   background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:10px;}
+.empty{text-align:center;padding:2rem 1rem;color:var(--muted);}
+.sum-box{background:rgba(249,115,22,.05);border:1px solid rgba(249,115,22,.3);
+  border-radius:12px;padding:.92rem;margin-bottom:.85rem;}
+.appt-card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:.88rem;display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:.52rem;margin-bottom:.52rem;}
+.next-svc{background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(249,115,22,.04));
+  border:1px solid rgba(249,115,22,.35);border-radius:14px;padding:1rem 1.1rem;
+  margin-bottom:1.3rem;}
+.next-svc-title{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:1px;
+  color:var(--orange);margin-bottom:.36rem;}
+.success-banner{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.38);
+  border-radius:14px;padding:1.28rem;margin-bottom:.88rem;text-align:center;}
+.sb-icon{font-size:2.2rem;margin-bottom:.36rem;}
+.sb-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,5vw,2.2rem);
+  letter-spacing:2px;color:var(--success);margin-bottom:.4rem;text-transform:uppercase;}
+.sb-sub{color:var(--muted);font-size:.8rem;margin-bottom:.88rem;line-height:1.55;}
+.btn-wa-big{background:linear-gradient(135deg,var(--wa),#0dd94c);color:#fff;border:none;
+  border-radius:10px;padding:.8rem 1.5rem;font-size:1.05rem;font-weight:700;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.46rem;transition:all .15s;
+  touch-action:manipulation;width:100%;justify-content:center;letter-spacing:.5px;
+  text-transform:uppercase;box-shadow:0 4px 16px rgba(37,211,102,.25);}
+.btn-wa-big:active{box-shadow:0 2px 8px rgba(37,211,102,.2);transform:scale(.98);}
+.btn-wa-big-hint{color:var(--muted);font-size:.7rem;margin-top:.42rem;}
 
-/* ══ DIVIDER ═════════════════════════════════════════ */
-.divider{border:none;border-top:1px solid var(--border);margin:1rem 0;}
+/* ══ LOADER ══════════════════════════════════════════ */
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(249,115,22,.25);
+  border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;}
+.saving-lbl{font-size:.7rem;color:var(--muted);display:none;align-items:center;gap:.36rem;}
+.loader-full{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+.big-spin{width:38px;height:38px;border:3px solid rgba(249,115,22,.2);
+  border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;}
 </style>
 </head>
 <body>
 
 <div id="toastBox"></div>
+<div class="loader-full" id="appLoader">
+  <div class="big-spin"></div>
+  <div style="color:var(--muted);font-size:.86rem">Conectando con Firebase...</div>
+</div>
 
 <!-- ═══════════ LANDING ═══════════ -->
-<div class="page active" id="pgLanding">
+<div class="page" id="pgLanding">
   <div class="logo">LUBRICENTRO <span>ESQUIÚ</span></div>
   <div class="land-sub">Turnos Online · Córdoba</div>
   <div class="land-cards">
     <div class="lcard" onclick="go('pgClient')">
       <div class="lcard-ico">🚗</div><h3>SOY CLIENTE</h3><p>Sacá tu turno online</p>
-    </div>
-    <div class="lcard" onclick="goAdmin()">
-      <div class="lcard-ico">⚙️</div><h3>ADMINISTRAR</h3><p>Panel del lubricentro</p>
     </div>
   </div>
   <a class="maps-link" href="https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8" target="_blank">
@@ -288,11 +314,54 @@ select.fi option{background:var(--bg2);}
   <div class="topbar">
     <div class="tbrand">LUBRICENTRO <span>ESQUIÚ</span></div>
     <div class="topbar-r">
-      <span id="clientNameLbl" class="client-name" style="display:none"></span>
+      <span id="clientNameLbl" style="color:var(--muted);font-size:.78rem;display:none"></span>
       <button class="back-btn" onclick="go('pgLanding')">← Inicio</button>
     </div>
   </div>
   <div class="content" id="clientArea"></div>
+</div>
+
+<!-- ═══════════ MODALS ═══════════ -->
+
+<!-- Libretito Digital (Complete Turn) -->
+<div class="overlay" id="mComplete">
+  <div class="modal">
+    <div class="mtitle">📋 LIBRETITO DIGITAL</div>
+    <p style="color:var(--muted);font-size:.79rem;margin-bottom:1rem">
+      KM, Aceite y Checklist son el corazón del historial del cliente.</p>
+    <input type="hidden" id="mCompId"/>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">Kilometraje Actual *</label>
+        <input class="fi" type="number" id="mCompKm" placeholder="85000"
+          oninput="calcNextKm(this.value)"/>
+      </div>
+      <div class="fg">
+        <label class="fl">Próximo Service (km)</label>
+        <input class="fi" type="number" id="mCompNextKm" readonly placeholder="Auto"/>
+      </div>
+    </div>
+    <div class="fg" id="mCompNextDateWrap" style="display:none">
+      <label class="fl">Próximo Service (fecha estimada)</label>
+      <input class="fi" id="mCompNextDate" readonly/>
+    </div>
+    <div class="fg"><label class="fl">Marca / Tipo de Aceite *</label>
+      <input class="fi" id="mCompOil" placeholder="Ej: Shell Helix 10W40 4L"/></div>
+    <div class="fg">
+      <label class="fl">Ítems realizados
+        <span style="color:var(--muted);font-size:.62rem;text-transform:none;letter-spacing:0;margin-left:.4rem">
+          ○ sin definir &nbsp;✔ realizado &nbsp;✖ no aplica</span>
+      </label>
+      <div class="cl-grid" id="checklistGrid"></div>
+    </div>
+    <div class="fg"><label class="fl">Observaciones (opcional)</label>
+      <textarea class="fi" id="mCompObs"
+        placeholder="Anotaciones extras, filtros específicos, etc."></textarea></div>
+    <div class="mact">
+      <button class="btn btn-g" onclick="closeM('mComplete')">Cancelar</button>
+      <button class="btn btn-p" onclick="doCompleteAppt()">Guardar y Completar</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -316,10 +385,15 @@ async function fsGet(key, fb=[]) {
     return s.exists ? (s.data().data || fb) : fb;
   } catch(e){ console.error("fsGet",key,e); return fb; }
 }
-
 async function fsPut(key, val) {
+  setSaving(true);
   try { await db.collection("lubricentro").doc(key).set({data:val}); }
   catch(e){ console.error("fsPut",key,e); toast("Error al guardar. Revisá tu conexión.","error"); }
+  setSaving(false);
+}
+function setSaving(v){
+  const el=document.getElementById("savingLbl");
+  if(el) el.style.display=v?"inline-flex":"none";
 }
 
 /* ══ CONSTANTS ══════════════════════════════════════ */
@@ -357,8 +431,8 @@ const todayISO = new Date().toISOString().split("T")[0];
 
 /* ══ STATE ══════════════════════════════════════════ */
 let CLIENTS=[], APPTS=[], SERVICES=[], NOTIFIED={};
-let CLIENT=null; // logged-in user
-let BK={}; // booking state
+let ME=null, BK={};
+let clItems={};
 
 /* ══ TOAST ══════════════════════════════════════════ */
 function toast(msg,type="success",ms=3400){
@@ -390,6 +464,8 @@ function bdg(s){
   const[c,l]=m[s]||["b-yellow",s];
   return`<span class="badge ${c}">${l}</span>`;
 }
+function openM(id){document.getElementById(id).classList.add("open");}
+function closeM(id){document.getElementById(id).classList.remove("open");}
 function toggleOther(sel,oid){
   const el=document.getElementById(oid);
   if(el) el.style.display=sel.value==="Otro"?"block":"none";
@@ -407,6 +483,26 @@ function calcNextService(km,dateStr,vtype){
   dt.setMonth(dt.getMonth()+iv.months);
   return{nextKm, nextDate:dt.toISOString().split("T")[0], iv};
 }
+function calcNextKm(val){
+  const apptId=document.getElementById("mCompId")?.value;
+  const appt=APPTS.find(a=>a.id===apptId);
+  const vtype=appt?CLIENTS.find(c=>c.id===appt.clientId)?.vehicleType||"auto":"auto";
+  const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
+  const n=parseInt(val);
+  const kmEl=document.getElementById("mCompNextKm");
+  const dtEl=document.getElementById("mCompNextDate");
+  const wrap=document.getElementById("mCompNextDateWrap");
+  if(!isNaN(n)){
+    if(kmEl) kmEl.value=n+iv.km;
+    const nd=new Date(todayISO+"T12:00:00"); nd.setMonth(nd.getMonth()+iv.months);
+    if(dtEl) dtEl.value=fmtD(nd.toISOString().split("T")[0]);
+    if(wrap)  wrap.style.display="block";
+  } else {
+    if(kmEl) kmEl.value="";
+    if(dtEl) dtEl.value="";
+    if(wrap)  wrap.style.display="none";
+  }
+}
 
 /* ══ HOURS / DATE LOGIC ═════════════════════════════ */
 function getHoursForDate(dateStr){
@@ -421,9 +517,9 @@ function isDayClosed(dateStr){ return new Date(dateStr+"T12:00:00").getDay()===0
 function getPit(svcId){
   return(SERVICES.find(s=>s.id===svcId)?.type||"auto")==="camion"?"camion":"auto";
 }
-function getTaken(date,pit){
+function getTaken(date,pit,excludeId=null){
   const s=new Set();
-  APPTS.filter(a=>a.date===date&&(a.pit||"auto")===pit)
+  APPTS.filter(a=>a.date===date&&a.id!==excludeId&&(a.pit||"auto")===pit)
        .forEach(a=>(a.blockedSlots||[a.time]).forEach(t=>s.add(t)));
   return s;
 }
@@ -453,37 +549,52 @@ function go(pgId){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(pgId).classList.add("active");
   if(pgId==="pgClient") renderIdentify();
+  if(pgId==="pgLanding"){
+    ME=null;
+    document.getElementById("clientNameLbl").style.display="none";
+  }
 }
 
-function goAdmin(){
-  window.location.href=window.location.href.replace(/index\.html/,"administrador.html");
-}
-
-/* ════════════════════════════════════════════════════
-   IDENTIFICATION & REGISTRATION
-════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   CLIENT FLOW
+══════════════════════════════════════════════════ */
 function renderIdentify(){
-  CLIENT=null;
+  ME=null;
   document.getElementById("clientNameLbl").style.display="none";
   document.getElementById("clientArea").innerHTML=`
     <div style="max-width:420px;padding-top:1.8rem">
-      <h2 style="font-family:'Bebas Neue';font-size:1.72rem;letter-spacing:1px;margin-bottom:.26rem">
+      <h2 style="font-family:'Bebas Neue';font-size:1.72rem;letter-spacing:1px;margin-bottom:1.3rem">
         BIENVENIDO</h2>
-      <p style="color:var(--muted);margin-bottom:1.1rem;font-size:.8rem">
-        Ingresá la patente de tu auto para continuar.</p>
       <div id="cErr" class="alert ao" style="display:none"></div>
-      <div class="fg"><label class="fl">Patente del auto</label>
-        <input class="fi" id="cPat" placeholder="Ej: AB123CD"
-          oninput="this.value=this.value.toUpperCase().replace(/[\s-]/g,'')"
-          onkeydown="if(event.key==='Enter')tryIdentify()"/></div>
-      <div id="newFields" style="display:none">
-        <hr class="divider"/>
-        <p style="color:var(--orange);font-size:.8rem;margin-bottom:.8rem;font-weight:600">
+      
+      <!-- Toggle: Tengo patente vs Registrarse -->
+      <div class="vtype-btns" style="margin-bottom:1.5rem">
+        <button class="vtype-btn sel" id="modeLogin" onclick="toggleMode('login')">🔍 Tengo Patente</button>
+        <button class="vtype-btn" id="modeRegister" onclick="toggleMode('register')">✍️ Registrarme</button>
+      </div>
+      
+      <!-- LOGIN MODE -->
+      <div id="loginFields" style="display:block">
+        <p style="color:var(--muted);margin-bottom:1rem;font-size:.8rem;">
+          Ingresá la patente de tu auto para continuar.</p>
+        <div class="fg"><label class="fl">Patente del auto</label>
+          <input class="fi" id="cPat" placeholder="Ej: AB123CD"
+            oninput="this.value=this.value.toUpperCase().replace(/[\s-]/g,'')"
+            onkeydown="if(event.key==='Enter')tryIdentify()"/></div>
+        <button class="btn btn-p btn-full" onclick="tryIdentify()" style="margin-top:.5rem">Entrar →</button>
+      </div>
+
+      <!-- REGISTER MODE -->
+      <div id="registerFields" style="display:none">
+        <p style="color:var(--orange);font-size:.8rem;margin-bottom:1rem;font-weight:600;">
           ¡Primera vez! Completá tus datos:</p>
         <div class="fg"><label class="fl">Nombre completo</label>
           <input class="fi" id="cName" placeholder="Juan García"/></div>
         <div class="fg"><label class="fl">WhatsApp (solo números)</label>
           <input class="fi" id="cWa" type="tel" placeholder="3518516158"/></div>
+        <div class="fg"><label class="fl">Patente del auto</label>
+          <input class="fi" id="cPatReg" placeholder="Ej: AB123CD"
+            oninput="this.value=this.value.toUpperCase().replace(/[\s-]/g,'')"/></div>
         <div class="fg"><label class="fl">Tipo de Vehículo</label>
           <div class="vtype-btns">
             <button class="vtype-btn sel" id="vtAuto" onclick="selVtype('auto')">🚗 Auto / Camioneta</button>
@@ -493,7 +604,7 @@ function renderIdentify(){
         <div class="fg"><label class="fl">Marca</label>
           <select class="fi" id="cBrand" onchange="toggleOther(this,'cBrandOther')">
             <option value="">Seleccioná…</option>
-            ${BRANDS_LIST.map(b=>`<option value="${b}">${b}</option>`).join("")}
+            ${BRANDS_LIST.map(b=>\`<option value="\${b}">\${b}</option>\`).join("")}
           </select>
           <input class="fi" id="cBrandOther" placeholder="Escribí la marca"
             style="display:none;margin-top:.34rem"/></div>
@@ -505,9 +616,29 @@ function renderIdentify(){
         </div>
         <div class="fg"><label class="fl">Motor</label>
           <input class="fi" id="cMotor" placeholder="Ej: 1.6, 2.0, MWM"/></div>
+        <button class="btn btn-p btn-full" onclick="doRegisterClient()" style="margin-top:.5rem">Registrarme →</button>
       </div>
-      <button class="btn btn-p btn-full" id="cEnterBtn" onclick="tryIdentify()">Entrar →</button>
     </div>`;
+}
+
+function toggleMode(m){
+  const login=document.getElementById("loginFields");
+  const reg=document.getElementById("registerFields");
+  const btnLogin=document.getElementById("modeLogin");
+  const btnReg=document.getElementById("modeRegister");
+  if(m==="login"){
+    login.style.display="block";
+    reg.style.display="none";
+    btnLogin.classList.add("sel");
+    btnReg.classList.remove("sel");
+    document.getElementById("cErr").style.display="none";
+  } else {
+    login.style.display="none";
+    reg.style.display="block";
+    btnLogin.classList.remove("sel");
+    btnReg.classList.add("sel");
+    document.getElementById("cErr").style.display="none";
+  }
 }
 
 function selVtype(v){
@@ -522,39 +653,40 @@ async function tryIdentify(){
   const showErr=m=>{err.textContent="⚠️ "+m;err.style.display="block";};
   if(!pat){showErr("Ingresá la patente de tu auto.");return;}
   const found=CLIENTS.find(c=>c.patent===pat);
-  if(found){CLIENT=found;renderClientHome();return;}
-  const nf=document.getElementById("newFields");
-  if(nf.style.display==="none"){
-    nf.style.display="block";
-    document.getElementById("cEnterBtn").textContent="Registrarme y entrar →";
-    showErr("No encontramos esa patente. Completá tus datos para registrarte.");return;
-  }
+  if(!found){showErr("No encontramos esa patente. Registrate en la otra pestaña.");return;}
+  ME=found;renderClientHome();
+}
+
+async function doRegisterClient(){
   const name =document.getElementById("cName")?.value.trim()||"";
   const wa   =document.getElementById("cWa")?.value.trim()||"";
+  const pat  =(document.getElementById("cPatReg")?.value||"").trim().toUpperCase().replace(/[\s-]/g,"");
   const vtype=document.getElementById("cVtype")?.value||"auto";
   const brand=getBrandVal("cBrand","cBrandOther");
   const model=document.getElementById("cModel")?.value.trim()||"";
   const year =document.getElementById("cYear")?.value.trim()||"";
   const motor=document.getElementById("cMotor")?.value.trim()||"";
-  if(!name||!wa||!brand||!model||!year||!motor){showErr("Completá todos los campos.");return;}
-  if(!validateWA(wa)){showErr("WhatsApp inválido (solo números, sin espacios).");return;}
-  if(CLIENTS.find(c=>c.patent===pat)){showErr("Ya existe un cliente con esa patente.");return;}
+  const err=document.getElementById("cErr");
+  if(!name||!wa||!pat||!brand||!model||!year||!motor){
+    err.textContent="⚠️ Completá todos los campos.";err.style.display="block";return;}
+  if(!validateWA(wa)){
+    err.textContent="⚠️ WhatsApp inválido (solo números, sin espacios).";err.style.display="block";return;}
+  if(CLIENTS.find(c=>c.patent===pat)){
+    err.textContent="⚠️ Ya existe un cliente con esa patente.";err.style.display="block";return;}
   const nc={id:uid(),name,whatsapp:wa,patent:pat,vehicleType:vtype,brand,model,year,motor};
   CLIENTS.push(nc);
   await fsPut("clients",CLIENTS);
-  CLIENT=nc;renderClientHome();
+  ME=nc;renderClientHome();
   toast("¡Registro exitoso! Bienvenido 🎉","success");
 }
 
-/* ════════════════════════════════════════════════════
-   CLIENT HOME
-════════════════════════════════════════════════════ */
+/* ── CLIENT HOME ─────────────────────────────────── */
 function renderClientHome(){
   const lbl=document.getElementById("clientNameLbl");
-  lbl.textContent="👤 "+CLIENT.name.split(" ")[0];lbl.style.display="inline";
-  const vtype=CLIENT.vehicleType||"auto";
+  lbl.textContent="👤 "+ME.name.split(" ")[0];lbl.style.display="inline";
+  const vtype=ME.vehicleType||"auto";
   const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
-  const done=APPTS.filter(a=>a.clientId===CLIENT.id&&a.status==="completado"&&a.km)
+  const done=APPTS.filter(a=>a.clientId===ME.id&&a.status==="completado"&&a.km)
     .sort((a,b)=>b.date.localeCompare(a.date));
   let nextCard="";
   if(done.length>0){
@@ -576,10 +708,10 @@ function renderClientHome(){
   document.getElementById("clientArea").innerHTML=`
     <div style="padding-top:1.65rem">
       <h2 style="font-family:'Bebas Neue';font-size:1.72rem;margin-bottom:.26rem">
-        HOLA, ${CLIENT.name.split(" ")[0].toUpperCase()} 👋</h2>
+        HOLA, ${ME.name.split(" ")[0].toUpperCase()} 👋</h2>
       <p style="color:var(--muted);margin-bottom:1.3rem;font-size:.82rem">
-        ${vtype==="camion"?"🚛":"🚗"} ${esc(CLIENT.brand)} ${esc(CLIENT.model)} ${CLIENT.year}
-        — <strong>${CLIENT.patent}</strong> · Motor: ${esc(CLIENT.motor||"—")}
+        ${vtype==="camion"?"🚛":"🚗"} ${esc(ME.brand)} ${esc(ME.model)} ${ME.year}
+        — <strong>${ME.patent}</strong> · Motor: ${esc(ME.motor||"—")}
       </p>
       ${nextCard}
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));
@@ -596,12 +728,11 @@ function renderClientHome(){
     </div>`;
 }
 
-/* ════════════════════════════════════════════════════
-   MY APPOINTMENTS
-════════════════════════════════════════════════════ */
-function renderMyAppts(){
-  const myA=APPTS.filter(a=>a.clientId===CLIENT.id).sort((a,b)=>b.date.localeCompare(a.date));
+/* ── MY APPTS ────────────────────────────────────── */
+function renderMyAppts(msg){
+  const myA=APPTS.filter(a=>a.clientId===ME.id).sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById("clientArea").innerHTML=`
+    ${msg?`<div class="alert ag">✅ ${msg}</div>`:""}
     <div class="sh"><div class="st">MIS TURNOS</div>
       <button class="btn btn-p" onclick="renderBooking()">+ Nuevo</button></div>
     ${myA.length===0?'<div class="empty">📋 No tenés turnos aún.</div>':
@@ -615,13 +746,11 @@ function renderMyAppts(){
     <button class="btn btn-g" style="margin-top:.9rem" onclick="renderClientHome()">← Volver</button>`;
 }
 
-/* ════════════════════════════════════════════════════
-   HISTORIAL / LIBRETITO
-════════════════════════════════════════════════════ */
+/* ── HISTORIAL LIBRETITO (CLIENT) ─────────────────── */
 function renderHistorial(){
-  const vtype=CLIENT.vehicleType||"auto";
+  const vtype=ME.vehicleType||"auto";
   const iv=SVC_INTERVAL[vtype]||SVC_INTERVAL.auto;
-  const done=APPTS.filter(a=>a.clientId===CLIENT.id&&a.status==="completado")
+  const done=APPTS.filter(a=>a.clientId===ME.id&&a.status==="completado")
     .sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById("clientArea").innerHTML=`
     <div class="sh"><div class="st">📖 MI LIBRETITO</div></div>
@@ -632,6 +761,182 @@ function renderHistorial(){
       ?'<div class="empty">📖 Aún no hay services completados.</div>'
       :done.map(a=>buildLibretitoCard(a)).join("")}
     <button class="btn btn-g" style="margin-top:.9rem" onclick="renderClientHome()">← Volver</button>`;
+}
+
+/* ══ BOOKING FLOW ════════════════════════════════════ */
+function renderBooking(){
+  BK={step:1,service:null,date:todayISO,time:"",km:""};
+  while(isDayClosed(BK.date)){
+    const d=new Date(BK.date+"T12:00:00");d.setDate(d.getDate()+1);
+    BK.date=d.toISOString().split("T")[0];
+  }
+  drawBooking();
+}
+function drawBooking(){
+  const myServices=SERVICES.filter(s=>(s.type||"auto")===(ME.vehicleType||"auto"));
+  const selSvc=BK.service?SERVICES.find(s=>s.id===BK.service):null;
+  const dur=selSvc?.duration||30;
+  const pit=BK.service?getPit(BK.service):ME.vehicleType==="camion"?"camion":"auto";
+  const dayH=getHoursForDate(BK.date);
+  const taken=getTaken(BK.date,pit);
+  const isClosed=dayH.length===0;
+  
+  document.getElementById("clientArea").innerHTML=`
+    <div style="max-width:540px">
+      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:1.5rem">
+        <button class="back-btn" onclick="renderClientHome()">← Volver</button>
+        <h2 style="font-family:'Bebas Neue';font-size:1.52rem;letter-spacing:1px">SACAR TURNO</h2>
+      </div>
+
+      <!-- STEP INDICATOR -->
+      <div class="step-indicator">
+        <div class="step-dot ${BK.step>=1?"active":""}${BK.step>1?"completed":""}">1</div>
+        <div class="step-dot ${BK.step>=2?"active":""}${BK.step>2?"completed":""}">2</div>
+        <div class="step-dot ${BK.step>=3?"active":""}${BK.step>3?"completed":""}">3</div>
+      </div>
+
+      <div class="card" style="margin-bottom:.8rem">
+        <div class="stitle"><span class="sn">1</span> Elegí el servicio</div>
+        ${myServices.length===0
+          ?'<div class="empty">Sin servicios disponibles. Contactá al lubricentro.</div>'
+          :`<div class="sg">${myServices.map(s=>`
+            <div class="sc${BK.service===s.id?" sel":""}" onclick="bkSvc('${s.id}')">
+              <div class="sc-name">${esc(s.name)}</div>
+              <div class="sc-price">${s.price}</div>
+              <div class="sc-meta">${s.duration} min</div>
+            </div>`).join("")}</div>`}
+      </div>
+
+      ${BK.step>=2?`<div class="card" style="margin-bottom:.8rem">
+        <div class="stitle"><span class="sn">2</span> Elegí el día y horario</div>
+        <div class="fg"><label class="fl">Fecha</label>
+          <input type="date" class="fi" value="${BK.date}" min="${todayISO}"
+            onchange="bkDate(this.value)"/></div>
+        ${isClosed?`<div class="closed-msg">🚫 El lubricentro está cerrado los domingos.</div>`:`
+        <div class="fg">
+          <label class="fl">Horario disponible</label>
+          <div style="color:var(--muted);font-size:.72rem;margin-bottom:.36rem">
+            ${pit==="camion"?"🚛 Fosa Camiones":"🚗 Fosa Autos"}
+            ${dur>30?` · Ocupa ${dur} min (${dur/30} franjas)`:" · 30 min"}</div>
+          <div class="tg">${dayH.map(h=>{
+            const ok=isAvail(h,dur,taken,BK.date);
+            return`<button class="tb${BK.time===h?" sel":""}${!ok?" taken":""}"
+              ${!ok?"disabled":""}
+              onclick="bkTime('${h}')">${h}</button>`;
+          }).join("")}</div>
+          ${dayH.every(h=>!isAvail(h,dur,taken,BK.date))
+            ?'<div class="alert ao" style="margin-top:.7rem">⚠️ Sin horarios disponibles. Probá otra fecha.</div>':""}
+        </div>`}
+      </div>`:""}
+
+      ${BK.step>=3?`<div class="card" style="margin-bottom:.8rem">
+        <div class="stitle"><span class="sn">3</span> Confirmá tu vehículo</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+          padding:.5rem .76rem;font-size:.82rem;margin-bottom:.76rem">
+          ${ME.vehicleType==="camion"?"🚛":"🚗"}
+          <strong>${esc(ME.brand)} ${esc(ME.model)} ${ME.year}</strong>
+          — ${ME.patent} · Motor: ${esc(ME.motor||"—")}
+        </div>
+        <div class="fg"><label class="fl">Kilómetros actuales (opcional)</label>
+          <input class="fi" id="bkKm" value="${BK.km}" type="number"
+            oninput="BK.km=this.value" placeholder="85000"/></div>
+      </div>`:""}
+
+      ${BK.step>=3&&BK.service&&BK.time&&!isClosed?`<div class="sum-box">
+        <div style="font-family:'Bebas Neue';font-size:.98rem;letter-spacing:1px;
+          margin-bottom:.62rem;color:var(--orange)">RESUMEN</div>
+        <div style="display:grid;gap:.28rem;font-size:.82rem">
+          <div>🔧 <strong>${esc(selSvc?.name)}</strong></div>
+          <div>📅 <strong>${fmtD(BK.date)}</strong> a las <strong>${BK.time}</strong></div>
+          <div>${ME.vehicleType==="camion"?"🚛":"🚗"}
+            <strong>${esc(ME.brand)} ${esc(ME.model)} ${ME.year}</strong> — ${ME.patent}</div>
+          <div>⚙️ Motor: ${esc(ME.motor||"—")}</div>
+          ${BK.km?`<div>📏 ${fmtNum(BK.km)} km</div>`:""}
+        </div>
+        <button class="btn btn-p btn-full" style="margin-top:.8rem" onclick="confirmBk()">
+          ✅ Confirmar y Guardar Turno</button>
+      </div>`:""}
+    </div>`;
+}
+
+function bkSvc(id){BK.service=id;BK.time="";if(BK.step<2)BK.step=2;drawBooking();}
+function bkTime(h){BK.time=h;if(BK.step<3)BK.step=3;drawBooking();}
+function bkDate(d){
+  if(isDayClosed(d)){
+    toast("Domingos cerrado. Avanzando al lunes.","warn");
+    const nd=new Date(d+"T12:00:00");nd.setDate(nd.getDate()+1);
+    BK.date=nd.toISOString().split("T")[0];
+  } else {BK.date=d;}
+  BK.time="";drawBooking();
+}
+
+/* ══ CONFIRM BOOKING ═════════════════════════════════ */
+async function confirmBk(){
+  const sv=SERVICES.find(s=>s.id===BK.service);if(!sv)return;
+  if(isDayClosed(BK.date)){toast("Cerrado ese día","error");return;}
+  const dur=sv.duration||30;
+  const pit=getPit(BK.service);
+  const freshAppts=await fsGet("appointments",[]);
+  APPTS=freshAppts;
+  const taken=getTaken(BK.date,pit);
+  if(!isAvail(BK.time,dur,taken,BK.date)){
+    toast("Ese horario ya fue tomado. Elegí otro.","error");
+    BK.time="";drawBooking();return;
+  }
+  const slots=getSlots(BK.time,dur,BK.date)||[BK.time];
+  const appt={
+    id:uid(),clientId:ME.id,patent:ME.patent,
+    vehicleDesc:`${ME.brand} ${ME.model} ${ME.year}`,
+    motor:ME.motor||"",date:BK.date,time:BK.time,
+    service:BK.service,serviceName:sv.name,
+    pit,blockedSlots:slots,status:"pendiente",km:BK.km,notes:""
+  };
+  APPTS.push(appt);
+  await fsPut("appointments",APPTS);
+  const waMsg=`¡Hola! Reservé un turno en Lubricentro Esquiú.\n\n`+
+    `🔧 *Servicio:* ${sv.name}\n`+
+    `📅 *Fecha:* ${fmtD(BK.date)} a las ${BK.time}\n`+
+    `${ME.vehicleType==="camion"?"🚛":"🚗"} *Vehículo:* ${ME.brand} ${ME.model} ${ME.year}\n`+
+    `🔑 *Patente:* ${ME.patent}\n`+
+    `⚙️ *Motor:* ${ME.motor||"—"}\n`+
+    `🔩 *Fosa:* ${pit==="camion"?"Camiones":"Autos"}`;
+  const waURL=`https://wa.me/${PHONE_LUBRI}?text=${encodeURIComponent(waMsg)}`;
+  document.getElementById("clientArea").innerHTML=`
+    <div style="max-width:480px;padding-top:1.5rem">
+      <div class="success-banner">
+        <div class="sb-icon">🎉</div>
+        <div class="sb-title">¡TURNO GUARDADO!</div>
+        <div class="sb-sub">
+          <strong>${esc(sv.name)}</strong><br/>
+          📅 ${fmtD(BK.date)} a las ${BK.time}<br/>
+          ${ME.vehicleType==="camion"?"🚛":"🚗"} ${esc(ME.brand)} ${esc(ME.model)} — ${ME.patent}
+        </div>
+        <button class="btn-wa-big" onclick="window.open('${waURL}','_blank')">
+          📲 CONFIRMAR POR WHATSAPP</button>
+        <div class="btn-wa-big-hint">Tocá para notificar al lubricentro. Funciona en iOS y Android.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.45rem;margin-top:.15rem">
+        <button class="btn btn-g btn-full" onclick="renderMyAppts()">📋 Ver mis turnos</button>
+        <button class="btn btn-g btn-full" onclick="renderClientHome()">← Inicio</button>
+      </div>
+    </div>`;
+}
+
+/* ══ LIBRETITO HELPER ════════════════════════════════ */
+function renderChecklistUI(){
+  const grid=document.getElementById("checklistGrid"); if(!grid) return;
+  grid.innerHTML=CHECKLIST.map(item=>{
+    const st=clItems[item.id]||null;
+    const cls=st==="done"?"cl-done":st==="skip"?"cl-skip":"cl-neutral";
+    const ico=st==="done"?"✔":st==="skip"?"✖":"○";
+    return`<button class="cl-btn ${cls}" onclick="toggleCl('${item.id}')">
+      <span class="cl-ico">${ico}</span>${esc(item.label)}</button>`;
+  }).join("");
+}
+function toggleCl(id){
+  const cur=clItems[id]||null;
+  clItems[id]=cur===null?"done":cur==="done"?"skip":null;
+  renderChecklistUI();
 }
 
 function buildLibretitoCard(a){
@@ -679,159 +984,23 @@ function buildLibretitoCard(a){
     </div>`;
 }
 
-/* ════════════════════════════════════════════════════
-   BOOKING FLOW
-════════════════════════════════════════════════════ */
-function renderBooking(){
-  BK={step:1,service:null,date:todayISO,time:"",km:""};
-  while(isDayClosed(BK.date)){
-    const d=new Date(BK.date+"T12:00:00");d.setDate(d.getDate()+1);
-    BK.date=d.toISOString().split("T")[0];
-  }
-  drawBooking();
-}
-
-function drawBooking(){
-  const myServices=SERVICES.filter(s=>(s.type||"auto")===(CLIENT.vehicleType||"auto"));
-  const selSvc=BK.service?SERVICES.find(s=>s.id===BK.service):null;
-  const dur=selSvc?.duration||30;
-  const pit=BK.service?getPit(BK.service):CLIENT.vehicleType==="camion"?"camion":"auto";
-  const dayH=getHoursForDate(BK.date);
-  const taken=getTaken(BK.date,pit);
-  const isClosed=dayH.length===0;
-  document.getElementById("clientArea").innerHTML=`
-    <div style="max-width:540px">
-      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:1.1rem">
-        <button class="back-btn" onclick="renderClientHome()">← Volver</button>
-        <h2 style="font-family:'Bebas Neue';font-size:1.52rem;letter-spacing:1px">SACAR TURNO</h2>
-      </div>
-
-      <div class="card" style="margin-bottom:.8rem">
-        <div class="step-title"><span class="sn">1</span> Elegí el servicio</div>
-        ${myServices.length===0
-          ?'<div class="empty">Sin servicios disponibles. Contactá al lubricentro.</div>'
-          :`<div class="sg">${myServices.map(s=>`
-            <div class="sc${BK.service===s.id?" sel":""}" onclick="bkSvc('${s.id}')">
-              <div class="sc-name">${esc(s.name)}</div>
-              <div class="sc-price">${s.price}</div>
-              <div class="sc-meta">${s.duration} min</div>
-            </div>`).join("")}</div>`}
-      </div>
-
-      ${BK.step>=2?`<div class="card" style="margin-bottom:.8rem">
-        <div class="step-title"><span class="sn">2</span> Elegí el día y horario</div>
-        <div class="fg"><label class="fl">Fecha</label>
-          <input type="date" class="fi" value="${BK.date}" min="${todayISO}"
-            onchange="bkDate(this.value)"/></div>
-        ${isClosed?`<div class="closed-msg">🚫 El lubricentro está cerrado los domingos.</div>`:`
-        <div class="fg">
-          <label class="fl">Horario disponible</label>
-          <div style="color:var(--muted);font-size:.72rem;margin-bottom:.36rem">
-            ${pit==="camion"?"🚛 Fosa Camiones":"🚗 Fosa Autos"}
-            ${dur>30?` · Ocupa ${dur} min (${dur/30} franjas)`:" · 30 min"}</div>
-          <div class="tg">${dayH.map(h=>{
-            const ok=isAvail(h,dur,taken,BK.date);
-            return`<button class="tb${BK.time===h?" sel":""}${!ok?" taken":""}"
-              ${!ok?"disabled":""}
-              onclick="bkTime('${h}')">${h}</button>`;
-          }).join("")}</div>
-          ${dayH.every(h=>!isAvail(h,dur,taken,BK.date))
-            ?'<div class="alert ao" style="margin-top:.7rem">⚠️ Sin horarios disponibles. Probá otra fecha.</div>':""}
-        </div>`}
-      </div>`:""}
-
-      ${BK.step>=3?`<div class="card" style="margin-bottom:.8rem">
-        <div class="step-title"><span class="sn">3</span> Confirmá tu vehículo</div>
-        <div class="vinfo">
-          ${CLIENT.vehicleType==="camion"?"🚛":"🚗"}
-          <strong>${esc(CLIENT.brand)} ${esc(CLIENT.model)} ${CLIENT.year}</strong>
-          — ${CLIENT.patent} · Motor: ${esc(CLIENT.motor||"—")}
-        </div>
-        <div class="fg"><label class="fl">Kilómetros actuales (opcional)</label>
-          <input class="fi" id="bkKm" value="${BK.km}" type="number"
-            oninput="BK.km=this.value" placeholder="85000"/></div>
-      </div>`:""}
-
-      ${BK.step>=3&&BK.service&&BK.time&&!isClosed?`<div class="sum-box">
-        <div style="font-family:'Bebas Neue';font-size:.98rem;letter-spacing:1px;
-          margin-bottom:.62rem;color:var(--orange)">RESUMEN</div>
-        <div style="display:grid;gap:.28rem;font-size:.82rem">
-          <div>🔧 <strong>${esc(selSvc?.name)}</strong></div>
-          <div>📅 <strong>${fmtD(BK.date)}</strong> a las <strong>${BK.time}</strong></div>
-          <div>${CLIENT.vehicleType==="camion"?"🚛":"🚗"}
-            <strong>${esc(CLIENT.brand)} ${esc(CLIENT.model)} ${CLIENT.year}</strong> — ${CLIENT.patent}</div>
-          <div>⚙️ Motor: ${esc(CLIENT.motor||"—")}</div>
-          ${BK.km?`<div>📏 ${fmtNum(BK.km)} km</div>`:""}
-        </div>
-        <button class="btn btn-p btn-full" style="margin-top:.8rem" onclick="confirmBk()">
-          ✅ Confirmar y Guardar Turno</button>
-      </div>`:""}
-    </div>`;
-}
-
-function bkSvc(id){BK.service=id;BK.time="";if(BK.step<2)BK.step=2;drawBooking();}
-function bkTime(h){BK.time=h;if(BK.step<3)BK.step=3;drawBooking();}
-function bkDate(d){
-  if(isDayClosed(d)){
-    toast("Domingos cerrado. Avanzando al lunes.","warn");
-    const nd=new Date(d+"T12:00:00");nd.setDate(nd.getDate()+1);
-    BK.date=nd.toISOString().split("T")[0];
-  } else {BK.date=d;}
-  BK.time="";drawBooking();
-}
-
-/* ═══════════════════════════════════════════════════
-   CONFIRM BOOKING — Safe-Click Pattern
-═══════════════════════════════════════════════════ */
-async function confirmBk(){
-  const sv=SERVICES.find(s=>s.id===BK.service);if(!sv)return;
-  if(isDayClosed(BK.date)){toast("Cerrado ese día","error");return;}
-  const dur=sv.duration||30;
-  const pit=getPit(BK.service);
-  const freshAppts=await fsGet("appointments",[]);
-  APPTS=freshAppts;
-  const taken=getTaken(BK.date,pit);
-  if(!isAvail(BK.time,dur,taken,BK.date)){
-    toast("Ese horario ya fue tomado. Elegí otro.","error");
-    BK.time="";drawBooking();return;
-  }
-  const slots=getSlots(BK.time,dur,BK.date)||[BK.time];
-  const appt={
-    id:uid(),clientId:CLIENT.id,patent:CLIENT.patent,
-    vehicleDesc:`${CLIENT.brand} ${CLIENT.model} ${CLIENT.year}`,
-    motor:CLIENT.motor||"",date:BK.date,time:BK.time,
-    service:BK.service,serviceName:sv.name,
-    pit,blockedSlots:slots,status:"pendiente",km:BK.km,notes:""
-  };
-  APPTS.push(appt);
+async function doCompleteAppt(){
+  const id =document.getElementById("mCompId").value;
+  const km =document.getElementById("mCompKm").value.trim();
+  const oil=document.getElementById("mCompOil").value.trim();
+  const obs=document.getElementById("mCompObs").value.trim();
+  if(!km) { toast("El kilometraje es obligatorio","error"); return; }
+  if(!oil){ toast("La marca de aceite es obligatoria","error"); return; }
+  const appt=APPTS.find(a=>a.id===id);
+  const vtype=appt?CLIENTS.find(c=>c.id===appt.clientId)?.vehicleType||"auto":"auto";
+  const{nextKm,nextDate}=calcNextService(km,todayISO,vtype);
+  APPTS=APPTS.map(a=>a.id===id?{
+    ...a,status:"completado",km,nextKm,nextDate,oilBrand:oil,notes:obs,
+    checklist:{...clItems}
+  }:a);
   await fsPut("appointments",APPTS);
-  const waMsg=`¡Hola! Reservé un turno en Lubricentro Esquiú.\n\n`+
-    `🔧 *Servicio:* ${sv.name}\n`+
-    `📅 *Fecha:* ${fmtD(BK.date)} a las ${BK.time}\n`+
-    `${CLIENT.vehicleType==="camion"?"🚛":"🚗"} *Vehículo:* ${CLIENT.brand} ${CLIENT.model} ${CLIENT.year}\n`+
-    `🔑 *Patente:* ${CLIENT.patent}\n`+
-    `⚙️ *Motor:* ${CLIENT.motor||"—"}\n`+
-    `🔩 *Fosa:* ${pit==="camion"?"Camiones":"Autos"}`;
-  const waURL=`https://wa.me/${PHONE_LUBRI}?text=${encodeURIComponent(waMsg)}`;
-  document.getElementById("clientArea").innerHTML=`
-    <div style="max-width:480px;padding-top:1.5rem">
-      <div class="success-banner">
-        <div class="sb-icon">🎉</div>
-        <div class="sb-title">¡TURNO GUARDADO!</div>
-        <div class="sb-sub">
-          <strong>${esc(sv.name)}</strong><br/>
-          📅 ${fmtD(BK.date)} a las ${BK.time}<br/>
-          ${CLIENT.vehicleType==="camion"?"🚛":"🚗"} ${esc(CLIENT.brand)} ${esc(CLIENT.model)} — ${CLIENT.patent}
-        </div>
-        <button class="btn-wa-big" onclick="window.open('${waURL}','_blank')">
-          📲 CONFIRMAR POR WHATSAPP</button>
-        <div class="btn-wa-big-hint">Tocá para notificar al lubricentro. Funciona en iOS y Android.</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:.45rem;margin-top:.15rem">
-        <button class="btn btn-g btn-full" onclick="renderMyAppts()">📋 Ver mis turnos</button>
-        <button class="btn btn-g btn-full" onclick="renderClientHome()">← Inicio</button>
-      </div>
-    </div>`;
+  closeM("mComplete");
+  toast("Service completado y guardado ✔","success");
 }
 
 /* ══ INIT ════════════════════════════════════════════ */
@@ -848,6 +1017,8 @@ async function confirmBk(){
     SERVICES=DEFAULT_SVC;
     toast("Error al conectar con Firebase","error",5000);
   }
+  document.getElementById("appLoader").style.display="none";
+  go("pgLanding");
 })();
 </script>
 </body>
