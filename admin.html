@@ -1557,7 +1557,27 @@ async function doCompleteAppt() {
   
   // Si guardó correctamente, generar y enviar mensaje
   const nombre = cl?.name.split(" ")[0] || "Cliente";
-  const mensaje = `Hola, ${nombre}! 👋 Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model}.
+  
+  let mensaje;
+  if(isDesktop()) {
+    // Sin emojis para Windows/Mac
+    mensaje = `Hola, ${nombre}! Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model}.
+
+Acá te dejamos tu Libretito Digital para que lo tengas a mano:
+
+[FECHA] Fecha: ${fmtD(appt.date)} a las ${appt.time}
+[AUTO] KMs actuales: ${fmtNum(parseInt(km))}
+[ACEITE] Aceite: ${oil}
+[FILTROS] Filtros: ${filtrosText}
+[PROX] Próximo Service: a los ${fmtNum(nextKm)} KMs (aprox. ${fmtD(nextDate)})
+
+${obs ? `[NOTAS] Observaciones: ${obs}\n` : ""}
+PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8 ★★★★★
+
+¡Gracias por confiar en nosotros!`;
+  } else {
+    // Con emojis para celulares
+    mensaje = `Hola, ${nombre}! 👋 Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model}.
 
 Acá te dejamos tu Libretito Digital para que lo tengas a mano 📝:
 
@@ -1571,6 +1591,7 @@ ${obs ? `💬 Observaciones: ${obs}\n` : ""}
 PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8 ⭐⭐⭐⭐⭐
 
 ¡Gracias por confiar en nosotros!`;
+  }
   
   // Abrir WhatsApp
   const phone = cleanWA(cl?.whatsapp);
