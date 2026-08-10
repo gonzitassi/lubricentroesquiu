@@ -709,6 +709,11 @@ function isSafariIOS() {
   return /Safari/.test(navigator.userAgent) && /iPhone|iPad|iPod/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
 }
 
+function isDesktop() {
+  const ua = navigator.userAgent.toLowerCase();
+  return /(win|mac)/.test(ua) && !/iphone|ipad|android/.test(ua);
+}
+
 function cleanWA(num) {
   let c = (num||"").replace(/\D/g,"");
   if(c.startsWith("549")) return c;
@@ -1194,13 +1199,24 @@ async function markNotified(key) {
 function sendReminder(cid, lastDate, patent, notifKey) {
   const cl = AppState.clients.find(c => c.id === cid);
   if(!cl) return;
-  
+
   const iv = SVC_INTERVAL[cl.vehicleType || "auto"] || SVC_INTERVAL.auto;
-  const msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
-    `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o ` +
-    `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n` +
-    `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
   
+  let msg;
+  if(isDesktop()) {
+    // Sin emojis para Windows/Mac
+    msg = `Hola ${cl.name.split(" ")[0]}! Te recuerda *Lubricentro Esquiú* que tu ` +
+      `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o ` +
+      `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n` +
+      `¡Es momento de cuidar tu motor! [SERVICIO]\n\nSacá tu turno: ${APP_URL}`;
+  } else {
+    // Con emojis para celulares
+    msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
+      `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o ` +
+      `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n` +
+      `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
+  }
+
   const phone = cleanWA(cl.whatsapp);
   
   if(isSafariIOS()) {
@@ -1232,10 +1248,20 @@ function sendAllUrgentReminders() {
     const cl = r.cl;
     const iv = SVC_INTERVAL[r.vtype] || SVC_INTERVAL.auto;
     
-    const msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
-      `*${cl.brand} ${cl.model}* (Patente: *${r.last.patent || cl.patent}*) ya cumplió *${iv.months} meses* o ` +
-      `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(r.last.date)}.\n\n` +
-      `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
+    let msg;
+    if(isDesktop()) {
+      // Sin emojis para Windows/Mac
+      msg = `Hola ${cl.name.split(" ")[0]}! Te recuerda *Lubricentro Esquiú* que tu ` +
+        `*${cl.brand} ${cl.model}* (Patente: *${r.last.patent || cl.patent}*) ya cumplió *${iv.months} meses* o ` +
+        `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(r.last.date)}.\n\n` +
+        `¡Es momento de cuidar tu motor! [SERVICIO]\n\nSacá tu turno: ${APP_URL}`;
+    } else {
+      // Con emojis para celulares
+      msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
+        `*${cl.brand} ${cl.model}* (Patente: *${r.last.patent || cl.patent}*) ya cumplió *${iv.months} meses* o ` +
+        `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(r.last.date)}.\n\n` +
+        `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
+    }
     
     // Guardar como "avisado"
     AppState.notified[r.notifKey] = {ts: Date.now()};
