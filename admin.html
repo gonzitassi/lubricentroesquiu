@@ -1558,10 +1558,12 @@ async function doCompleteAppt() {
   // Si guardó correctamente, generar y enviar mensaje
   const nombre = cl?.name.split(" ")[0] || "Cliente";
   
+  const patente = appt.patent || cl?.patent || "—";
+  
   let mensaje;
   if(isDesktop()) {
     // Sin emojis para Windows/Mac
-    mensaje = `Hola, ${nombre}! Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model}.
+    mensaje = `Hola, ${nombre}! Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model} - Patente ${patente}.
 
 Acá te dejamos tu Libretito Digital para que lo tengas a mano:
 
@@ -1577,7 +1579,7 @@ PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas a
 ¡Gracias por confiar en nosotros!`;
   } else {
     // Con emojis para celulares
-    mensaje = `Hola, ${nombre}! 👋 Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model}.
+    mensaje = `Hola, ${nombre}! 👋 Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model} - Patente ${patente}.
 
 Acá te dejamos tu Libretito Digital para que lo tengas a mano 📝:
 
@@ -1597,9 +1599,9 @@ PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas a
   const phone = cleanWA(cl?.whatsapp);
   
   if(isSafariIOS()) {
-    window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(mensaje)}`;
+    window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURI(mensaje)}`;
   } else {
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, "_blank");
+    window.open(`https://wa.me/${phone}?text=${encodeURI(mensaje)}`, "_blank");
   }
   
   closeM("mComplete");
