@@ -255,11 +255,8 @@ select.fi option{background:var(--bg2);}
   <div class="logo">LUBRICENTRO <span>ESQUIÚ</span></div>
   <div class="land-sub">Turnos Online · Córdoba</div>
   <div class="land-cards">
-    <div class="lcard" onclick="renderClientLogin()">
-      <div class="lcard-ico">🚗</div><h3>SOY CLIENTE</h3><p>Accedé con tu patente</p>
-    </div>
-    <div class="lcard" onclick="go('pgRegister')">
-      <div class="lcard-ico">✏️</div><h3>REGISTRARME</h3><p>Crea tu cuenta ahora</p>
+    <div class="lcard" onclick="go('pgClient')">
+      <div class="lcard-ico">🚗</div><h3>SOY CLIENTE</h3><p>Sacá tu turno online</p>
     </div>
   </div>
   <a class="maps-link" href="https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8" target="_blank">
@@ -278,87 +275,6 @@ select.fi option{background:var(--bg2);}
     </div>
   </div>
   <div class="content" id="clientArea"></div>
-</div>
-
-<!-- ═══════════ REGISTRO ═══════════ -->
-<div class="page" id="pgRegister">
-  <div class="topbar">
-    <div class="tbrand">LUBRICENTRO <span>ESQUIÚ</span></div>
-    <div class="topbar-r">
-      <button class="back-btn" onclick="go('pgLanding')">← Volver</button>
-    </div>
-  </div>
-  <div class="content">
-    <div style="max-width:450px;margin:0 auto">
-      <div class="card">
-        <h2 style="font-family:'Bebas Neue';font-size:1.5rem;letter-spacing:1px;margin-bottom:1.5rem">REGISTRAR CLIENTE</h2>
-        <div id="rErr" class="alert ar" style="display:none;margin-bottom:1rem"></div>
-        
-        <div class="fg">
-          <label class="fl">Nombre *</label>
-          <input class="fi" id="rName" placeholder="Tu nombre completo"/>
-        </div>
-        
-        <div class="fg">
-          <label class="fl">WhatsApp *</label>
-          <input class="fi" id="rWa" placeholder="351 XXXXXXXX" type="tel"/>
-        </div>
-        
-        <div class="fg">
-          <label class="fl">Patente *</label>
-          <input class="fi" id="rPat" placeholder="EJ: OII609" onchange="this.value=this.value.toUpperCase().replace(/[\\s-]/g,'')"/>
-        </div>
-        
-        <div class="fg">
-          <label class="fl">Tipo de Vehículo *</label>
-          <select class="fi" id="rVtype">
-            <option value="">Seleccionar...</option>
-            <option value="auto">Auto/Camioneta</option>
-            <option value="camion">Camión/Pesado</option>
-          </select>
-        </div>
-        
-        <div class="fg">
-          <label class="fl">Marca *</label>
-          <select class="fi" id="rBrand">
-            <option value="">Seleccionar...</option>
-            <option value="Peugeot">Peugeot</option>
-            <option value="Ford">Ford</option>
-            <option value="Chevrolet">Chevrolet</option>
-            <option value="Volkswagen">Volkswagen</option>
-            <option value="Renault">Renault</option>
-            <option value="Fiat">Fiat</option>
-            <option value="Toyota">Toyota</option>
-            <option value="Honda">Honda</option>
-            <option value="Hyundai">Hyundai</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
-        
-        <div class="fg" id="rOtherBrandDiv" style="display:none">
-          <label class="fl">Especificar Marca *</label>
-          <input class="fi" id="rBrandOther" placeholder="Marca del vehículo"/>
-        </div>
-        
-        <div class="fg">
-          <label class="fl">Modelo *</label>
-          <input class="fi" id="rModel" placeholder="EJ: 208"/>
-        </div>
-        
-        <div class="fg">
-          <label class="fl">Año *</label>
-          <input class="fi" id="rYear" placeholder="2020" type="number" min="1990" max="2030"/>
-        </div>
-        
-        <div class="fg">
-          <label class="fl">Motor (cc) *</label>
-          <input class="fi" id="rMotor" placeholder="1600" type="number"/>
-        </div>
-        
-        <button class="btn btn-p btn-full" onclick="doRegister()" style="margin-top:1rem">Registrarse →</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -691,73 +607,6 @@ async function doRegisterClient() {
   toast("¡Registro exitoso! Bienvenido 🎉", "success");
 }
 
-document.addEventListener("change", (e) => {
-  if (e.target.id === "rBrand") {
-    document.getElementById("rOtherBrandDiv").style.display = 
-      e.target.value === "Otro" ? "block" : "none";
-  }
-});
-
-function renderClientLogin() {
-  go("pgClient");
-  document.querySelector(".topbar-r").innerHTML = `<button class="back-btn" onclick="go('pgLanding')">← Volver</button>`;
-  document.getElementById("clientArea").innerHTML = `
-    <div style="max-width:400px;margin:0 auto">
-      <div class="card" style="text-align:center">
-        <h2 style="font-family:'Bebas Neue';font-size:1.5rem;letter-spacing:1px;margin-bottom:1.5rem">ACCEDE A TU LIBRETITO</h2>
-        <p style="color:var(--muted);margin-bottom:1.5rem;font-size:.9rem">Ingresá tu patente para acceder</p>
-        <div class="fg">
-          <label class="fl" style="text-align:left">Patente</label>
-          <input class="fi" id="cPatLogin" placeholder="EJ: OII609" style="text-transform:uppercase;text-align:center;letter-spacing:2px"
-            onkeydown="if(event.key==='Enter')tryIdentify()"/>
-        </div>
-        <div id="cErrLogin" class="alert ar" style="display:none;margin-bottom:1rem;font-size:.8rem"></div>
-        <button class="btn btn-p btn-full" onclick="tryIdentify()">Acceder →</button>
-        <p style="color:var(--muted);font-size:.8rem;margin-top:1rem">¿No tenés cuenta? <span style="color:var(--orange);cursor:pointer;font-weight:600" onclick="go('pgRegister')">Registrate aquí</span></p>
-      </div>
-    </div>`;
-  setTimeout(() => document.getElementById("cPatLogin")?.focus(), 100);
-}
-
-function tryIdentify() {
-  const pat = (document.getElementById("cPatLogin")?.value || "").trim().toUpperCase().replace(/[\\s-]/g, "");
-  const err = document.getElementById("cErrLogin");
-  if (!pat) { err.textContent = "⚠️ Ingresá la patente"; err.style.display = "block"; return; }
-  const found = CLIENTS.find(c => c.patent === pat);
-  if (!found) { err.textContent = "⚠️ Patente no encontrada. Registrate."; err.style.display = "block"; return; }
-  ME = found;
-  renderClientHome();
-}
-
-async function doRegister() {
-  const name = document.getElementById("rName")?.value.trim() || "";
-  const wa = document.getElementById("rWa")?.value.trim() || "";
-  const pat = (document.getElementById("rPat")?.value || "").trim().toUpperCase().replace(/[\\s-]/g, "");
-  const vtype = document.getElementById("rVtype")?.value || "";
-  const brand = document.getElementById("rBrand")?.value === "Otro" ? 
-    (document.getElementById("rBrandOther")?.value.trim() || "") : 
-    (document.getElementById("rBrand")?.value || "");
-  const model = document.getElementById("rModel")?.value.trim() || "";
-  const year = document.getElementById("rYear")?.value.trim() || "";
-  const motor = document.getElementById("rMotor")?.value.trim() || "";
-  const err = document.getElementById("rErr");
-  
-  if (!name || !wa || !pat || !vtype || !brand || !model || !year || !motor) {
-    err.textContent = "⚠️ Completá todos los campos"; err.style.display = "block"; return;
-  }
-  if (CLIENTS.find(c => c.patent === pat)) { 
-    err.textContent = "⚠️ Esa patente ya existe"; err.style.display = "block"; return;
-  }
-  
-  const nc = { id: uid(), name, whatsapp: wa, patent: pat, vehicleType: vtype, brand, model, year, motor };
-  CLIENTS.push(nc);
-  await fsPut("clients", CLIENTS);
-  ME = nc;
-  go("pgClient");
-  renderClientHome();
-  toast("¡Registro exitoso! Bienvenido 🎉", "success");
-}
-
 function renderClientHome() {
   const lbl = document.getElementById("clientNameLbl");
   lbl.textContent = "👤 " + ME.name.split(" ")[0];
@@ -794,27 +643,23 @@ function renderClientHome() {
 
 function renderMyAppts() {
   const myA = APPTS.filter(a => a.clientId === ME.id).sort((a, b) => b.date.localeCompare(a.date));
-  document.querySelector(".topbar-r").innerHTML = `
-    <span id="clientNameLbl" style="color:var(--muted);font-size:.78rem;">👤 ${ME.name.split(" ")[0]}</span>
-    <button class="back-btn" onclick="renderClientHome()">← Volver</button>`;
   document.getElementById("clientArea").innerHTML = `
     <div class="sh"><div class="st">MIS TURNOS</div><button class="btn btn-p" onclick="renderBooking()">+ Nuevo</button></div>
     ${myA.length === 0 ? '<div class="empty">📋 No tenés turnos aún.</div>' : myA.map(a => `<div class="appt-card">
       <div><div style="font-weight:600;margin-bottom:.12rem">${esc(a.serviceName)}</div>
-      <div style="color:var(--muted);font-size:.77rem">📅 ${fmtD(a.date)} a las ${a.time}</div></div>${bdg(a.status)}</div>`).join("")}`;
+      <div style="color:var(--muted);font-size:.77rem">📅 ${fmtD(a.date)} a las ${a.time}</div></div>${bdg(a.status)}</div>`).join("")}
+    <button class="btn btn-g" style="margin-top:.9rem" onclick="renderClientHome()">← Volver</button>`;
 }
 
 function renderHistorial() {
   const vtype = ME.vehicleType || "auto";
   const iv = SVC_INTERVAL[vtype] || SVC_INTERVAL.auto;
   const done = APPTS.filter(a => a.clientId === ME.id && a.status === "completado").sort((a, b) => b.date.localeCompare(a.date));
-  document.querySelector(".topbar-r").innerHTML = `
-    <span id="clientNameLbl" style="color:var(--muted);font-size:.78rem;">👤 ${ME.name.split(" ")[0]}</span>
-    <button class="back-btn" onclick="renderClientHome()">← Volver</button>`;
   document.getElementById("clientArea").innerHTML = `
     <div class="sh"><div class="st">📖 MI LIBRETITO</div></div>
     <div class="alert ab" style="margin-bottom:.9rem;font-size:.78rem">ℹ️ Tu vehículo necesita service cada <strong>${iv.months} meses</strong> o <strong>${fmtNum(iv.km)} km</strong>.</div>
-    ${done.length === 0 ? '<div class="empty">📖 Aún no hay services completados.</div>' : done.map(a => buildLibretitoCard(a)).join("")}`;
+    ${done.length === 0 ? '<div class="empty">📖 Aún no hay services completados.</div>' : done.map(a => buildLibretitoCard(a)).join("")}
+    <button class="btn btn-g" style="margin-top:.9rem" onclick="renderClientHome()">← Volver</button>`;
 }
 
 function buildLibretitoCard(a) {
