@@ -1896,7 +1896,7 @@ function buildAdminTimes() {
   }).join("");
 }
 
-async async function createAppointmentAtomic(appt) {
+async function createAppointmentAtomic(appt) {
   try {
     const ref = db.collection("lubricentro").doc("appointments");
     let savedAppointments = [];
@@ -1922,7 +1922,7 @@ async async function createAppointmentAtomic(appt) {
   }
 }
 
-function doSaveAppt() {
+async function doSaveAppt() {
   const cid = document.getElementById("mApptClientId").value;
   const svcId = document.getElementById("mAService").value;
   const dt = document.getElementById("mADate").value;
