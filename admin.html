@@ -701,8 +701,8 @@ const fmtD = s => {
   const[y,m,d] = s.split("-");
   return `${d}/${m}/${y}`;
 };
-const uid = () => Math.random().toString(36).substr(2, 9);
-const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/'/g,"&#39;");
+const uid = () => crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
+const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 const fmtNum = n => parseInt(n||0).toLocaleString("es-AR");
 
 function isSafariIOS() {
@@ -817,7 +817,7 @@ function getPit(svcId) {
 function getTaken(date, pit, excludeId = null) {
   const s = new Set();
   AppState.appointments
-    .filter(a => a.date === date && a.id !== excludeId && (a.pit || "auto") === pit)
+    .filter(a => a.date === date && a.id !== excludeId && a.status !== "cancelado" && (a.pit || "auto") === pit)
     .forEach(a => (a.blockedSlots || [a.time]).forEach(t => s.add(t)));
   return s;
 }
@@ -1038,61 +1038,50 @@ function drawClientes() {
 ════════════════════════════════════════════════════════ */
 function calcAllReminders() {
   const result = [];
-  
-  for(const cl of AppState.clients) {
+  const now = new Date();
+
+  for (const cl of AppState.clients) {
     const vtype = cl.vehicleType || "auto";
     const iv = SVC_INTERVAL[vtype] || SVC_INTERVAL.auto;
-    
-    // Buscar último servicio de aceite completado
     const oilAppts = AppState.appointments
       .filter(a => a.clientId === cl.id && a.status === "completado" && a.km)
       .filter(a => {
         const n = (a.serviceName || "").toLowerCase();
         return n.includes("aceite") || n.includes("oil") || n.includes("service");
       })
-      .sort((a,b) => b.date.localeCompare(a.date));
-    
-    if(!oilAppts.length) continue;
-    
+      .sort((a, b) => b.date.localeCompare(a.date));
+    if (!oilAppts.length) continue;
+
     const last = oilAppts[0];
     const lastDate = new Date(last.date + "T12:00:00");
     const lastKm = parseInt(last.km) || 0;
-    
-    // Calcular límites
     const limitDate = new Date(lastDate);
     limitDate.setMonth(limitDate.getMonth() + iv.months);
     const limitKm = lastKm + iv.km;
-    
-    const now = new Date();
-    const overdueByTime = now >= limitDate;
-    
-    // Buscar km actual
+
     const latestKmAppt = AppState.appointments
       .filter(a => a.clientId === cl.id && a.km)
-      .sort((a,b) => b.date.localeCompare(a.date))[0];
+      .sort((a, b) => b.date.localeCompare(a.date))[0];
     const currentKm = latestKmAppt ? parseInt(latestKmAppt.km) || 0 : 0;
     const overdueByKm = currentKm > 0 && currentKm >= limitKm;
-    
-    if(!overdueByTime && !overdueByKm) continue;
-    
+    const daysUntil = Math.ceil((limitDate - now) / (1000 * 60 * 60 * 24));
+    const overdueByTime = daysUntil < 0;
+
+    // Include overdue clients and those due in the next two weeks.
+    if (!overdueByKm && daysUntil > 14) continue;
+
     const notifKey = `${cl.id}_${last.date}`;
     const notified = !!AppState.notified[notifKey];
-    
-    // Calcular urgencia
-    let urgencia = "soon";
-    const daysOverdue = Math.floor((now - limitDate) / (1000 * 60 * 60 * 24));
-    if(daysOverdue >= 0) urgencia = "urgent";
-    else if(daysOverdue >= -7) urgencia = "week";
-    
+    const urgencia = (overdueByKm || overdueByTime) ? "urgent" : daysUntil <= 7 ? "week" : "soon";
+
     result.push({
       cl, last, limitDate, limitKm, currentKm,
-      overdueByTime, overdueByKm, notified, notifKey, vtype, iv, urgencia, daysOverdue
+      overdueByTime, overdueByKm, notified, notifKey, vtype, iv,
+      urgencia, daysOverdue: -daysUntil
     });
   }
-  
   return result;
 }
-
 function drawRecord() {
   const all = calcAllReminders();
   const pending = all.filter(r => !r.notified);
@@ -1599,9 +1588,9 @@ PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas a
   const phone = cleanWA(cl?.whatsapp);
   
   if(isSafariIOS()) {
-    window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURI(mensaje)}`;
+    window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(mensaje)}`;
   } else {
-    window.open(`https://wa.me/${phone}?text=${encodeURI(mensaje)}`, "_blank");
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, "_blank");
   }
   
   closeM("mComplete");
@@ -1907,7 +1896,33 @@ function buildAdminTimes() {
   }).join("");
 }
 
-async function doSaveAppt() {
+async async function createAppointmentAtomic(appt) {
+  try {
+    const ref = db.collection("lubricentro").doc("appointments");
+    let savedAppointments = [];
+    await db.runTransaction(async tx => {
+      const snap = await tx.get(ref);
+      const current = snap.exists ? (snap.data().data || []) : [];
+      const taken = new Set();
+      current.filter(a => a.date === appt.date && a.status !== "cancelado" && (a.pit || "auto") === appt.pit)
+        .forEach(a => (a.blockedSlots || [a.time]).forEach(t => taken.add(t)));
+      if (appt.blockedSlots.some(t => taken.has(t))) throw new Error("SLOT_TAKEN");
+      savedAppointments = [...current, appt];
+      tx.set(ref, { data: savedAppointments });
+    });
+    AppState.appointments = savedAppointments;
+    return true;
+  } catch (e) {
+    if (e.message === "SLOT_TAKEN") toast("Ese horario ya está ocupado", "error");
+    else {
+      console.error("Error al crear turno:", e);
+      toast("No se pudo guardar el turno. Intentá nuevamente.", "error");
+    }
+    return false;
+  }
+}
+
+function doSaveAppt() {
   const cid = document.getElementById("mApptClientId").value;
   const svcId = document.getElementById("mAService").value;
   const dt = document.getElementById("mADate").value;
@@ -1936,21 +1951,15 @@ async function doSaveAppt() {
   const dur = sv?.duration || 30;
   const pit = getPit(svcId);
   
-  // Refresh from Firebase for consistency
-  const freshAppts = await AppState.loadFromFirebase("appointments", []);
-  AppState.appointments = freshAppts;
-  
-  const taken = getTaken(dt, pit);
-  if(!isAvail(tm, dur, taken, dt)) {
+  const slots = getSlots(tm, dur, dt);
+  if (!slots) {
     showOptimisticUI(btn, false);
-    toast("Ese horario ya está ocupado", "error");
+    toast("Ese horario no está disponible", "error");
     buildAdminTimes();
     return;
   }
-  
-  const slots = getSlots(tm, dur, dt) || [tm];
-  
-  AppState.appointments.push({
+
+  const appt = {
     id: uid(),
     clientId: cid,
     patent: cl?.patent || "",
@@ -1965,10 +1974,9 @@ async function doSaveAppt() {
     status: "pendiente",
     km,
     notes: ""
-  });
-  
-  const saved = await AppState.saveToFirebase("appointments", AppState.appointments);
-  
+  };
+  const saved = await createAppointmentAtomic(appt);
+
   showOptimisticUI(btn, false);
   
   if(saved) {
