@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.5.3/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
 /* ══ RESET & VARIABLES ══════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -1682,7 +1682,7 @@ function openViewClient(id) {
     <div class="alert ab" style="margin-bottom:.8rem;font-size:.74rem">
       ℹ️ Service cada <strong>${iv.months} meses</strong> o <strong>${fmtNum(iv.km)} km</strong>
     </div>
-    <button class="btn btn-p btn-full" style="margin-bottom:1rem" onclick="openQRModal('${cl.id}', '${esc(cl.name)}')">
+    <button class="btn btn-p btn-full" style="margin-bottom:1rem" onclick="openQRModal('${cl.id}')">
       🔗 Generar QR compartible
     </button>
     <div style="font-family:'Bebas Neue';font-size:.98rem;letter-spacing:1px;
@@ -1697,7 +1697,9 @@ function openViewClient(id) {
 /* ════════════════════════════════════════════════════════
    QR GENERATION - POINT 3
 ════════════════════════════════════════════════════════ */
-function openQRModal(clientId, clientName) {
+function openQRModal(clientId) {
+  const cl = AppState.clients.find(c => c.id === clientId);
+  const clientName = cl?.name || "Cliente";
   const qrUrl = `${APP_URL}?client=${clientId}&view=libretito`;
   
   // Clear previous QR
@@ -1705,14 +1707,23 @@ function openQRModal(clientId, clientName) {
   qrContainer.innerHTML = "";
   
   // Generate QR
-  new QRCode(qrContainer, {
-    text: qrUrl,
-    width: 200,
-    height: 200,
-    colorDark: "#f0ede8",
-    colorLight: "#1e1e21",
-    correctLevel: QRCode.CorrectLevel.H
-  });
+  try {
+    if(typeof QRCode !== "function") throw new Error("QR_LIBRARY_MISSING");
+    new QRCode(qrContainer, {
+      text: qrUrl,
+      width: 200,
+      height: 200,
+      colorDark: "#f0ede8",
+      colorLight: "#1e1e21",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  } catch(e) {
+    console.error("Error generando QR:", e);
+    qrContainer.innerHTML = `<div class="alert ar" style="margin:0;text-align:left">
+      No se pudo dibujar el QR en este navegador. El link de abajo funciona igual para compartir el Libretito.
+    </div>`;
+    toast("No se pudo dibujar el QR, pero el link quedó disponible", "warn");
+  }
   
   document.getElementById("mQRTitle").textContent = `QR - ${clientName}`;
   document.getElementById("qrUrl").textContent = qrUrl;
