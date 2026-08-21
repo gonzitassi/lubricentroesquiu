@@ -591,12 +591,17 @@ const AppState = {
   appointments: [],
   services: [],
   notified: {},
+  clientsV2: false,
+  appointmentsV2: false,
   
   async loadAll() {
     try {
+      const schema = await this.loadFromFirebase("schema", {});
+      this.clientsV2 = schema.clientsV2 === true;
+      this.appointmentsV2 = schema.appointmentsV2 === true;
       const [c, a, s, n] = await Promise.all([
-        this.loadFromFirebase("clients", []),
-        this.loadFromFirebase("appointments", []),
+        this.clientsV2 ? this.loadCollection("clientRecords") : this.loadFromFirebase("clients", []),
+        this.appointmentsV2 ? this.loadCollection("appointmentRecords") : this.loadFromFirebase("appointments", []),
         this.loadFromFirebase("services", DEFAULT_SVC),
         this.loadFromFirebase("notified", {})
       ]);
@@ -609,6 +614,27 @@ const AppState = {
       console.error("Error loading state:", e);
       return false;
     }
+  },
+
+  async loadCollection(collection) {
+    const snap = await db.collection(collection).get();
+    return snap.docs.map(d => ({id: d.id, ...d.data()}));
+  },
+
+  async saveCollection(collection, data) {
+    const ref = db.collection(collection);
+    const current = await ref.get();
+    const wanted = new Set(data.map(x => x.id));
+    let batch = db.batch();
+    let ops = 0;
+    const commit = async () => { if(ops) await batch.commit(); batch = db.batch(); ops = 0; };
+    current.docs.forEach(d => { if(!wanted.has(d.id)) { batch.delete(d.ref); ops++; } });
+    for(const item of data) {
+      batch.set(ref.doc(item.id), item); ops++;
+      if(ops >= 450) await commit();
+    }
+    await commit();
+    return true;
   },
   
   async loadFromFirebase(key, fallback) {
@@ -624,6 +650,8 @@ const AppState = {
   async saveToFirebase(key, data) {
     showSavingIndicator(true);
     try {
+      if(key === "clients" && this.clientsV2) return await this.saveCollection("clientRecords", data);
+      if(key === "appointments" && this.appointmentsV2) return await this.saveCollection("appointmentRecords", data);
       await db.collection("lubricentro").doc(key).set({data});
       return true;
     } catch(e) {
@@ -1355,6 +1383,17 @@ function drawConfig() {
     <div class="card" style="margin-bottom:1rem">
       <div class="card-title">🚗 FOSA AUTOS / CAMIONETAS</div>${tbl(autos)}</div>
     <div class="card" style="margin-bottom:1rem"><div class="card-title">🚛 FOSA CAMIONES</div>${tbl(camiones)}</div>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="card-title">🛡️ SEGURIDAD DE DATOS</div>
+      <p style="color:var(--muted);font-size:.8rem;margin:.2rem 0 .8rem">
+        ${AppState.clientsV2 && AppState.appointmentsV2
+          ? "Clientes y turnos ya están guardados por separado."
+          : "Prepará la separación interna de clientes y turnos antes de cerrar las reglas de Firebase."}
+      </p>
+      ${AppState.clientsV2 && AppState.appointmentsV2
+        ? '<div class="alert ag" style="margin:0">✔ Datos separados y activos</div>'
+        : '<button class="btn btn-g" onclick="migrateDataToRecords()">🔒 Separar clientes y turnos</button>'}
+    </div>
     <div class="card">
       <div class="card-title">💾 BACKUP DE DATOS</div>
       <p style="color:var(--muted);font-size:.8rem;margin:.2rem 0 .8rem">
@@ -1366,6 +1405,35 @@ function drawConfig() {
       </div>
       <input id="backupFileInput" type="file" accept="application/json,.json" style="display:none" onchange="restoreBackup(this.files[0])"/>
     </div>`;
+}
+
+async function migrateDataToRecords() {
+  if(!confirm("Se copiarán los clientes y turnos actuales a registros separados. No se borra la copia original. ¿Continuar?")) return;
+  showSavingIndicator(true);
+  try {
+    const [clientsSnap, apptsSnap] = await Promise.all([
+      db.collection("lubricentro").doc("clients").get(),
+      db.collection("lubricentro").doc("appointments").get()
+    ]);
+    const clients = clientsSnap.exists ? (clientsSnap.data().data || []) : [];
+    const appointments = apptsSnap.exists ? (apptsSnap.data().data || []) : [];
+    await AppState.saveCollection("clientRecords", clients);
+    await AppState.saveCollection("appointmentRecords", appointments);
+    await db.collection("lubricentro").doc("schema").set({
+      data: {clientsV2:true, appointmentsV2:true, migratedAt:new Date().toISOString()}
+    });
+    AppState.clients = clients;
+    AppState.appointments = appointments;
+    AppState.clientsV2 = true;
+    AppState.appointmentsV2 = true;
+    toast(`Datos separados: ${clients.length} clientes y ${appointments.length} turnos ✔`, "success", 5000);
+    drawConfig();
+  } catch(e) {
+    console.error("Error migrando datos:", e);
+    toast("No se pudieron separar los datos. La copia original sigue intacta.", "error", 5000);
+  } finally {
+    showSavingIndicator(false);
+  }
 }
 
 function downloadBackup() {
@@ -1406,8 +1474,8 @@ async function restoreBackup(file) {
     if(!confirm(`Vas a reemplazar los datos actuales por el backup del ${new Date(backup.exportedAt).toLocaleString('es-AR')}. ¿Continuar?`)) return;
     showSavingIndicator(true);
     const [clients, appointments, services, notified] = await Promise.all([
-      db.collection("lubricentro").doc("clients").set({data: data.clients}),
-      db.collection("lubricentro").doc("appointments").set({data: data.appointments}),
+      AppState.clientsV2 ? AppState.saveCollection("clientRecords", data.clients) : db.collection("lubricentro").doc("clients").set({data: data.clients}),
+      AppState.appointmentsV2 ? AppState.saveCollection("appointmentRecords", data.appointments) : db.collection("lubricentro").doc("appointments").set({data: data.appointments}),
       db.collection("lubricentro").doc("services").set({data: data.services}),
       db.collection("lubricentro").doc("notified").set({data: data.notified || {}})
     ]);
@@ -2035,6 +2103,15 @@ function buildAdminTimes() {
 
 async function createAppointmentAtomic(appt) {
   try {
+    if(AppState.appointmentsV2) {
+      const current = await db.collection("appointmentRecords").where("date", "==", appt.date).get();
+      const taken = new Set();
+      current.docs.forEach(d => { const a=d.data(); if(a.status !== "cancelado" && (a.pit || "auto") === appt.pit) (a.blockedSlots || [a.time]).forEach(t => taken.add(t)); });
+      if(appt.blockedSlots.some(t => taken.has(t))) throw new Error("SLOT_TAKEN");
+      await db.collection("appointmentRecords").doc(appt.id).set(appt);
+      AppState.appointments = [...AppState.appointments, appt];
+      return true;
+    }
     const ref = db.collection("lubricentro").doc("appointments");
     let savedAppointments = [];
     await db.runTransaction(async tx => {

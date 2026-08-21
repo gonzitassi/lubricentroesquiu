@@ -298,6 +298,10 @@ const db = firebase.firestore();
 
 async function fsGet(key, fallback = []) {
   try {
+    const schemaDoc = await db.collection("lubricentro").doc("schema").get();
+    const schema = schemaDoc.exists ? (schemaDoc.data().data || {}) : {};
+    if(key === "clients" && schema.clientsV2) return fsGetCollection("clientRecords", fallback);
+    if(key === "appointments" && schema.appointmentsV2) return fsGetCollection("appointmentRecords", fallback);
     const doc = await db.collection("lubricentro").doc(key).get();
     if (!doc.exists) {
       console.warn(`Doc not found: ${key}, using fallback`);
@@ -310,8 +314,28 @@ async function fsGet(key, fallback = []) {
   }
 }
 
+async function fsGetCollection(collection, fallback = []) {
+  try {
+    const snap = await db.collection(collection).get();
+    return snap.docs.map(d => ({id: d.id, ...d.data()}));
+  } catch(e) {
+    console.error(`fsGetCollection error [${collection}]:`, e.message);
+    return fallback;
+  }
+}
+
 async function fsPut(key, val) {
   try {
+    const schemaDoc = await db.collection("lubricentro").doc("schema").get();
+    const schema = schemaDoc.exists ? (schemaDoc.data().data || {}) : {};
+    if(key === "clients" && schema.clientsV2) {
+      for(const client of val) await db.collection("clientRecords").doc(client.id).set(client);
+      return true;
+    }
+    if(key === "appointments" && schema.appointmentsV2) {
+      for(const appt of val) await db.collection("appointmentRecords").doc(appt.id).set(appt);
+      return true;
+    }
     await db.collection("lubricentro").doc(key).set({ data: val });
     console.log(`Saved: ${key}`);
     return true;
@@ -604,8 +628,14 @@ async function doRegisterClient() {
   if (!validateWA(wa)) { err.textContent = "⚠️ WhatsApp inválido."; err.style.display = "block"; return; }
   if (CLIENTS.find(c => c.patent === pat)) { err.textContent = "⚠️ Ya existe esa patente."; err.style.display = "block"; return; }
   const nc = { id: uid(), name, whatsapp: wa, patent: pat, vehicleType: vtype, brand, model, year, motor };
+  const schema = await fsGet("schema", {});
+  if(schema.clientsV2) {
+    await db.collection("clientRecords").doc(nc.id).set(nc);
+  } else {
+    CLIENTS.push(nc);
+    await fsPut("clients", CLIENTS);
+  }
   CLIENTS.push(nc);
-  await fsPut("clients", CLIENTS);
   ME = nc;
   renderClientHome();
   toast("¡Registro exitoso! Bienvenido 🎉", "success");
@@ -816,6 +846,17 @@ async function confirmBk() {
 
 async function reserveAppointmentAtomic(appt) {
   try {
+    const schemaDoc = await db.collection("lubricentro").doc("schema").get();
+    const schema = schemaDoc.exists ? (schemaDoc.data().data || {}) : {};
+    if(schema.appointmentsV2) {
+      const current = await db.collection("appointmentRecords").where("date", "==", appt.date).get();
+      const taken = new Set();
+      current.docs.forEach(d => { const a=d.data(); if(a.status !== "cancelado" && (a.pit || "auto") === appt.pit) (a.blockedSlots || [a.time]).forEach(t => taken.add(t)); });
+      if(appt.blockedSlots.some(t => taken.has(t))) throw new Error("SLOT_TAKEN");
+      await db.collection("appointmentRecords").doc(appt.id).set(appt);
+      APPTS = [...APPTS, appt];
+      return true;
+    }
     const ref = db.collection("lubricentro").doc("appointments");
     let savedAppointments = [];
     await db.runTransaction(async tx => {
