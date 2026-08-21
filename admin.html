@@ -1673,6 +1673,63 @@ function openComplete(id) {
   openM("mComplete");
 }
 
+function buildCompletedServiceMessage(appt, cl) {
+  const nombre = cl?.name?.split(" ")[0] || "Cliente";
+  const patente = appt.patent || cl?.patent || "—";
+  const checklist = appt.checklist || {};
+  const doneItems = CHECKLIST.filter(c => checklist[c.id] === "done").map(c => c.label);
+  const filtrosText = doneItems.length > 0 ? doneItems.join(", ") : "Según lo acordado";
+  const km = appt.km ? fmtNum(parseInt(appt.km)) : "—";
+  const nextKm = appt.nextKm ? fmtNum(appt.nextKm) : "—";
+  const nextDate = appt.nextDate ? ` (aprox. ${fmtD(appt.nextDate)})` : "";
+
+  return `Hola, ${nombre}! \u{1F44B} Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand || "vehículo"} ${cl?.model || ""} - Patente ${patente}.
+
+Acá te dejamos tu Libretito Digital para que lo tengas a mano \u{1F4DD}:
+
+\u{1F5D3}\uFE0F Fecha: ${fmtD(appt.date)} a las ${appt.time || "—"}
+\u{1F3CE} KMs actuales: ${km}
+\u{1F6E2}\uFE0F Aceite: ${appt.oilBrand || "—"}
+\u{1F527} Filtros: ${filtrosText}
+\u{26A0}\uFE0F Próximo Service: a los ${nextKm} KMs${nextDate}
+
+${appt.notes ? `\u{1F4AC} Observaciones: ${appt.notes}\n` : ""}
+PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8 \u2B50\u2B50\u2B50\u2B50\u2B50
+
+¡Gracias por confiar en nosotros!`;
+}
+
+function openCompletedServiceWhatsApp(appt, cl) {
+  if(!cl || !validateWA(cl.whatsapp)) {
+    toast("El cliente no tiene un WhatsApp válido", "error");
+    return false;
+  }
+
+  const phone = cleanWA(cl?.whatsapp);
+  const safariIOS = isSafariIOS();
+  const message = buildCompletedServiceMessage(appt, cl);
+  const url = safariIOS
+    ? `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`
+    : `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+
+  if(safariIOS) window.location.href = url;
+  else window.open(url, "_blank");
+  return true;
+}
+
+function resendCompletedService(apptId) {
+  const appt = AppState.appointments.find(a => a.id === apptId);
+  if(!appt || appt.status !== "completado") {
+    toast("No se encontró el service completado", "error");
+    return;
+  }
+
+  const cl = AppState.clients.find(c => c.id === appt.clientId);
+  if(openCompletedServiceWhatsApp(appt, cl)) {
+    toast("Abriendo el mensaje del service en WhatsApp...", "success");
+  }
+}
+
 async function doCompleteAppt() {
   const id = document.getElementById("mCompId").value;
   const km = document.getElementById("mCompKm").value.trim();
@@ -1695,11 +1752,6 @@ async function doCompleteAppt() {
   const vtype = cl?.vehicleType || "auto";
   const {nextKm, nextDate} = calcNextService(km, todayISO, vtype);
   
-  // Armar lista de filtros cambiados
-  const cl2 = clItems || {};
-  const doneItems = CHECKLIST.filter(c => cl2[c.id] === "done").map(c => c.label);
-  const filtrosText = doneItems.length > 0 ? doneItems.join(", ") : "Según lo acordado";
-  
   // Guardar primero
   Object.assign(appt, {
     status: "completado",
@@ -1718,34 +1770,8 @@ async function doCompleteAppt() {
     return;
   }
   
-  // Si guardó correctamente, generar y enviar mensaje
-  const nombre = cl?.name.split(" ")[0] || "Cliente";
-  
-  const patente = appt.patent || cl?.patent || "—";
-  
-  const mensaje = `Hola, ${nombre}! \u{1F44B} Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model} - Patente ${patente}.
-
-Acá te dejamos tu Libretito Digital para que lo tengas a mano \u{1F4DD}:
-
-\u{1F5D3}\uFE0F Fecha: ${fmtD(appt.date)} a las ${appt.time}
-\u{1F3CE} KMs actuales: ${fmtNum(parseInt(km))}
-\u{1F6E2}\uFE0F Aceite: ${oil}
-\u{1F527} Filtros: ${filtrosText}
-\u{26A0}\uFE0F Próximo Service: a los ${fmtNum(nextKm)} KMs (aprox. ${fmtD(nextDate)})
-
-${obs ? `\u{1F4AC} Observaciones: ${obs}\n` : ""}
-PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8 \u2B50\u2B50\u2B50\u2B50\u2B50
-
-¡Gracias por confiar en nosotros!`;
-  
-  // Abrir WhatsApp
-  const phone = cleanWA(cl?.whatsapp);
-  
-  if(isSafariIOS()) {
-    window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(mensaje)}`;
-  } else {
-    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(mensaje)}`, "_blank");
-  }
+  // Si guardó correctamente, abrir el mismo mensaje reutilizable de WhatsApp
+  openCompletedServiceWhatsApp(appt, cl);
   
   closeM("mComplete");
   toast("Service guardado ✔ Abriendo WhatsApp...", "success");
@@ -1809,6 +1835,12 @@ function buildLibretitoCard(a) {
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:9px;
           padding:.75rem .9rem;font-size:.9rem;color:var(--text);line-height:1.65;">
           ${esc(a.notes)}</div>` : ""}
+
+      ${a.status === "completado" ? `
+        <button class="btn btn-wa btn-full" style="margin-top:.9rem"
+          onclick="resendCompletedService('${a.id}')">
+          💬 Enviar este service por WhatsApp
+        </button>` : ""}
     </div>`;
 }
 
