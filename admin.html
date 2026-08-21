@@ -1275,20 +1275,10 @@ function sendReminder(cid, lastDate, patent, notifKey) {
 
   const iv = SVC_INTERVAL[cl.vehicleType || "auto"] || SVC_INTERVAL.auto;
   
-  let msg;
-  if(isDesktop()) {
-    // Sin emojis para Windows/Mac
-    msg = `Hola ${cl.name.split(" ")[0]}! Te recuerda *Lubricentro Esquiú* que tu ` +
-      `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o ` +
-      `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n` +
-      `¡Es momento de cuidar tu motor! [SERVICIO]\n\nSacá tu turno: ${APP_URL}`;
-  } else {
-    // Con emojis para celulares
-    msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
-      `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o ` +
-      `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n` +
-      `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
-  }
+  const msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
+    `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o ` +
+    `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n` +
+    `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
 
   const phone = cleanWA(cl.whatsapp);
   
@@ -1321,20 +1311,10 @@ function sendAllUrgentReminders() {
     const cl = r.cl;
     const iv = SVC_INTERVAL[r.vtype] || SVC_INTERVAL.auto;
     
-    let msg;
-    if(isDesktop()) {
-      // Sin emojis para Windows/Mac
-      msg = `Hola ${cl.name.split(" ")[0]}! Te recuerda *Lubricentro Esquiú* que tu ` +
-        `*${cl.brand} ${cl.model}* (Patente: *${r.last.patent || cl.patent}*) ya cumplió *${iv.months} meses* o ` +
-        `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(r.last.date)}.\n\n` +
-        `¡Es momento de cuidar tu motor! [SERVICIO]\n\nSacá tu turno: ${APP_URL}`;
-    } else {
-      // Con emojis para celulares
-      msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
-        `*${cl.brand} ${cl.model}* (Patente: *${r.last.patent || cl.patent}*) ya cumplió *${iv.months} meses* o ` +
-        `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(r.last.date)}.\n\n` +
-        `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
-    }
+    const msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
+      `*${cl.brand} ${cl.model}* (Patente: *${r.last.patent || cl.patent}*) ya cumplió *${iv.months} meses* o ` +
+      `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(r.last.date)}.\n\n` +
+      `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
     
     // Guardar como "avisado"
     AppState.notified[r.notifKey] = {ts: Date.now()};
@@ -1743,26 +1723,7 @@ async function doCompleteAppt() {
   
   const patente = appt.patent || cl?.patent || "—";
   
-  let mensaje;
-  if(isDesktop()) {
-    // Sin emojis para Windows/Mac
-    mensaje = `Hola, ${nombre}! Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model} - Patente ${patente}.
-
-Acá te dejamos tu Libretito Digital para que lo tengas a mano:
-
-[FECHA] Fecha: ${fmtD(appt.date)} a las ${appt.time}
-[AUTO] KMs actuales: ${fmtNum(parseInt(km))}
-[ACEITE] Aceite: ${oil}
-[FILTROS] Filtros: ${filtrosText}
-[PROX] Próximo Service: a los ${fmtNum(nextKm)} KMs (aprox. ${fmtD(nextDate)})
-
-${obs ? `[NOTAS] Observaciones: ${obs}\n` : ""}
-PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8 ★★★★★
-
-¡Gracias por confiar en nosotros!`;
-  } else {
-    // Con emojis para celulares
-    mensaje = `Hola, ${nombre}! 👋 Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model} - Patente ${patente}.
+  const mensaje = `Hola, ${nombre}! 👋 Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model} - Patente ${patente}.
 
 Acá te dejamos tu Libretito Digital para que lo tengas a mano 📝:
 
@@ -1776,7 +1737,6 @@ ${obs ? `💬 Observaciones: ${obs}\n` : ""}
 PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8 ⭐⭐⭐⭐⭐
 
 ¡Gracias por confiar en nosotros!`;
-  }
   
   // Abrir WhatsApp
   const phone = cleanWA(cl?.whatsapp);
