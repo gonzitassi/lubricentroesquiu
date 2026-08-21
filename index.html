@@ -187,6 +187,8 @@ select.fi option{background:var(--bg2);}
 /* ══ MISC ════════════════════════════════════════════ */
 .sh{display:flex;align-items:center;justify-content:space-between;
   margin-bottom:.9rem;flex-wrap:wrap;gap:.46rem;}
+.libretito-nav{position:sticky;top:.45rem;z-index:10;background:var(--bg);
+  padding:.45rem 0 .6rem;margin:-.45rem 0 .2rem;}
 .st{font-family:'Bebas Neue',sans-serif;font-size:1.38rem;letter-spacing:1px;}
 .sn{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;
   border-radius:50%;background:var(--orange);color:#fff;font-family:'Bebas Neue',sans-serif;
@@ -658,7 +660,7 @@ function renderHistorial() {
   const iv = SVC_INTERVAL[vtype] || SVC_INTERVAL.auto;
   const done = APPTS.filter(a => a.clientId === ME.id && a.status === "completado").sort((a, b) => b.date.localeCompare(a.date));
   document.getElementById("clientArea").innerHTML = `
-    <div class="sh"><div class="st">📖 MI LIBRETITO</div></div>
+    <div class="sh libretito-nav"><div class="st">📖 MI LIBRETITO</div><button class="btn btn-g" onclick="renderClientHome()">← Volver</button></div>
     <div class="alert ab" style="margin-bottom:.9rem;font-size:.78rem">ℹ️ Tu vehículo necesita service cada <strong>${iv.months} meses</strong> o <strong>${fmtNum(iv.km)} km</strong>.</div>
     ${done.length === 0 ? '<div class="empty">📖 Aún no hay services completados.</div>' : done.map(a => buildLibretitoCard(a)).join("")}
     <button class="btn btn-g" style="margin-top:.9rem" onclick="renderClientHome()">← Volver</button>`;

@@ -8,6 +8,7 @@
 <title>Lubricentro Esquiú — Administrador</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
@@ -341,6 +342,8 @@ select.fi option{background:var(--bg2);}
       <input class="fi" type="password" id="loginP" name="lbadm_p" autocomplete="off"
         placeholder="••••••••" onkeydown="if(event.key==='Enter')tryLogin()"/></div>
     <button class="btn btn-p btn-full" onclick="tryLogin()">Ingresar →</button>
+    <button class="back-btn btn-full" style="margin-top:.45rem;display:flex;justify-content:center;"
+      onclick="requestPasswordReset()">¿Olvidaste tu contraseña?</button>
     <button class="back-btn btn-full"
       style="margin-top:.7rem;display:flex;justify-content:center;"
       onclick="go('pgLanding')">← Volver</button>
@@ -354,7 +357,7 @@ select.fi option{background:var(--bg2);}
       <span style="font-size:.67rem;color:var(--muted);font-family:'DM Sans';letter-spacing:0"> ADMIN</span>
     </div>
     <div class="topbar-r">
-      <button class="back-btn" onclick="go('pgLanding')">← Salir</button>
+      <button class="back-btn" onclick="logoutAdmin()">← Salir</button>
     </div>
   </div>
   <div class="tabs" id="adminTabs">
@@ -578,6 +581,7 @@ firebase.initializeApp({
   appId:"1:278002254429:web:91ad2912c248978df183b4"
 });
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 /* ════════════════════════════════════════════════════════
    CENTRALIZED STATE & FIREBASE API
@@ -637,7 +641,8 @@ const AppState = {
 ════════════════════════════════════════════════════════ */
 const PHONE_LUBRI = "5493513880155";
 const APP_URL = "https://gonzitassi.github.io/lubricentroesquiu/";
-const ADMINS = [{u:"roger tassi",p:"pirata1968"}];
+const ADMIN_USERNAME = "roger tassi";
+const ADMIN_AUTH_EMAIL = "gonzitassi@gmail.com";
 const SVC_INTERVAL = { auto:{months:6,km:10000}, camion:{months:3,km:25000} };
 const HRS_MORNING = ["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30"];
 const HRS_AFTERNOON = ["15:30","16:00","16:30","17:00","17:30","18:00","18:30"];
@@ -856,6 +861,9 @@ function isAvail(time, durMins, takenSet, dateStr) {
    NAVIGATION
 ════════════════════════════════════════════════════════ */
 function go(pgId) {
+  if(pgId === "pgAdmin" && !auth.currentUser) {
+    pgId = "pgAdminLogin";
+  }
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById(pgId).classList.add("active");
   if(pgId === "pgAdmin") renderAdmin();
@@ -871,16 +879,58 @@ function go(pgId) {
 /* ════════════════════════════════════════════════════════
    ADMIN LOGIN
 ════════════════════════════════════════════════════════ */
-function tryLogin() {
+async function tryLogin() {
   const u = document.getElementById("loginU").value.trim();
   const p = document.getElementById("loginP").value;
   const e = document.getElementById("loginErr");
-  
-  if(ADMINS.find(a => a.u === u && a.p === p)) {
+
+  if(u.toLowerCase() !== ADMIN_USERNAME || !p) {
+    e.className = "alert ar";
+    e.textContent = "⚠️ Usuario o contraseña incorrectos.";
+    e.style.display = "block";
+    return;
+  }
+  try {
+    await auth.signInWithEmailAndPassword(ADMIN_AUTH_EMAIL, p);
+    const loaded = await AppState.loadAll();
+    if(!loaded) throw new Error("DATA_LOAD_FAILED");
+    if(!AppState.services.length) {
+      AppState.services = DEFAULT_SVC;
+      await AppState.saveToFirebase("services", AppState.services);
+    }
     e.style.display = "none";
     go("pgAdmin");
-  } else {
+  } catch(err) {
+    console.error("Error de acceso administrador:", err);
+    e.className = "alert ar";
     e.textContent = "⚠️ Usuario o contraseña incorrectos.";
+    e.style.display = "block";
+  }
+}
+
+async function logoutAdmin() {
+  await auth.signOut();
+  go("pgLanding");
+  toast("Sesión cerrada", "success");
+}
+
+async function requestPasswordReset() {
+  const u = document.getElementById("loginU")?.value.trim().toLowerCase();
+  const e = document.getElementById("loginErr");
+  if(u !== ADMIN_USERNAME) {
+    e.textContent = "⚠️ Escribí primero tu usuario para recuperar la contraseña.";
+    e.style.display = "block";
+    return;
+  }
+  try {
+    await auth.sendPasswordResetEmail(ADMIN_AUTH_EMAIL);
+    e.textContent = "✔ Te enviamos un link de recuperación al email del administrador.";
+    e.className = "alert ag";
+    e.style.display = "block";
+  } catch(err) {
+    console.error("Error enviando recuperación:", err);
+    e.textContent = "⚠️ No se pudo enviar el link. Intentá nuevamente.";
+    e.className = "alert ar";
     e.style.display = "block";
   }
 }
@@ -1310,7 +1360,11 @@ function drawConfig() {
       <p style="color:var(--muted);font-size:.8rem;margin:.2rem 0 .8rem">
         Descargá una copia de clientes, turnos, servicios y recordatorios para guardarla como respaldo.
       </p>
-      <button class="btn btn-g" onclick="downloadBackup()">⬇️ Descargar backup</button>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+        <button class="btn btn-g" onclick="downloadBackup()">⬇️ Descargar backup</button>
+        <button class="btn btn-g" onclick="document.getElementById('backupFileInput').click()">↥ Restaurar backup</button>
+      </div>
+      <input id="backupFileInput" type="file" accept="application/json,.json" style="display:none" onchange="restoreBackup(this.files[0])"/>
     </div>`;
 }
 
@@ -1338,6 +1392,39 @@ function downloadBackup() {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   toast("Backup descargado correctamente ✔", "success");
+}
+
+async function restoreBackup(file) {
+  if(!file) return;
+  try {
+    const backup = JSON.parse(await file.text());
+    const data = backup?.data;
+    if(backup?.format !== "lubricentro-esquiu-backup" || !data ||
+      !Array.isArray(data.clients) || !Array.isArray(data.appointments) || !Array.isArray(data.services)) {
+      throw new Error("INVALID_BACKUP");
+    }
+    if(!confirm(`Vas a reemplazar los datos actuales por el backup del ${new Date(backup.exportedAt).toLocaleString('es-AR')}. ¿Continuar?`)) return;
+    showSavingIndicator(true);
+    const [clients, appointments, services, notified] = await Promise.all([
+      db.collection("lubricentro").doc("clients").set({data: data.clients}),
+      db.collection("lubricentro").doc("appointments").set({data: data.appointments}),
+      db.collection("lubricentro").doc("services").set({data: data.services}),
+      db.collection("lubricentro").doc("notified").set({data: data.notified || {}})
+    ]);
+    AppState.clients = data.clients;
+    AppState.appointments = data.appointments;
+    AppState.services = data.services;
+    AppState.notified = data.notified || {};
+    toast("Backup restaurado correctamente ✔", "success");
+    reDrawCur();
+  } catch(e) {
+    console.error("Error restaurando backup:", e);
+    toast(e.message === "INVALID_BACKUP" ? "El archivo no es un backup válido" : "No se pudo restaurar el backup", "error");
+  } finally {
+    showSavingIndicator(false);
+    const input = document.getElementById("backupFileInput");
+    if(input) input.value = "";
+  }
 }
 
 /* ════════════════════════════════════════════════════════
@@ -2105,19 +2192,10 @@ async function delSvc(id) {
    INIT
 ════════════════════════════════════════════════════════ */
 (async () => {
-  const loaded = await AppState.loadAll();
-  
-  if(!AppState.services.length) {
-    AppState.services = DEFAULT_SVC;
-    await AppState.saveToFirebase("services", AppState.services);
-  }
-  
   document.getElementById("appLoader").style.display = "none";
-  
-  if(!loaded) {
-    toast("Error al conectar con Firebase", "error", 5000);
-  }
-  
+  auth.onAuthStateChanged(user => {
+    if(!user && document.getElementById("pgAdmin").classList.contains("active")) go("pgLanding");
+  });
   go("pgLanding");
 })();
 
