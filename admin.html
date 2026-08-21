@@ -1304,7 +1304,40 @@ function drawConfig() {
     </div>
     <div class="card" style="margin-bottom:1rem">
       <div class="card-title">🚗 FOSA AUTOS / CAMIONETAS</div>${tbl(autos)}</div>
-    <div class="card"><div class="card-title">🚛 FOSA CAMIONES</div>${tbl(camiones)}</div>`;
+    <div class="card" style="margin-bottom:1rem"><div class="card-title">🚛 FOSA CAMIONES</div>${tbl(camiones)}</div>
+    <div class="card">
+      <div class="card-title">💾 BACKUP DE DATOS</div>
+      <p style="color:var(--muted);font-size:.8rem;margin:.2rem 0 .8rem">
+        Descargá una copia de clientes, turnos, servicios y recordatorios para guardarla como respaldo.
+      </p>
+      <button class="btn btn-g" onclick="downloadBackup()">⬇️ Descargar backup</button>
+    </div>`;
+}
+
+function downloadBackup() {
+  const backup = {
+    format: "lubricentro-esquiu-backup",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    project: "lubricentroesquiu-1759a",
+    data: {
+      clients: AppState.clients,
+      appointments: AppState.appointments,
+      services: AppState.services,
+      notified: AppState.notified
+    }
+  };
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `lubricentro-esquiu-backup-${stamp}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("Backup descargado correctamente ✔", "success");
 }
 
 /* ════════════════════════════════════════════════════════
