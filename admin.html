@@ -1285,7 +1285,7 @@ function sendReminder(cid, lastDate, patent, notifKey) {
   if(isSafariIOS()) {
     window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(msg)}`;
   } else {
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, "_blank");
   }
 }
 
@@ -1325,7 +1325,7 @@ function sendAllUrgentReminders() {
     if(isSafariIOS()) {
       window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(msg)}`;
     } else {
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+      window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, "_blank");
     }
     
     count++;
@@ -1723,18 +1723,18 @@ async function doCompleteAppt() {
   
   const patente = appt.patent || cl?.patent || "—";
   
-  const mensaje = `Hola, ${nombre}! 👋 Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model} - Patente ${patente}.
+  const mensaje = `Hola, ${nombre}! \u{1F44B} Te avisamos desde Lubricentro Esquiú que ya completamos el service de tu ${cl?.brand} ${cl?.model} - Patente ${patente}.
 
-Acá te dejamos tu Libretito Digital para que lo tengas a mano 📝:
+Acá te dejamos tu Libretito Digital para que lo tengas a mano \u{1F4DD}:
 
-🗓️ Fecha: ${fmtD(appt.date)} a las ${appt.time}
-🏎️ KMs actuales: ${fmtNum(parseInt(km))}
-🛢️ Aceite: ${oil}
-🔧 Filtros: ${filtrosText}
-⚠️ Próximo Service: a los ${fmtNum(nextKm)} KMs (aprox. ${fmtD(nextDate)})
+\u{1F5D3}\uFE0F Fecha: ${fmtD(appt.date)} a las ${appt.time}
+\u{1F3CE} KMs actuales: ${fmtNum(parseInt(km))}
+\u{1F6E2}\uFE0F Aceite: ${oil}
+\u{1F527} Filtros: ${filtrosText}
+\u{26A0}\uFE0F Próximo Service: a los ${fmtNum(nextKm)} KMs (aprox. ${fmtD(nextDate)})
 
-${obs ? `💬 Observaciones: ${obs}\n` : ""}
-PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8 ⭐⭐⭐⭐⭐
+${obs ? `\u{1F4AC} Observaciones: ${obs}\n` : ""}
+PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas acá: https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8 \u2B50\u2B50\u2B50\u2B50\u2B50
 
 ¡Gracias por confiar en nosotros!`;
   
@@ -1744,7 +1744,7 @@ PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas a
   if(isSafariIOS()) {
     window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(mensaje)}`;
   } else {
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`, "_blank");
+    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(mensaje)}`, "_blank");
   }
   
   closeM("mComplete");
