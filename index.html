@@ -259,8 +259,8 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 }
 
 /* Logo original recortado visualmente para aprovechar su formato cuadrado */
-.brand-img{display:block;width:clamp(260px,36vw,520px);height:clamp(86px,11vw,150px);object-fit:cover;object-position:center;border-radius:6px;}
-.brand-img-sm{display:block;width:190px;height:54px;object-fit:cover;object-position:center;border-radius:4px;}
+.brand-img{display:block;width:clamp(260px,36vw,520px);height:auto;object-fit:contain;object-position:center;}
+.brand-img-sm{display:block;width:190px;height:54px;object-fit:contain;object-position:left center;}
 
 /* Entrada */
 #pgLanding{padding:1.2rem;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;background:
@@ -365,7 +365,7 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 
 /* Celular primero */
 @media(max-width:760px){
-  .brand-img{width:min(92vw,390px);height:112px;}
+  .brand-img{width:min(92vw,390px);height:auto;}
   #pgLanding{padding:1rem;justify-content:center;}
   .entry-wrap{padding:.4rem 0;}
   .entry-sub{font-size:.63rem;margin-top:-.2rem;margin-bottom:1.2rem;}
@@ -402,7 +402,7 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
   .sh{align-items:flex-start;}
 }
 @media(max-width:390px){
-  .brand-img{height:98px;}.entry-card{padding:1.1rem}.sg{grid-template-columns:1fr;}.tg{grid-template-columns:repeat(3,1fr);}
+  .brand-img{height:auto;}.entry-card{padding:1.1rem}.sg{grid-template-columns:1fr;}.tg{grid-template-columns:repeat(3,1fr);}
   .identify-copy h1{font-size:3rem;}.vtype-btn{font-size:.74rem;}
 }
 </style>
@@ -418,7 +418,7 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 <!-- ═══════════ LANDING ═══════════ -->
 <div class="page" id="pgLanding">
   <div class="entry-wrap">
-    <img class="brand-img" src="assets/lubricentro-logo.jpg" alt="Lubricentro Esquiú"/>
+    <img class="brand-img" src="assets/lubricentro-logo-transparent.png" alt="Lubricentro Esquiú"/>
     <div class="entry-sub">Turnos online · Córdoba</div>
     <div class="entry-card">
       <div class="entry-icon" aria-hidden="true">
@@ -440,7 +440,7 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 <!-- ═══════════ CLIENT APP ═══════════ -->
 <div class="page" id="pgClient">
   <div class="topbar">
-    <img class="brand-img-sm" src="assets/lubricentro-logo.jpg" alt="Lubricentro Esquiú"/>
+    <img class="brand-img-sm" src="assets/lubricentro-logo-transparent.png" alt="Lubricentro Esquiú"/>
     <div class="topbar-r">
       <span id="clientNameLbl" style="color:var(--muted);font-size:.78rem;display:none"></span>
       <button class="back-btn" onclick="go('pgLanding')">← Inicio</button>
@@ -962,7 +962,7 @@ function drawBooking() {
           <div>${ME.vehicleType === "camion" ? "🚛" : "🚗"} <strong>${esc(ME.brand)} ${esc(ME.model)} ${ME.year}</strong> — ${ME.patent}</div>
           ${BK.km ? `<div>📏 ${fmtNum(BK.km)} km</div>` : ""}
         </div>
-        <button class="btn btn-p btn-full" style="margin-top:.8rem" onclick="confirmBk()">✅ Confirmar y Guardar Turno</button>
+        <button class="btn btn-p btn-full" style="margin-top:.8rem" onclick="confirmBk(this)">Confirmar y guardar turno</button>
       </div>` : ""}
     </div>`;
 }
@@ -982,14 +982,20 @@ function bkDate(d) {
   drawBooking();
 }
 
-async function confirmBk() {
+async function confirmBk(btn) {
   const sv = SERVICES.find(s => s.id === BK.service);
   if (!sv) return;
   if (isDayClosed(BK.date)) { toast("Cerrado ese día", "error"); return; }
+  const originalBtnText = btn?.textContent || "Confirmar y guardar turno";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Guardando turno...";
+  }
   const dur = sv.duration || 30;
   const pit = getPit(BK.service);
   const slots = getSlots(BK.time, dur, BK.date);
   if (!slots) {
+    if (btn) { btn.disabled = false; btn.textContent = originalBtnText; }
     toast("Ese horario no está disponible.", "error");
     BK.time = "";
     drawBooking();
@@ -1004,26 +1010,14 @@ async function confirmBk() {
   };
   const saved = await reserveAppointmentAtomic(appt);
   if (!saved) {
+    if (btn) { btn.disabled = false; btn.textContent = originalBtnText; }
     BK.time = "";
     drawBooking();
     return;
   }
-  const waMsg = `¡Hola! Reservé un turno en Lubricentro Esquiú.\n\n🔧 *Servicio:* ${sv.name}\n📅 *Fecha:* ${fmtD(BK.date)} a las ${BK.time}\n${ME.vehicleType === "camion" ? "🚛" : "🚗"} *Vehículo:* ${ME.brand} ${ME.model} ${ME.year}\n🔑 *Patente:* ${ME.patent}\n⚙️ *Motor:* ${ME.motor || "—"}\n🔩 *Fosa:* ${pit === "camion" ? "Camiones" : "Autos"}`;
+  const waMsg = `Hola, Lubricentro Esquiú. Acabo de reservar un turno a través de la página web.\n\n*Datos de la reserva*\n*Servicio:* ${sv.name}\n*Fecha:* ${fmtD(BK.date)}\n*Horario:* ${BK.time}\n*Vehículo:* ${ME.brand} ${ME.model} ${ME.year}\n*Patente:* ${ME.patent}\n*Motor:* ${ME.motor || "—"}${BK.km ? `\n*Kilometraje:* ${fmtNum(BK.km)} km` : ""}\n\nQuedo a la espera de la confirmación. Muchas gracias.`;
   const waURL = `https://wa.me/${PHONE_LUBRI}?text=${encodeURIComponent(waMsg)}`;
-  document.getElementById("clientArea").innerHTML = `
-    <div style="max-width:480px;padding-top:1.5rem">
-      <div class="success-banner">
-        <div class="sb-icon">🎉</div>
-        <div class="sb-title">¡TURNO GUARDADO!</div>
-        <div class="sb-sub"><strong>${esc(sv.name)}</strong><br/>📅 ${fmtD(BK.date)} a las ${BK.time}<br/>${ME.vehicleType === "camion" ? "🚛" : "🚗"} ${esc(ME.brand)} ${esc(ME.model)} — ${ME.patent}</div>
-        <button class="btn-wa-big" onclick="window.open('${waURL}','_blank')">📲 CONFIRMAR POR WHATSAPP</button>
-        <div class="btn-wa-big-hint">Tocá para notificar al lubricentro.</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:.45rem;margin-top:.15rem">
-        <button class="btn btn-g btn-full" onclick="renderMyAppts()">📋 Ver mis turnos</button>
-        <button class="btn btn-g btn-full" onclick="renderClientHome()">← Inicio</button>
-      </div>
-    </div>`;
+  window.location.assign(waURL);
 }
 
 async function reserveAppointmentAtomic(appt) {
