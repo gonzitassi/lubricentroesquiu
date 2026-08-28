@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
-<meta name="theme-color" content="#0e0e0f"/>
+<meta name="theme-color" content="#03132e"/>
 <title>Lubricentro Esquiú — Turnos Online</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
@@ -242,6 +242,169 @@ select.fi option{background:var(--bg2);}
   flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
 .big-spin{width:38px;height:38px;border:3px solid rgba(249,115,22,.2);
   border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;}
+
+/* ══ REDISEÑO ESQUIÚ — NAVY + ORANGE ═══════════════ */
+:root{
+  --bg:#020b1b;--bg2:#07162d;--bg3:#0d203d;--card:#091a34;
+  --border:rgba(188,203,225,.18);--orange:#ff7200;--orange2:#e85b00;
+  --text:#f7f8fb;--muted:#9ca9bb;--success:#33c36b;--warn:#f4b33b;
+  --danger:#f16262;--wa:#25d366;--wa2:#18a94d;--blue:#77a8ff;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);background-image:radial-gradient(circle at 80% 12%,rgba(255,114,0,.08),transparent 28%),linear-gradient(135deg,#020914,#03132e 55%,#020b1b);}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:radial-gradient(rgba(255,255,255,.11) .55px,transparent .55px);background-size:7px 7px;z-index:-1;}
+input,select,textarea,button{font-family:'DM Sans',sans-serif;}
+.logo,.tbrand,.st,.card-title,.libretito-service,.next-svc-title,.sb-title,.stitle,.lcard h3{
+  font-family:'Barlow Condensed',sans-serif!important;
+}
+
+/* Logo original recortado visualmente para aprovechar su formato cuadrado */
+.brand-img{display:block;width:clamp(260px,36vw,520px);height:clamp(86px,11vw,150px);object-fit:cover;object-position:center;border-radius:6px;}
+.brand-img-sm{display:block;width:190px;height:54px;object-fit:cover;object-position:center;border-radius:4px;}
+
+/* Entrada */
+#pgLanding{padding:1.2rem;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;background:
+  radial-gradient(circle at 50% 40%,rgba(21,49,88,.72),transparent 34%),linear-gradient(140deg,#020914,#03132e 58%,#020b1b);}
+#pgLanding::before{content:'';display:block;position:absolute;inset:-10%;width:auto;height:auto;background:
+  repeating-radial-gradient(ellipse at -8% 8%,transparent 0 32px,rgba(255,114,0,.12) 33px 34px,transparent 35px 52px);opacity:.38;pointer-events:none;}
+#pgLanding::after{content:'';position:absolute;right:-9%;bottom:4%;width:54%;height:25%;border-top:1px solid rgba(144,166,199,.2);border-radius:50%;transform:rotate(-12deg);box-shadow:0 -18px 0 -17px rgba(144,166,199,.14),0 -36px 0 -35px rgba(144,166,199,.1);pointer-events:none;}
+.entry-wrap{width:min(100%,720px);display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;padding:1rem 0;}
+.entry-sub{color:#aab4c2;font-size:.72rem;letter-spacing:.27em;text-transform:uppercase;margin:.15rem 0 1.75rem;}
+.entry-card{width:min(100%,430px);background:linear-gradient(155deg,rgba(11,29,56,.96),rgba(3,15,35,.98));border:1px solid rgba(255,114,0,.75);border-radius:22px;padding:1.8rem;box-shadow:0 30px 70px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);}
+.entry-icon{width:60px;height:60px;margin:0 auto 1rem;border-radius:17px;background:rgba(255,114,0,.1);color:var(--orange);display:grid;place-items:center;}
+.entry-icon svg{width:34px;height:34px;}
+.entry-card h1{font-family:'Barlow Condensed',sans-serif;font-size:2rem;line-height:1;text-transform:uppercase;letter-spacing:.02em;margin:0 0 .5rem;}
+.entry-card p{color:#a9b4c4;font-size:.9rem;margin-bottom:1.25rem;}
+.entry-main{width:100%;border:0;border-radius:12px;padding:.9rem 1.1rem;background:linear-gradient(135deg,var(--orange),#ff8b16);color:white;font-weight:700;font-size:.92rem;cursor:pointer;box-shadow:0 12px 28px rgba(255,114,0,.22);transition:.2s;}
+.entry-main:hover{transform:translateY(-2px);background:linear-gradient(135deg,#ff8121,var(--orange));}
+.entry-links{width:min(100%,430px);display:flex;flex-direction:column;align-items:center;gap:.8rem;margin-top:1.15rem;}
+.entry-map{color:#b6c0cf;text-decoration:none;font-size:.78rem;padding:.45rem;}
+.entry-map:hover{color:var(--orange);}
+.entry-wa{width:100%;border:1px solid rgba(37,211,102,.8);border-radius:12px;padding:.78rem 1rem;background:rgba(37,211,102,.035);color:#eafcf0;font-weight:600;font-size:.82rem;cursor:pointer;transition:.2s;}
+.entry-wa:hover{background:rgba(37,211,102,.12);}
+
+/* Cabecera y estructura del área cliente */
+#pgClient{background:linear-gradient(145deg,#020914,#03132e 55%,#020b1b);}
+.topbar{min-height:72px;padding:.55rem clamp(.85rem,3vw,2rem);background:rgba(2,11,27,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,114,0,.35);}
+.tbrand{font-size:1.15rem;letter-spacing:.02em;}
+.topbar .brand-img-sm{width:170px;height:48px;}
+.back-btn{min-height:40px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:#cad2df;padding:.45rem .8rem;}
+.back-btn:hover{background:rgba(255,114,0,.08);border-color:var(--orange);color:white;}
+.content{max-width:1160px;padding:clamp(1rem,4vw,2.5rem);}
+
+/* Identificación */
+.identify-shell{min-height:calc(100vh - 150px);display:grid;grid-template-columns:minmax(0,1fr) minmax(350px,470px);gap:clamp(2rem,7vw,6rem);align-items:center;}
+.identify-copy{max-width:590px;}
+.identify-kicker{display:flex;align-items:center;gap:.65rem;color:var(--orange);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;margin-bottom:1rem;}
+.identify-kicker::before{content:'';width:38px;height:3px;background:var(--orange);}
+.identify-copy h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(3.5rem,7vw,6.8rem);font-style:italic;text-transform:uppercase;letter-spacing:-.045em;line-height:.83;margin:0 0 1.5rem;}
+.identify-copy h1 span{display:block;color:var(--orange);}
+.identify-copy p{color:#a8b4c5;max-width:520px;line-height:1.7;font-size:.95rem;}
+.identify-points{display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:1.45rem;color:#cbd3df;font-size:.75rem;}
+.identify-points span{display:flex;align-items:center;gap:.42rem;}
+.identify-points i{width:17px;height:17px;border-radius:50%;display:grid;place-items:center;background:rgba(255,114,0,.13);color:var(--orange);font-style:normal;font-size:.66rem;}
+.identify-panel{background:linear-gradient(155deg,rgba(11,29,56,.97),rgba(3,15,35,.98));border:1px solid rgba(183,202,228,.2);border-radius:22px;padding:clamp(1.1rem,3vw,1.7rem);box-shadow:0 30px 75px rgba(0,0,0,.4);}
+.identify-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.1rem;}
+.identify-panel-head h2{font-family:'Barlow Condensed';font-size:1.6rem;text-transform:uppercase;line-height:1;margin:0;}
+.identify-panel-head p{color:var(--muted);font-size:.75rem;margin-top:.35rem;}
+
+/* Componentes */
+.card,.appt-card,.libretito-card{background:linear-gradient(155deg,rgba(11,29,56,.94),rgba(4,17,39,.96));border:1px solid var(--border);border-radius:18px;box-shadow:0 16px 38px rgba(0,0,0,.2);}
+.card{padding:clamp(1rem,3vw,1.35rem);}
+.btn{min-height:42px;border-radius:10px;padding:.58rem 1rem;}
+.btn-p{background:linear-gradient(135deg,var(--orange),#ff8b16);box-shadow:0 9px 22px rgba(255,114,0,.2);}
+.btn-p:hover,.btn-p:active{background:linear-gradient(135deg,#ff8520,var(--orange));transform:translateY(-1px);}
+.btn-g{border-color:var(--border);background:rgba(255,255,255,.025);}
+.btn-g:hover{background:rgba(255,114,0,.08);}
+.fi{min-height:48px;background:#07172f;border:1px solid rgba(188,203,225,.2);border-radius:11px;padding:.7rem .82rem;font-size:.92rem;}
+.fi:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(255,114,0,.1);}
+.fl{font-size:.66rem;color:#9eabba;font-weight:700;}
+.vtype-btns{padding:4px;background:rgba(2,11,27,.75);border:1px solid var(--border);border-radius:12px;}
+.vtype-btn{min-height:42px;border:0;border-radius:8px;color:#aab5c5;}
+.vtype-btn.sel{border:0;background:var(--orange);color:white;box-shadow:0 6px 15px rgba(255,114,0,.2);}
+.alert{border-radius:11px;}
+.lcard{min-width:0;background:linear-gradient(155deg,#0b1d38,#06142b);border:1px solid var(--border);border-radius:18px;padding:1.25rem;text-align:left;}
+.lcard:hover,.lcard:active{border-color:var(--orange);background:linear-gradient(155deg,#102747,#08192f);box-shadow:0 15px 35px rgba(0,0,0,.25);}
+.lcard-ico{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:rgba(255,114,0,.1);font-size:1.25rem;}
+.lcard h3{font-size:1.25rem;letter-spacing:.01em;}
+.sg{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));}
+.sc{min-height:150px;text-align:left;background:#07172f;border:1px solid rgba(188,203,225,.2);border-radius:15px;padding:1.05rem;position:relative;}
+.sc::after{content:'+';position:absolute;right:1rem;top:.8rem;color:#6e7d92;font-size:1.2rem;}
+.sc.sel::after{content:'✓';color:var(--orange);}
+.sc:hover,.sc:active,.sc.sel{border-color:var(--orange);background:rgba(255,114,0,.07);transform:translateY(-2px);}
+.sc-name{padding-right:1.3rem;font-size:.9rem;}
+.sc-price{margin-top:auto;padding-top:1.2rem;color:var(--orange);}
+.tb{min-height:42px;border-radius:9px;background:#07172f;border-color:rgba(188,203,225,.2);}
+.tb:hover,.tb:active,.tb.sel{background:var(--orange);border-color:var(--orange);color:white;}
+.step-indicator{justify-content:flex-start;gap:5px;margin-bottom:1.2rem;}
+.step-dot{height:5px;width:64px;border:0;border-radius:99px;color:transparent;background:#183153;}
+.step-dot.active,.step-dot.completed{background:var(--orange);}
+.st{font-size:1.65rem;letter-spacing:.01em;}
+.stitle{font-family:'Barlow Condensed';font-weight:700;text-transform:uppercase;font-size:1.05rem;letter-spacing:.02em;margin-bottom:1rem;}
+.sn{background:var(--orange);font-family:'DM Sans';font-size:.7rem;}
+.sum-box{background:linear-gradient(155deg,rgba(255,114,0,.09),rgba(8,24,49,.9));border-color:rgba(255,114,0,.55);border-radius:16px;padding:1.1rem;}
+.next-svc{background:linear-gradient(135deg,rgba(255,114,0,.13),rgba(8,25,51,.94));border-color:rgba(255,114,0,.42);border-radius:18px;}
+.next-svc-title{font-size:1.15rem;}
+.success-banner{background:linear-gradient(150deg,rgba(51,195,107,.13),rgba(6,23,47,.95));border-radius:20px;}
+.btn-wa-big{border-radius:11px;}
+.libretito-nav{background:#020b1b;top:.2rem;}
+.libretito-pill{background:#06152c;border-color:var(--border);}
+.libretito-obs{background:#06152c;}
+.empty{border:1px dashed rgba(188,203,225,.2);border-radius:16px;background:rgba(255,255,255,.018);}
+.client-home{padding-top:.35rem;}
+.client-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.35rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(188,203,225,.12);}
+.client-eyebrow{color:var(--orange);font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:.45rem;}
+.client-hero h2{font-family:'Barlow Condensed';font-size:clamp(2.5rem,6vw,4.2rem);text-transform:uppercase;font-style:italic;line-height:.9;letter-spacing:-.035em;margin:0;}
+.vehicle-chip{display:inline-flex;align-items:center;gap:.55rem;padding:.7rem .85rem;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025);color:#c8d1de;font-size:.78rem;}
+.home-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;max-width:780px;margin-bottom:1.2rem;}
+.action-num{font-family:'Barlow Condensed';font-weight:700;color:var(--orange);font-size:1rem;letter-spacing:.08em;margin-bottom:.75rem;}
+.booking-wrap{max-width:760px;}
+.booking-head{display:flex;align-items:center;gap:.65rem;margin-bottom:1.25rem;}
+.booking-head h2{font-family:'Barlow Condensed';font-size:1.9rem;text-transform:uppercase;letter-spacing:.02em;}
+.vehicle-confirm{background:#07172f;border:1px solid var(--border);border-radius:11px;padding:.7rem .82rem;font-size:.82rem;margin-bottom:.76rem;}
+
+/* Celular primero */
+@media(max-width:760px){
+  .brand-img{width:min(92vw,390px);height:112px;}
+  #pgLanding{padding:1rem;justify-content:center;}
+  .entry-wrap{padding:.4rem 0;}
+  .entry-sub{font-size:.63rem;margin-top:-.2rem;margin-bottom:1.2rem;}
+  .entry-card{padding:1.35rem;border-radius:18px;}
+  .entry-icon{width:54px;height:54px;margin-bottom:.8rem;}
+  .entry-card h1{font-size:1.75rem;}
+  .entry-main,.entry-wa{min-height:50px;font-size:.9rem;}
+  .topbar{min-height:62px;padding:.4rem .7rem;}
+  .topbar .brand-img-sm{width:132px;height:42px;}
+  .topbar-r{gap:.4rem;}.topbar-r #clientNameLbl{display:none!important;}
+  .back-btn{font-size:.7rem;padding:.38rem .65rem;}
+  .content{padding:1rem;}
+  .identify-shell{display:block;min-height:auto;padding:.5rem 0 2rem;}
+  .identify-copy{text-align:center;margin-bottom:1.5rem;}
+  .identify-kicker{justify-content:center;font-size:.6rem;}
+  .identify-copy h1{font-size:clamp(3rem,15vw,4.4rem);margin-bottom:1rem;}
+  .identify-copy p{font-size:.84rem;line-height:1.55;}
+  .identify-points{justify-content:center;gap:.7rem;font-size:.66rem;}
+  .identify-panel{padding:1rem;border-radius:17px;}
+  .identify-panel-head h2{font-size:1.35rem;}
+  .fr{grid-template-columns:1fr;gap:0;}
+  .sg{grid-template-columns:1fr 1fr;gap:.55rem;}
+  .sc{min-height:135px;padding:.85rem;}
+  .sc-name{font-size:.82rem;}.sc-price{font-size:.78rem;}.sc-meta{font-size:.66rem;}
+  .tg{grid-template-columns:repeat(4,1fr);gap:.4rem;}
+  .tb{font-size:.75rem;}
+  .card{border-radius:15px;}
+  .lcard{padding:1rem;border-radius:15px;}
+  .client-hero{display:block;}.vehicle-chip{margin-top:1rem;width:100%;justify-content:center;}
+  .home-actions{grid-template-columns:1fr;gap:.55rem;}.action-num{margin-bottom:.45rem;}
+  .booking-head{margin-bottom:1rem;}.booking-head h2{font-size:1.65rem;}
+  .appt-card{align-items:flex-start;}
+  .btn-full{min-height:48px;}
+  .sh{align-items:flex-start;}
+}
+@media(max-width:390px){
+  .brand-img{height:98px;}.entry-card{padding:1.1rem}.sg{grid-template-columns:1fr;}.tg{grid-template-columns:repeat(3,1fr);}
+  .identify-copy h1{font-size:3rem;}.vtype-btn{font-size:.74rem;}
+}
 </style>
 </head>
 <body>
@@ -254,23 +417,30 @@ select.fi option{background:var(--bg2);}
 
 <!-- ═══════════ LANDING ═══════════ -->
 <div class="page" id="pgLanding">
-  <div class="logo">LUBRICENTRO <span>ESQUIÚ</span></div>
-  <div class="land-sub">Turnos Online · Córdoba</div>
-  <div class="land-cards">
-    <div class="lcard" onclick="go('pgClient')">
-      <div class="lcard-ico">🚗</div><h3>SOY CLIENTE</h3><p>Sacá tu turno online</p>
+  <div class="entry-wrap">
+    <img class="brand-img" src="assets/lubricentro-logo.jpg" alt="Lubricentro Esquiú"/>
+    <div class="entry-sub">Turnos online · Córdoba</div>
+    <div class="entry-card">
+      <div class="entry-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 28l3-9c.7-2.2 2.8-3.8 5.2-3.8h15.6c2.4 0 4.5 1.6 5.2 3.8l3 9"/><path d="M6 29.5c0-2.2 1.8-4 4-4h28c2.2 0 4 1.8 4 4V37H6v-7.5Z"/><path d="M10 37v4h6v-4m16 0v4h6v-4M12 31h5m14 0h5"/>
+        </svg>
+      </div>
+      <h1>Soy cliente</h1>
+      <p>Sacá tu turno online</p>
+      <button class="entry-main" onclick="go('pgClient')">Ingresar</button>
+    </div>
+    <div class="entry-links">
+      <a class="entry-map" href="https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8" target="_blank" rel="noopener">● &nbsp;Ver en Google Maps</a>
+      <button class="entry-wa" onclick="window.open('https://wa.me/5493513880155','_blank')">Consultas por WhatsApp</button>
     </div>
   </div>
-  <a class="maps-link" href="https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8" target="_blank">
-    📍 Ver en Google Maps</a><br/>
-  <button class="btn btn-wa" style="padding:.62rem 1.3rem;font-size:.9rem;margin-top:.4rem"
-    onclick="window.open('https://wa.me/5493513880155','_blank')">💬 Consultas por WhatsApp</button>
 </div>
 
 <!-- ═══════════ CLIENT APP ═══════════ -->
 <div class="page" id="pgClient">
   <div class="topbar">
-    <div class="tbrand">LUBRICENTRO <span>ESQUIÚ</span></div>
+    <img class="brand-img-sm" src="assets/lubricentro-logo.jpg" alt="Lubricentro Esquiú"/>
     <div class="topbar-r">
       <span id="clientNameLbl" style="color:var(--muted);font-size:.78rem;display:none"></span>
       <button class="back-btn" onclick="go('pgLanding')">← Inicio</button>
@@ -523,57 +693,68 @@ function renderIdentify() {
   ME = null;
   document.getElementById("clientNameLbl").style.display = "none";
   document.getElementById("clientArea").innerHTML = `
-    <div style="max-width:420px;padding-top:1.8rem">
-      <h2 style="font-family:'Bebas Neue';font-size:1.72rem;letter-spacing:1px;margin-bottom:1.3rem">
-        BIENVENIDO</h2>
-      <div id="cErr" class="alert ao" style="display:none"></div>
-      
-      <div class="vtype-btns" style="margin-bottom:1.5rem">
-        <button class="vtype-btn sel" id="modeLogin" onclick="toggleMode('login')">🔍 Tengo Patente</button>
-        <button class="vtype-btn" id="modeRegister" onclick="toggleMode('register')">✍️ Registrarme</button>
-      </div>
-      
-      <div id="loginFields" style="display:block">
-        <p style="color:var(--muted);margin-bottom:1rem;font-size:.8rem;">Ingresá la patente de tu auto para continuar.</p>
-        <div class="fg"><label class="fl">Patente del auto</label>
-          <input class="fi" id="cPat" placeholder="Ej: AB123CD"
-            oninput="this.value=this.value.toUpperCase().replace(/[\s-]/g,'')"
-            onkeydown="if(event.key==='Enter')tryIdentify()"/></div>
-        <button class="btn btn-p btn-full" onclick="tryIdentify()" style="margin-top:.5rem">Entrar →</button>
-      </div>
-
-      <div id="registerFields" style="display:none">
-        <p style="color:var(--orange);font-size:.8rem;margin-bottom:1rem;font-weight:600;">¡Primera vez! Completá tus datos:</p>
-        <div class="fg"><label class="fl">Nombre completo</label>
-          <input class="fi" id="cName" placeholder="Juan García"/></div>
-        <div class="fg"><label class="fl">WhatsApp (solo números)</label>
-          <input class="fi" id="cWa" type="tel" placeholder="3518516158"/></div>
-        <div class="fg"><label class="fl">Patente del auto</label>
-          <input class="fi" id="cPatReg" placeholder="Ej: AB123CD"
-            oninput="this.value=this.value.toUpperCase().replace(/[\s-]/g,'')"/></div>
-        <div class="fg"><label class="fl">Tipo de Vehículo</label>
-          <div class="vtype-btns">
-            <button class="vtype-btn sel" id="vtAuto" onclick="selVtype('auto')">🚗 Auto / Camioneta</button>
-            <button class="vtype-btn" id="vtCamion" onclick="selVtype('camion')">🚛 Camión</button>
-          </div>
-          <input type="hidden" id="cVtype" value="auto"/></div>
-        <div class="fg"><label class="fl">Marca</label>
-          <select class="fi" id="cBrand" onchange="toggleOther(this,'cBrandOther')">
-            <option value="">Seleccioná…</option>
-            ${BRANDS_LIST.map(b => `<option value="${b}">${b}</option>`).join("")}
-          </select>
-          <input class="fi" id="cBrandOther" placeholder="Escribí la marca"
-            style="display:none;margin-top:.34rem"/></div>
-        <div class="fr">
-          <div class="fg"><label class="fl">Modelo</label>
-            <input class="fi" id="cModel" placeholder="Gol"/></div>
-          <div class="fg"><label class="fl">Año</label>
-            <input class="fi" id="cYear" type="number" placeholder="2020"/></div>
+    <div class="identify-shell">
+      <section class="identify-copy">
+        <div class="identify-kicker">Mantenimiento de confianza</div>
+        <h1>Tu motor merece <span>el mejor cuidado.</span></h1>
+        <p>Ingresá con la patente para sacar un turno, consultar tus próximos servicios y llevar el historial de mantenimiento siempre con vos.</p>
+        <div class="identify-points">
+          <span><i>✓</i> Turnos simples</span>
+          <span><i>✓</i> Atención directa</span>
+          <span><i>✓</i> Historial digital</span>
         </div>
-        <div class="fg"><label class="fl">Motor</label>
-          <input class="fi" id="cMotor" placeholder="Ej: 1.6, 2.0, MWM"/></div>
-        <button class="btn btn-p btn-full" onclick="doRegisterClient()" style="margin-top:.5rem">Registrarme →</button>
-      </div>
+      </section>
+
+      <section class="identify-panel">
+        <div class="identify-panel-head">
+          <div><h2>Acceso de clientes</h2><p>Elegí cómo querés continuar</p></div>
+          <span class="badge b-orange">Online</span>
+        </div>
+        <div id="cErr" class="alert ao" style="display:none"></div>
+
+        <div class="vtype-btns" style="margin-bottom:1.2rem">
+          <button class="vtype-btn sel" id="modeLogin" onclick="toggleMode('login')">Tengo patente</button>
+          <button class="vtype-btn" id="modeRegister" onclick="toggleMode('register')">Soy nuevo</button>
+        </div>
+
+        <div id="loginFields" style="display:block">
+          <p style="color:var(--muted);margin-bottom:1rem;font-size:.8rem;line-height:1.5">Ingresá la patente de tu vehículo para continuar.</p>
+          <div class="fg"><label class="fl" for="cPat">Patente del vehículo</label>
+            <input class="fi" id="cPat" autocomplete="off" placeholder="Ej: AB123CD"
+              oninput="this.value=this.value.toUpperCase().replace(/[\s-]/g,'')"
+              onkeydown="if(event.key==='Enter')tryIdentify()"/></div>
+          <button class="btn btn-p btn-full" onclick="tryIdentify()" style="margin-top:.45rem">Continuar →</button>
+        </div>
+
+        <div id="registerFields" style="display:none">
+          <p style="color:var(--orange);font-size:.78rem;margin-bottom:1rem;font-weight:600;">Primera vez: completá tus datos</p>
+          <div class="fg"><label class="fl" for="cName">Nombre completo</label>
+            <input class="fi" id="cName" autocomplete="name" placeholder="Juan García"/></div>
+          <div class="fg"><label class="fl" for="cWa">WhatsApp</label>
+            <input class="fi" id="cWa" type="tel" inputmode="tel" autocomplete="tel" placeholder="3518516158"/></div>
+          <div class="fg"><label class="fl" for="cPatReg">Patente del vehículo</label>
+            <input class="fi" id="cPatReg" autocomplete="off" placeholder="Ej: AB123CD"
+              oninput="this.value=this.value.toUpperCase().replace(/[\s-]/g,'')"/></div>
+          <div class="fg"><label class="fl">Tipo de vehículo</label>
+            <div class="vtype-btns">
+              <button class="vtype-btn sel" id="vtAuto" onclick="selVtype('auto')">Auto / Camioneta</button>
+              <button class="vtype-btn" id="vtCamion" onclick="selVtype('camion')">Camión</button>
+            </div>
+            <input type="hidden" id="cVtype" value="auto"/></div>
+          <div class="fg"><label class="fl" for="cBrand">Marca</label>
+            <select class="fi" id="cBrand" onchange="toggleOther(this,'cBrandOther')">
+              <option value="">Seleccioná…</option>
+              ${BRANDS_LIST.map(b => `<option value="${b}">${b}</option>`).join("")}
+            </select>
+            <input class="fi" id="cBrandOther" placeholder="Escribí la marca" style="display:none;margin-top:.34rem"/></div>
+          <div class="fr">
+            <div class="fg"><label class="fl" for="cModel">Modelo</label><input class="fi" id="cModel" placeholder="Gol"/></div>
+            <div class="fg"><label class="fl" for="cYear">Año</label><input class="fi" id="cYear" type="number" inputmode="numeric" placeholder="2020"/></div>
+          </div>
+          <div class="fg"><label class="fl" for="cMotor">Motor</label><input class="fi" id="cMotor" placeholder="Ej: 1.6, 2.0, MWM"/></div>
+          <button class="btn btn-p btn-full" onclick="doRegisterClient()" style="margin-top:.45rem">Crear cuenta →</button>
+        </div>
+      </section>
     </div>`;
 }
 
@@ -654,24 +835,25 @@ function renderClientHome() {
     const last = done[0];
     const ns = calcNextService(last.km, last.date, vtype);
     nextCard = `<div class="next-svc">
-      <div class="next-svc-title">🔧 PRÓXIMO SERVICE ESTIMADO</div>
-      <div style="font-size:.86rem;margin-bottom:.14rem">📏 Al llegar a <strong>${fmtNum(ns.nextKm)} km</strong></div>
-      <div style="font-size:.86rem;margin-bottom:.14rem">📅 O en <strong>${fmtD(ns.nextDate)}</strong></div>
+      <div class="next-svc-title">Próximo service estimado</div>
+      <div style="font-size:.86rem;margin-bottom:.14rem">Al llegar a <strong>${fmtNum(ns.nextKm)} km</strong></div>
+      <div style="font-size:.86rem;margin-bottom:.14rem">O en <strong>${fmtD(ns.nextDate)}</strong></div>
       <div style="color:var(--muted);font-size:.72rem;margin-top:.28rem">Basado en: ${fmtD(last.date)} · ${fmtNum(last.km)} km ${last.oilBrand ? ` · ${esc(last.oilBrand)}` : ""}</div>
     </div>`;
   }
   document.getElementById("clientArea").innerHTML = `
-    <div style="padding-top:1.65rem">
-      <h2 style="font-family:'Bebas Neue';font-size:1.72rem;margin-bottom:.26rem">HOLA, ${esc(ME.name.split(" ")[0].toUpperCase())} 👋</h2>
-      <p style="color:var(--muted);margin-bottom:1.3rem;font-size:.82rem">
-        ${vtype === "camion" ? "🚛" : "🚗"} ${esc(ME.brand)} ${esc(ME.model)} ${ME.year} — <strong>${ME.patent}</strong></p>
-      ${nextCard}
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:.8rem;max-width:510px;margin-bottom:1.3rem">
-        <div class="lcard" onclick="renderBooking()"><div class="lcard-ico">📅</div><h3>SACAR TURNO</h3><p>Nuevo turno online</p></div>
-        <div class="lcard" onclick="renderMyAppts()"><div class="lcard-ico">📋</div><h3>MIS TURNOS</h3><p>Estado y próximos</p></div>
-        <div class="lcard" onclick="renderHistorial()"><div class="lcard-ico">📖</div><h3>LIBRETITO</h3><p>Historial de service</p></div>
+    <div class="client-home">
+      <div class="client-hero">
+        <div><div class="client-eyebrow">Panel de mantenimiento</div><h2>Hola, ${esc(ME.name.split(" ")[0])}</h2></div>
+        <div class="vehicle-chip">${vtype === "camion" ? "Camión" : "Auto / Camioneta"} · <strong>${esc(ME.brand)} ${esc(ME.model)} ${ME.year}</strong> · ${ME.patent}</div>
       </div>
-      <a class="maps-link" href="https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8" target="_blank">📍 Ver en Google Maps</a>
+      ${nextCard}
+      <div class="home-actions">
+        <div class="lcard" onclick="renderBooking()"><div class="action-num">01</div><h3>Sacar turno</h3><p>Nuevo turno online</p></div>
+        <div class="lcard" onclick="renderMyAppts()"><div class="action-num">02</div><h3>Mis turnos</h3><p>Estado y próximos</p></div>
+        <div class="lcard" onclick="renderHistorial()"><div class="action-num">03</div><h3>Mi Libretito</h3><p>Historial de service</p></div>
+      </div>
+      <a class="maps-link" href="https://maps.app.goo.gl/yZLSBpsfbydDjWVJ8" target="_blank" rel="noopener">Ver ubicación en Google Maps →</a>
     </div>`;
 }
 
@@ -740,10 +922,10 @@ function drawBooking() {
   const isClosed = dayH.length === 0;
 
   document.getElementById("clientArea").innerHTML = `
-    <div style="max-width:540px">
-      <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:1.5rem">
+    <div class="booking-wrap">
+      <div class="booking-head">
         <button class="back-btn" onclick="renderClientHome()">← Volver</button>
-        <h2 style="font-family:'Bebas Neue';font-size:1.52rem;letter-spacing:1px">SACAR TURNO</h2>
+        <h2>Sacar turno</h2>
       </div>
       <div class="step-indicator">
         <div class="step-dot ${BK.step >= 1 ? "active" : ""}${BK.step > 1 ? "completed" : ""}">1</div>
@@ -767,13 +949,13 @@ function drawBooking() {
       </div>` : ""}
       ${BK.step >= 3 ? `<div class="card" style="margin-bottom:.8rem">
         <div class="stitle"><span class="sn">3</span> Confirmá tu vehículo</div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.5rem .76rem;font-size:.82rem;margin-bottom:.76rem">
+        <div class="vehicle-confirm">
           ${ME.vehicleType === "camion" ? "🚛" : "🚗"} <strong>${esc(ME.brand)} ${esc(ME.model)} ${ME.year}</strong> — ${ME.patent}</div>
         <div class="fg"><label class="fl">Kilómetros actuales (opcional)</label>
           <input class="fi" id="bkKm" value="${BK.km}" type="number" oninput="BK.km=this.value" placeholder="85000"/></div>
       </div>` : ""}
       ${BK.step >= 3 && BK.service && BK.time && !isClosed ? `<div class="sum-box">
-        <div style="font-family:'Bebas Neue';font-size:.98rem;letter-spacing:1px;margin-bottom:.62rem;color:var(--orange)">RESUMEN</div>
+        <div style="font-family:'Barlow Condensed';font-size:1.1rem;font-weight:700;letter-spacing:.04em;margin-bottom:.62rem;color:var(--orange);text-transform:uppercase">Resumen</div>
         <div style="display:grid;gap:.28rem;font-size:.82rem">
           <div>🔧 <strong>${esc(selSvc?.name)}</strong></div>
           <div>📅 <strong>${fmtD(BK.date)}</strong> a las <strong>${BK.time}</strong></div>
