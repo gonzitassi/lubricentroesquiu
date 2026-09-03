@@ -1275,7 +1275,7 @@ function sendReminder(cid, lastDate, patent, notifKey) {
 
   const iv = SVC_INTERVAL[cl.vehicleType || "auto"] || SVC_INTERVAL.auto;
   
-  const msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
+  const msg = `Hola ${cl.name.trim()}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
     `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o ` +
     `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(lastDate)}.\n\n` +
     `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
@@ -1311,7 +1311,7 @@ function sendAllUrgentReminders() {
     const cl = r.cl;
     const iv = SVC_INTERVAL[r.vtype] || SVC_INTERVAL.auto;
     
-    const msg = `Hola ${cl.name.split(" ")[0]}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
+    const msg = `Hola ${cl.name.trim()}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
       `*${cl.brand} ${cl.model}* (Patente: *${r.last.patent || cl.patent}*) ya cumplió *${iv.months} meses* o ` +
       `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${fmtD(r.last.date)}.\n\n` +
       `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
@@ -1674,8 +1674,8 @@ function openComplete(id) {
 }
 
 function buildCompletedServiceMessage(appt, cl) {
-  const nombre = cl?.name?.split(" ")[0] || "Cliente";
-  const patente = appt.patent || cl?.patent || "—";
+  const nombre = cl?.name?.trim() || "Cliente";
+  const patente = cl?.patent || appt.patent || "—";
   const checklist = appt.checklist || {};
   const doneItems = CHECKLIST.filter(c => checklist[c.id] === "done").map(c => c.label);
   const filtrosText = doneItems.length > 0 ? doneItems.join(", ") : "Según lo acordado";
@@ -2033,7 +2033,7 @@ function sendWAClient(cid) {
   if(!cl) return;
   
   window.open(`https://wa.me/${cleanWA(cl.whatsapp)}?text=${encodeURIComponent(
-    `Hola ${cl.name.split(" ")[0]}! Te contactamos del Lubricentro Esquiú. ¿En qué podemos ayudarte?`
+    `Hola ${cl.name.trim()}! Te contactamos del Lubricentro Esquiú. ¿En qué podemos ayudarte?`
   )}`, "_blank");
 }
 
