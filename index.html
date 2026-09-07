@@ -2,12 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta name="theme-color" content="#03132e"/>
 <title>Lubricentro Esquiú — Turnos Online</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="assets/system.js"></script>
 <style>
 /* ══ RESET & VARIABLES ══════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -409,7 +410,7 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 </head>
 <body>
 
-<div id="toastBox"></div>
+<div role="status" aria-live="polite" id="toastBox"></div>
 <div class="loader-full" id="appLoader">
   <div class="big-spin"></div>
   <div style="color:var(--muted);font-size:.86rem">Conectando con Firebase...</div>
@@ -466,54 +467,21 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-async function fsGet(key, fallback = []) {
-  try {
-    const schemaDoc = await db.collection("lubricentro").doc("schema").get();
-    const schema = schemaDoc.exists ? (schemaDoc.data().data || {}) : {};
-    if(key === "clients" && schema.clientsV2) return fsGetCollection("clientRecords", fallback);
-    if(key === "appointments" && schema.appointmentsV2) return fsGetCollection("appointmentRecords", fallback);
-    const doc = await db.collection("lubricentro").doc(key).get();
-    if (!doc.exists) {
-      console.warn(`Doc not found: ${key}, using fallback`);
-      return fallback;
-    }
-    return doc.data().data || fallback;
-  } catch (e) {
-    console.error(`fsGet error [${key}]:`, e.message);
-    return fallback;
-  }
+function applyData(data) {
+  CLIENTS = data.clients; APPTS = data.appointments; SERVICES = data.services;
+  if (ME) ME = CLIENTS.find(c => c.id === ME.id) || null;
 }
-
-async function fsGetCollection(collection, fallback = []) {
-  try {
-    const snap = await db.collection(collection).get();
-    return snap.docs.map(d => ({id: d.id, ...d.data()}));
-  } catch(e) {
-    console.error(`fsGetCollection error [${collection}]:`, e.message);
-    return fallback;
-  }
+async function refreshData() {
+  applyData(await store.read());
 }
-
-async function fsPut(key, val) {
-  try {
-    const schemaDoc = await db.collection("lubricentro").doc("schema").get();
-    const schema = schemaDoc.exists ? (schemaDoc.data().data || {}) : {};
-    if(key === "clients" && schema.clientsV2) {
-      for(const client of val) await db.collection("clientRecords").doc(client.id).set(client);
-      return true;
-    }
-    if(key === "appointments" && schema.appointmentsV2) {
-      for(const appt of val) await db.collection("appointmentRecords").doc(appt.id).set(appt);
-      return true;
-    }
-    await db.collection("lubricentro").doc(key).set({ data: val });
-    console.log(`Saved: ${key}`);
-    return true;
-  } catch (e) {
-    console.error(`fsPut error [${key}]:`, e.message);
-    toast("Error al guardar. Revisá tu conexión.", "error");
-    return false;
-  }
+let clientBusy = false;
+async function clientAction(action, button) {
+  if (clientBusy) return false;
+  clientBusy = true;
+  if (button) button.disabled = true;
+  try { await action(); return true; }
+  catch (error) { console.error(error); toast(Lubri.message(error), "error", 6000); return false; }
+  finally { clientBusy = false; if (button) button.disabled = false; }
 }
 
 /* ══ CONSTANTS ══════════════════════════════════════ */
@@ -546,29 +514,22 @@ const DEFAULT_SVC = [
   { id: "s8", name: "Aceite + Filtros Camión", price: "$25.000", duration: 120, type: "camion" },
   { id: "s9", name: "Revisión Camión", price: "$12.000", duration: 120, type: "camion" },
 ];
-const todayISO = new Date().toISOString().split("T")[0];
+const store = Lubri.createStore(db, DEFAULT_SVC, {public:true});
 
 /* ══ STATE ══════════════════════════════════════════ */
 let CLIENTS = [], APPTS = [], SERVICES = [];
 let ME = null, BK = {}, clItems = {};
 
 /* ══ HELPERS ════════════════════════════════════════ */
-const fmtD = s => { if (!s) return ""; const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; };
+const fmtD = s => { if (!s) return ""; if (!Lubri.dateOK(s)) return "—"; const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; };
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36);
-const esc = s => String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const arg = value => encodeURIComponent(String(value ?? "")).replace(/\x27/g, "%27");
 const fmtNum = n => parseInt(n || 0).toLocaleString("es-AR");
 
-function cleanWA(num) {
-  let c = (num || "").replace(/\D/g, "");
-  if (c.startsWith("549")) return c;
-  if (c.startsWith("54")) return "5" + c;
-  return "549" + c;
-}
+function cleanWA(num) { return Lubri.phone(num); }
 
-function validateWA(num) {
-  const c = (num || "").replace(/\D/g, "");
-  return c.length >= 8 && c.length <= 15;
-}
+function validateWA(num) { return !!Lubri.phone(num); }
 
 function bdg(s) {
   const m = {
@@ -577,11 +538,12 @@ function bdg(s) {
     completado: ["b-green", "🔧 Completado"],
     cancelado: ["b-red", "❌ Cancelado"]
   };
-  const [c, l] = m[s] || ["b-yellow", s];
-  return `<span class="badge ${c}">${l}</span>`;
+  const [c, l] = Object.prototype.hasOwnProperty.call(m,s) ? m[s] : ["b-yellow", s];
+  return `<span class="badge ${c}">${esc(l)}</span>`;
 }
 
 function go(pgId) {
+  if (clientBusy) { toast("Esperá a que termine la operación.", "warn"); return; }
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById(pgId).classList.add("active");
   if (pgId === "pgClient") renderIdentify();
@@ -595,7 +557,7 @@ function toast(msg, type = "success", ms = 3400) {
   const box = document.getElementById("toastBox");
   const el = document.createElement("div");
   el.className = `toast toast-${type}`;
-  el.innerHTML = `<span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+  el.innerHTML = `<span class="toast-msg">${esc(msg)}</span><button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
   box.appendChild(el);
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("show")));
   setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300); }, ms);
@@ -615,7 +577,7 @@ function getBrandVal(sid, oid) {
 function calcNextService(km, dateStr, vtype) {
   const iv = SVC_INTERVAL[vtype] || SVC_INTERVAL.auto;
   const nextKm = (parseInt(km) || 0) + iv.km;
-  const dt = new Date((dateStr || todayISO) + "T12:00:00");
+  const dt = new Date((dateStr || Lubri.today()) + "T12:00:00");
   dt.setMonth(dt.getMonth() + iv.months);
   return { nextKm, nextDate: dt.toISOString().split("T")[0], iv };
 }
@@ -631,7 +593,7 @@ function calcNextKm(val) {
   const wrap = document.getElementById("mCompNextDateWrap");
   if (!isNaN(n)) {
     if (kmEl) kmEl.value = n + iv.km;
-    const nd = new Date(todayISO + "T12:00:00");
+    const nd = new Date(Lubri.today() + "T12:00:00");
     nd.setMonth(nd.getMonth() + iv.months);
     if (dtEl) dtEl.value = fmtD(nd.toISOString().split("T")[0]);
     if (wrap) wrap.style.display = "block";
@@ -643,16 +605,9 @@ function calcNextKm(val) {
 }
 
 /* ══ HOURS / DATE LOGIC ═════════════════════════════ */
-function getHoursForDate(dateStr) {
-  const dow = new Date(dateStr + "T12:00:00").getDay();
-  if (dow === 0) return [];
-  if (dow === 6) return [...HRS_MORNING];
-  return [...HRS_MORNING, ...HRS_AFTERNOON];
-}
+function getHoursForDate(dateStr) { return Lubri.hours(dateStr); }
 
-function isDayClosed(dateStr) {
-  return new Date(dateStr + "T12:00:00").getDay() === 0;
-}
+function isDayClosed(dateStr) { return !Lubri.hours(dateStr).length; }
 
 /* ══ SLOT / PIT LOGIC ═══════════════════════════════ */
 function getPit(svcId) {
@@ -666,26 +621,11 @@ function getTaken(date, pit, excludeId = null) {
   return s;
 }
 
-function getSlots(startTime, durMins, dateStr) {
-  const n = Math.max(1, Math.ceil((durMins || 30) / 30));
-  const dayH = getHoursForDate(dateStr);
-  const idx = dayH.indexOf(startTime);
-  if (idx === -1 || idx + n > dayH.length) return null;
-  const slots = [];
-  for (let i = 0; i < n; i++) {
-    if (i > 0) {
-      const [ph, pm] = dayH[idx + i - 1].split(":").map(Number);
-      const [ch, cm] = dayH[idx + i].split(":").map(Number);
-      if ((ch * 60 + cm) - (ph * 60 + pm) !== 30) return null;
-    }
-    slots.push(dayH[idx + i]);
-  }
-  return slots;
-}
+function getSlots(startTime, durMins, dateStr) { return Lubri.slots(startTime, durMins || 30, dateStr); }
 
 function isAvail(time, durMins, takenSet, dateStr) {
   const slots = getSlots(time, durMins, dateStr);
-  return slots !== null && !slots.some(s => takenSet.has(s));
+  return Lubri.future(dateStr, time) && slots !== null && !slots.some(t => takenSet.has(t));
 }
 
 /* ══ CLIENT FLOW ════════════════════════════════════ */
@@ -752,7 +692,7 @@ function renderIdentify() {
             <div class="fg"><label class="fl" for="cYear">Año</label><input class="fi" id="cYear" type="number" inputmode="numeric" placeholder="2020"/></div>
           </div>
           <div class="fg"><label class="fl" for="cMotor">Motor</label><input class="fi" id="cMotor" placeholder="Ej: 1.6, 2.0, MWM"/></div>
-          <button class="btn btn-p btn-full" onclick="doRegisterClient()" style="margin-top:.45rem">Crear cuenta →</button>
+          <button class="btn btn-p btn-full" id="registerBtn" onclick="doRegisterClient()" style="margin-top:.45rem">Crear cuenta →</button>
         </div>
       </section>
     </div>`;
@@ -784,42 +724,35 @@ function selVtype(v) {
 }
 
 async function tryIdentify() {
-  const pat = (document.getElementById("cPat")?.value || "").trim().toUpperCase().replace(/[\s-]/g, "");
+  const pat = Lubri.patent(document.getElementById("cPat")?.value);
   const err = document.getElementById("cErr");
-  if (!pat) { err.textContent = "⚠️ Ingresá la patente de tu auto."; err.style.display = "block"; return; }
-  const found = CLIENTS.find(c => c.patent === pat);
-  if (!found) { err.textContent = "⚠️ No encontramos esa patente. Registrate en la otra pestaña."; err.style.display = "block"; return; }
-  ME = found;
-  renderClientHome();
+  if (!pat) { err.textContent = "Ingresá la patente de tu vehículo."; err.style.display = "block"; return; }
+  await clientAction(async () => {
+    await refreshData();
+    const found = CLIENTS.find(c => c.patent === pat);
+    if (!found) { err.textContent = "No encontramos esa patente. Registrate en la otra pestaña."; err.style.display = "block"; return; }
+    ME = found; renderClientHome();
+  });
 }
 
 async function doRegisterClient() {
-  const name = document.getElementById("cName")?.value.trim() || "";
-  const wa = document.getElementById("cWa")?.value.trim() || "";
-  const pat = (document.getElementById("cPatReg")?.value || "").trim().toUpperCase().replace(/[\s-]/g, "");
-  const vtype = document.getElementById("cVtype")?.value || "auto";
-  const brand = getBrandVal("cBrand", "cBrandOther");
-  const model = document.getElementById("cModel")?.value.trim() || "";
-  const year = document.getElementById("cYear")?.value.trim() || "";
-  const motor = document.getElementById("cMotor")?.value.trim() || "";
-  const err = document.getElementById("cErr");
-  if (!name || !wa || !pat || !brand || !model || !year || !motor) {
-    err.textContent = "⚠️ Completá todos los campos."; err.style.display = "block"; return;
-  }
-  if (!validateWA(wa)) { err.textContent = "⚠️ WhatsApp inválido."; err.style.display = "block"; return; }
-  if (CLIENTS.find(c => c.patent === pat)) { err.textContent = "⚠️ Ya existe esa patente."; err.style.display = "block"; return; }
-  const nc = { id: uid(), name, whatsapp: wa, patent: pat, vehicleType: vtype, brand, model, year, motor };
-  const schema = await fsGet("schema", {});
-  if(schema.clientsV2) {
-    await db.collection("clientRecords").doc(nc.id).set(nc);
-  } else {
-    CLIENTS.push(nc);
-    await fsPut("clients", CLIENTS);
-  }
-  CLIENTS.push(nc);
-  ME = nc;
-  renderClientHome();
-  toast("¡Registro exitoso! Bienvenido 🎉", "success");
+  const nc = {
+    id: uid(), name: document.getElementById("cName").value.trim(),
+    whatsapp: cleanWA(document.getElementById("cWa").value),
+    patent: Lubri.patent(document.getElementById("cPatReg").value),
+    vehicleType: document.getElementById("cVtype").value,
+    brand: getBrandVal("cBrand","cBrandOther"),
+    model: document.getElementById("cModel").value.trim(),
+    year: document.getElementById("cYear").value.trim(),
+    motor: document.getElementById("cMotor").value.trim()
+  };
+  await clientAction(async () => {
+    Lubri.validateClient(nc);
+    applyData(await store.saveClient(nc));
+    ME = CLIENTS.find(c => c.id === nc.id);
+    renderClientHome();
+    toast("¡Registro exitoso! Bienvenido", "success");
+  }, document.getElementById("registerBtn"));
 }
 
 function renderClientHome() {
@@ -837,15 +770,15 @@ function renderClientHome() {
     nextCard = `<div class="next-svc">
       <div class="next-svc-title">Próximo service estimado</div>
       <div style="font-size:.86rem;margin-bottom:.14rem">Al llegar a <strong>${fmtNum(ns.nextKm)} km</strong></div>
-      <div style="font-size:.86rem;margin-bottom:.14rem">O en <strong>${fmtD(ns.nextDate)}</strong></div>
-      <div style="color:var(--muted);font-size:.72rem;margin-top:.28rem">Basado en: ${fmtD(last.date)} · ${fmtNum(last.km)} km ${last.oilBrand ? ` · ${esc(last.oilBrand)}` : ""}</div>
+      <div style="font-size:.86rem;margin-bottom:.14rem">O en <strong>${esc(fmtD(ns.nextDate))}</strong></div>
+      <div style="color:var(--muted);font-size:.72rem;margin-top:.28rem">Basado en: ${esc(fmtD(last.date))} · ${fmtNum(last.km)} km ${last.oilBrand ? ` · ${esc(last.oilBrand)}` : ""}</div>
     </div>`;
   }
   document.getElementById("clientArea").innerHTML = `
     <div class="client-home">
       <div class="client-hero">
         <div><div class="client-eyebrow">Panel de mantenimiento</div><h2>Hola, ${esc(ME.name.split(" ")[0])}</h2></div>
-        <div class="vehicle-chip">${vtype === "camion" ? "Camión" : "Auto / Camioneta"} · <strong>${esc(ME.brand)} ${esc(ME.model)} ${ME.year}</strong> · ${ME.patent}</div>
+        <div class="vehicle-chip">${vtype === "camion" ? "Camión" : "Auto / Camioneta"} · <strong>${esc(ME.brand)} ${esc(ME.model)} ${esc(ME.year)}</strong> · ${esc(ME.patent)}</div>
       </div>
       ${nextCard}
       <div class="home-actions">
@@ -863,7 +796,7 @@ function renderMyAppts() {
     <div class="sh"><div class="st">MIS TURNOS</div><button class="btn btn-p" onclick="renderBooking()">+ Nuevo</button></div>
     ${myA.length === 0 ? '<div class="empty">📋 No tenés turnos aún.</div>' : myA.map(a => `<div class="appt-card">
       <div><div style="font-weight:600;margin-bottom:.12rem">${esc(a.serviceName)}</div>
-      <div style="color:var(--muted);font-size:.77rem">📅 ${fmtD(a.date)} a las ${a.time}</div></div>${bdg(a.status)}</div>`).join("")}
+      <div style="color:var(--muted);font-size:.77rem">📅 ${esc(fmtD(a.date))} a las ${esc(a.time)}</div></div>${bdg(a.status)}</div>`).join("")}
     <button class="btn btn-g" style="margin-top:.9rem" onclick="renderClientHome()">← Volver</button>`;
 }
 
@@ -886,7 +819,7 @@ function buildLibretitoCard(a) {
     <div class="libretito-card">
       <div class="libretito-header">
         <div><div class="libretito-service">🔧 ${esc(a.serviceName)}</div>
-        <div class="libretito-date">📅 ${fmtD(a.date)} a las ${a.time}</div></div>${bdg(a.status)}</div>
+        <div class="libretito-date">📅 ${esc(fmtD(a.date))} a las ${esc(a.time)}</div></div>${bdg(a.status)}</div>
       <div class="libretito-pills">
         ${a.km ? `<div class="libretito-pill pill-km"><span class="libretito-pill-label">📏 KM</span><span class="libretito-pill-value">${fmtNum(a.km)} km</span></div>` : ""}
         ${a.oilBrand ? `<div class="libretito-pill pill-oil"><span class="libretito-pill-label">🛢 ACEITE</span><span class="libretito-pill-value">${esc(a.oilBrand)}</span></div>` : ""}
@@ -903,7 +836,7 @@ function buildLibretitoCard(a) {
 
 /* ══ BOOKING FLOW ════════════════════════════════════ */
 function renderBooking() {
-  BK = { step: 1, service: null, date: todayISO, time: "", km: "" };
+  BK = { step: 1, service: null, date: Lubri.today(), time: "", km: "" };
   while (isDayClosed(BK.date)) {
     const d = new Date(BK.date + "T12:00:00");
     d.setDate(d.getDate() + 1);
@@ -934,13 +867,13 @@ function drawBooking() {
       </div>
       <div class="card" style="margin-bottom:.8rem">
         <div class="stitle"><span class="sn">1</span> Elegí el servicio</div>
-        <div class="sg">${myServices.map(s => `<div class="sc${BK.service === s.id ? " sel" : ""}" onclick="bkSvc('${s.id}')">
-          <div class="sc-name">${esc(s.name)}</div><div class="sc-price">${s.price}</div><div class="sc-meta">${s.duration} min</div></div>`).join("")}</div>
+        <div class="sg">${myServices.map(s => `<div class="sc${BK.service === s.id ? " sel" : ""}" onclick="bkSvc('${arg(s.id)}')">
+          <div class="sc-name">${esc(s.name)}</div><div class="sc-price">${esc(s.price)}</div><div class="sc-meta">${esc(s.duration)} min</div></div>`).join("")}</div>
       </div>
       ${BK.step >= 2 ? `<div class="card" style="margin-bottom:.8rem">
         <div class="stitle"><span class="sn">2</span> Elegí el día y horario</div>
         <div class="fg"><label class="fl">Fecha</label>
-          <input type="date" class="fi" value="${BK.date}" min="${todayISO}" onchange="bkDate(this.value)"/></div>
+          <input type="date" class="fi" value="${BK.date}" min="${Lubri.today()}" onchange="bkDate(this.value)"/></div>
         ${isClosed ? '<div class="closed-msg">🚫 El lubricentro está cerrado los domingos.</div>' : `<div class="fg">
           <label class="fl">Horario disponible</label>
           <div class="tg">${dayH.map(h => { const ok = isAvail(h, dur, taken, BK.date);
@@ -950,7 +883,7 @@ function drawBooking() {
       ${BK.step >= 3 ? `<div class="card" style="margin-bottom:.8rem">
         <div class="stitle"><span class="sn">3</span> Confirmá tu vehículo</div>
         <div class="vehicle-confirm">
-          ${ME.vehicleType === "camion" ? "🚛" : "🚗"} <strong>${esc(ME.brand)} ${esc(ME.model)} ${ME.year}</strong> — ${ME.patent}</div>
+          ${ME.vehicleType === "camion" ? "🚛" : "🚗"} <strong>${esc(ME.brand)} ${esc(ME.model)} ${esc(ME.year)}</strong> — ${esc(ME.patent)}</div>
         <div class="fg"><label class="fl">Kilómetros actuales (opcional)</label>
           <input class="fi" id="bkKm" value="${BK.km}" type="number" oninput="BK.km=this.value" placeholder="85000"/></div>
       </div>` : ""}
@@ -958,8 +891,8 @@ function drawBooking() {
         <div style="font-family:'Barlow Condensed';font-size:1.1rem;font-weight:700;letter-spacing:.04em;margin-bottom:.62rem;color:var(--orange);text-transform:uppercase">Resumen</div>
         <div style="display:grid;gap:.28rem;font-size:.82rem">
           <div>🔧 <strong>${esc(selSvc?.name)}</strong></div>
-          <div>📅 <strong>${fmtD(BK.date)}</strong> a las <strong>${BK.time}</strong></div>
-          <div>${ME.vehicleType === "camion" ? "🚛" : "🚗"} <strong>${esc(ME.brand)} ${esc(ME.model)} ${ME.year}</strong> — ${ME.patent}</div>
+          <div>📅 <strong>${esc(fmtD(BK.date))}</strong> a las <strong>${BK.time}</strong></div>
+          <div>${ME.vehicleType === "camion" ? "🚛" : "🚗"} <strong>${esc(ME.brand)} ${esc(ME.model)} ${esc(ME.year)}</strong> — ${esc(ME.patent)}</div>
           ${BK.km ? `<div>📏 ${fmtNum(BK.km)} km</div>` : ""}
         </div>
         <button class="btn btn-p btn-full" style="margin-top:.8rem" onclick="confirmBk(this)">Confirmar y guardar turno</button>
@@ -967,24 +900,25 @@ function drawBooking() {
     </div>`;
 }
 
-function bkSvc(id) { BK.service = id; BK.time = ""; if (BK.step < 2) BK.step = 2; drawBooking(); }
+function bkSvc(id) {
+  id = decodeURIComponent(id); BK.service = id; BK.time = ""; if (BK.step < 2) BK.step = 2; drawBooking(); }
 function bkTime(h) { BK.time = h; if (BK.step < 3) BK.step = 3; drawBooking(); }
 function bkDate(d) {
-  if (isDayClosed(d)) {
-    toast("Domingos cerrado. Avanzando al lunes.", "warn");
-    const nd = new Date(d + "T12:00:00");
-    nd.setDate(nd.getDate() + 1);
-    BK.date = nd.toISOString().split("T")[0];
-  } else {
-    BK.date = d;
+  if (!Lubri.dateOK(d) || d < Lubri.today()) {
+    toast("Elegí una fecha válida desde hoy.", "error"); drawBooking(); return;
   }
-  BK.time = "";
-  drawBooking();
+  if (isDayClosed(d)) {
+    const nd = new Date(d + "T12:00:00Z"); nd.setUTCDate(nd.getUTCDate() + 1);
+    BK.date = nd.toISOString().slice(0,10); toast("Domingos cerrado. Avanzando al lunes.", "warn");
+  } else BK.date = d;
+  BK.time = ""; drawBooking();
 }
 
 async function confirmBk(btn) {
   const sv = SERVICES.find(s => s.id === BK.service);
-  if (!sv) return;
+  if (!sv || clientBusy) return;
+  if (!Lubri.kilometres(BK.km)) { toast("Ingresá un kilometraje válido.", "error"); return; }
+  if (!Lubri.future(BK.date, BK.time)) { toast("Elegí una fecha y un horario futuros.", "error"); return; }
   if (isDayClosed(BK.date)) { toast("Cerrado ese día", "error"); return; }
   const originalBtnText = btn?.textContent || "Confirmar y guardar turno";
   if (btn) {
@@ -1008,51 +942,27 @@ async function confirmBk(btn) {
     service: BK.service, serviceName: sv.name,
     pit, blockedSlots: slots, status: "pendiente", km: BK.km, notes: ""
   };
-  const saved = await reserveAppointmentAtomic(appt);
+  clientBusy = true;
+  let saved;
+  try { saved = await reserveAppointmentAtomic(appt); } finally { clientBusy = false; }
   if (!saved) {
     if (btn) { btn.disabled = false; btn.textContent = originalBtnText; }
     BK.time = "";
     drawBooking();
     return;
   }
-  const waMsg = `Hola, Lubricentro Esquiú. Acabo de reservar un turno a través de la página web.\n\n*Datos de la reserva*\n*Servicio:* ${sv.name}\n*Fecha:* ${fmtD(BK.date)}\n*Horario:* ${BK.time}\n*Vehículo:* ${ME.brand} ${ME.model} ${ME.year}\n*Patente:* ${ME.patent}\n*Motor:* ${ME.motor || "—"}${BK.km ? `\n*Kilometraje:* ${fmtNum(BK.km)} km` : ""}\n\nQuedo a la espera de la confirmación. Muchas gracias.`;
+  const waMsg = `Hola, Lubricentro Esquiú. Acabo de reservar un turno a través de la página web.\n\n*Datos de la reserva*\n*Servicio:* ${sv.name}\n*Fecha:* ${esc(fmtD(BK.date))}\n*Horario:* ${BK.time}\n*Vehículo:* ${ME.brand} ${ME.model} ${esc(ME.year)}\n*Patente:* ${esc(ME.patent)}\n*Motor:* ${ME.motor || "—"}${BK.km ? `\n*Kilometraje:* ${fmtNum(BK.km)} km` : ""}\n\nQuedo a la espera de la confirmación. Muchas gracias.`;
   const waURL = `https://wa.me/${PHONE_LUBRI}?text=${encodeURIComponent(waMsg)}`;
+  renderMyAppts();
+  toast("Turno guardado. Abriendo WhatsApp...", "success");
   window.location.assign(waURL);
 }
 
 async function reserveAppointmentAtomic(appt) {
-  try {
-    const schemaDoc = await db.collection("lubricentro").doc("schema").get();
-    const schema = schemaDoc.exists ? (schemaDoc.data().data || {}) : {};
-    if(schema.appointmentsV2) {
-      const current = await db.collection("appointmentRecords").where("date", "==", appt.date).get();
-      const taken = new Set();
-      current.docs.forEach(d => { const a=d.data(); if(a.status !== "cancelado" && (a.pit || "auto") === appt.pit) (a.blockedSlots || [a.time]).forEach(t => taken.add(t)); });
-      if(appt.blockedSlots.some(t => taken.has(t))) throw new Error("SLOT_TAKEN");
-      await db.collection("appointmentRecords").doc(appt.id).set(appt);
-      APPTS = [...APPTS, appt];
-      return true;
-    }
-    const ref = db.collection("lubricentro").doc("appointments");
-    let savedAppointments = [];
-    await db.runTransaction(async tx => {
-      const snap = await tx.get(ref);
-      const current = snap.exists ? (snap.data().data || []) : [];
-      const taken = new Set();
-      current.filter(a => a.date === appt.date && a.status !== "cancelado" && (a.pit || "auto") === appt.pit)
-        .forEach(a => (a.blockedSlots || [a.time]).forEach(t => taken.add(t)));
-      if (appt.blockedSlots.some(t => taken.has(t))) throw new Error("SLOT_TAKEN");
-      savedAppointments = [...current, appt];
-      tx.set(ref, { data: savedAppointments });
-    });
-    APPTS = savedAppointments;
-    return true;
-  } catch (e) {
-    if (e.message === "SLOT_TAKEN") toast("Ese horario ya fue tomado.", "error");
-    else {
-      console.error("Error al reservar turno:", e);
-      toast("No se pudo guardar el turno. Intentá nuevamente.", "error");
-    }
+  try { applyData(await store.reserve(appt)); return true; }
+  catch (error) {
+    console.error(error); toast(Lubri.message(error), "error");
+    try { await refreshData(); } catch (_) { /* Keep the error visible; saving always rechecks the server. */ }
     return false;
   }
 }
@@ -1065,37 +975,28 @@ function openSharedLibretito() {
     toast("No encontramos el Libretito solicitado.", "error");
     return false;
   }
-  ME = client;
   go("pgClient");
+  ME = client;
   renderHistorial();
   return true;
 }
 
-/* ══ INIT ════════════════════════════════════════════ */
-(async () => {
+/* ══ INIT ═══════════════════════════════════════════ */
+async function initializeClient() {
+  document.getElementById("appLoader").style.display = "flex";
   try {
-    console.log("Iniciando carga de datos...");
-    const [clients, appts, services] = await Promise.all([
-      fsGet("clients", []),
-      fsGet("appointments", []),
-      fsGet("services", DEFAULT_SVC),
-    ]);
-    CLIENTS = clients || [];
-    APPTS = appts || [];
-    SERVICES = services && services.length > 0 ? services : DEFAULT_SVC;
-    if (!SERVICES.length) {
-      SERVICES = DEFAULT_SVC;
-      await fsPut("services", SERVICES);
-    }
-    console.log("Datos cargados. Clientes:", CLIENTS.length, "Turnos:", APPTS.length, "Servicios:", SERVICES.length);
-  } catch (e) {
-    console.error("Error durante init:", e);
-    SERVICES = DEFAULT_SVC;
-    toast("Error al conectar. Usando datos locales.", "error", 5000);
-  }
-  document.getElementById("appLoader").style.display = "none";
-  if (!openSharedLibretito()) go("pgLanding");
-})();
+    await refreshData();
+    if (!openSharedLibretito()) go("pgLanding");
+  } catch (error) {
+    console.error(error);
+    document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+    const page = document.getElementById("pgClient");
+    page.classList.add("active");
+    document.getElementById("clientArea").innerHTML =
+      '<div class="alert ar">No pudimos cargar los datos. Revisá la conexión y volvé a intentar.</div><button class="btn btn-p" onclick="initializeClient()">Reintentar</button>';
+  } finally { document.getElementById("appLoader").style.display = "none"; }
+}
+initializeClient();
 </script>
 </body>
 </html>

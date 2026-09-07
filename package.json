@@ -1,0 +1,9 @@
+{
+  "name": "lubricentro-esquiu",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs"
+  },
+  "engines": { "node": ">=20" }
+}
