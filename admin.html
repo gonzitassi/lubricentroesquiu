@@ -504,7 +504,8 @@ tr:hover td{background:rgba(255,255,255,.035);}
       <div><strong id="waFollowupTitle">Service guardado</strong>
         <span id="waFollowupText">Revisá WhatsApp y tocá Enviar para compartir el Libretito.</span></div>
       <div class="wa-followup-actions">
-        <a class="btn btn-wa" id="waFollowupLink" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a>
+        <a class="btn btn-wa" id="waFollowupLink" href="#" target="_blank" rel="noopener">Abrir WhatsApp de escritorio</a>
+        <a class="btn btn-g" id="waFollowupWebLink" href="#" target="_blank" rel="noopener">Usar WhatsApp Web</a>
         <button class="btn btn-g btn-sm" onclick="document.getElementById('waFollowup').classList.remove('active')">Cerrar</button>
       </div>
     </div>
@@ -1683,31 +1684,42 @@ PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas a
 ¡Gracias por confiar en nosotros!`;
 }
 
-function completedServiceWhatsAppUrl(appt, cl) {
+function completedServiceWhatsAppLinks(appt, cl) {
   if(!cl || !validateWA(cl.whatsapp)) {
     toast("El cliente no tiene un WhatsApp válido", "error");
-    return "";
+    return null;
   }
   const phone = cleanWA(cl.whatsapp);
-  const base = isDesktop() ? "https://web.whatsapp.com/send" : "https://wa.me/" + phone;
-  const params = isDesktop() ? `?phone=${phone}&text=` : "?text=";
-  return base + params + encodeURIComponent(buildCompletedServiceMessage(appt, cl));
+  const message = encodeURIComponent(buildCompletedServiceMessage(appt, cl));
+  return {
+    desktop: isDesktop(),
+    appUrl: `whatsapp://send?phone=${phone}&text=${message}`,
+    webUrl: `https://web.whatsapp.com/send?phone=${phone}&text=${message}`,
+    mobileUrl: `https://wa.me/${phone}?text=${message}`
+  };
 }
 
-function showWhatsAppFollowup(url, opened) {
+function showWhatsAppFollowup(links, opened) {
   const panel = document.getElementById("waFollowup");
-  document.getElementById("waFollowupTitle").textContent = opened
-    ? "Service guardado · WhatsApp abierto" : "Service guardado · Abrí WhatsApp";
-  document.getElementById("waFollowupText").textContent = opened
-    ? "Revisá la pestaña de WhatsApp y tocá Enviar. Si pide vincular el dispositivo, seguí las instrucciones allí."
-    : "El navegador bloqueó la pestaña. Tocá Abrir WhatsApp y luego Enviar para compartir el Libretito.";
-  document.getElementById("waFollowupLink").href = url;
+  document.getElementById("waFollowupTitle").textContent = "Service guardado · mensaje listo";
+  document.getElementById("waFollowupText").textContent = links.desktop
+    ? opened
+      ? "Intentamos abrir WhatsApp de escritorio. Aceptá el aviso del navegador y tocá Enviar. Si no abre, usá uno de los botones."
+      : "El navegador bloqueó la apertura. Tocá Abrir WhatsApp de escritorio; si no funciona, usá WhatsApp Web."
+    : "Abrí WhatsApp y tocá Enviar para compartir el Libretito.";
+  const appLink = document.getElementById("waFollowupLink");
+  appLink.href = links.desktop ? links.appUrl : links.mobileUrl;
+  appLink.textContent = links.desktop ? "Abrir WhatsApp de escritorio" : "Abrir WhatsApp";
+  const webLink = document.getElementById("waFollowupWebLink");
+  webLink.href = links.webUrl;
+  webLink.style.display = links.desktop ? "inline-flex" : "none";
   panel.classList.add("active");
 }
 
 function openCompletedServiceWhatsApp(appt, cl, reservedTab) {
-  const url = completedServiceWhatsAppUrl(appt, cl);
-  if (!url) { if (reservedTab && !reservedTab.closed) reservedTab.close(); return false; }
+  const links = completedServiceWhatsAppLinks(appt, cl);
+  if (!links) { if (reservedTab && !reservedTab.closed) reservedTab.close(); return false; }
+  const url = links.desktop ? links.appUrl : links.mobileUrl;
   let opened = false;
   try {
     if (reservedTab && !reservedTab.closed) {
@@ -1717,7 +1729,7 @@ function openCompletedServiceWhatsApp(appt, cl, reservedTab) {
       opened = !!window.open(url, "_blank");
     }
   } catch(error) { console.error("No se pudo abrir WhatsApp:", error); }
-  showWhatsAppFollowup(url, opened);
+  showWhatsAppFollowup(links, opened);
   return opened;
 }
 

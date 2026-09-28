@@ -305,9 +305,10 @@ test('completing a service reserves WhatsApp on the click, then opens its messag
   vm.runInContext('completingAppointment=AppState.appointments[0]',context);
   await vm.runInContext('doCompleteAppt()',context);
   assert.equal(events[0][1],'about:blank');
-  assert.match(events[1][1],/^https:\/\/web\.whatsapp\.com\/send\?phone=5493513880155&text=/);
+  assert.match(events[1][1],/^whatsapp:\/\/send\?phone=5493513880155&text=/);
   assert.equal(db.docs.get('appointmentRecords/a1').status,'completado');
   assert.match(document.getElementById('waFollowupText').textContent,/tocá Enviar/);
+  assert.match(document.getElementById('waFollowupWebLink').href,/^https:\/\/web\.whatsapp\.com\/send\?phone=/);
 });
 test('failed service save closes its reserved WhatsApp tab',async()=>{
   const {context,document,db}=pageContext('admin.html');
@@ -332,11 +333,13 @@ test('blocked popup keeps a direct WhatsApp link after the service is saved',asy
   document.getElementById('mCompKm').value='15000';
   document.getElementById('mCompOil').value='Shell';
   let opens=0;
+  context.navigator.userAgent='Windows';
   context.window.open=()=>{opens++;return null;};
   vm.runInContext('completingAppointment=AppState.appointments[0]',context);
   await vm.runInContext('doCompleteAppt()',context);
   assert.equal(opens,1);
   assert.equal(db.docs.get('appointmentRecords/a1').status,'completado');
   assert.match(document.getElementById('waFollowupText').textContent,/bloqueó/);
-  assert.match(document.getElementById('waFollowupLink').href,/^https:\/\/wa\.me\/5493513880155\?text=/);
+  assert.match(document.getElementById('waFollowupLink').href,/^whatsapp:\/\/send\?phone=5493513880155&text=/);
+  assert.match(document.getElementById('waFollowupWebLink').href,/^https:\/\/web\.whatsapp\.com\/send\?phone=5493513880155&text=/);
 });
