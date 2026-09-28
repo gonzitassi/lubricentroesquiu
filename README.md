@@ -2,6 +2,14 @@
 
 Aplicación estática de turnos. `index.html` es el acceso de clientes y `admin.html` contiene el panel administrativo completo. `assets/system.js` centraliza fechas, validaciones y operaciones de datos. `App.jsx` es un prototipo anterior y no se carga en las páginas actuales.
 
+## Guardado del Libretito y rendimiento del administrador
+
+Al pulsar **Guardar y abrir WhatsApp**, el administrador reserva una pestaña en ese mismo clic. Después de confirmar el guardado en Firebase, la pestaña abre WhatsApp Web con el mensaje preparado. Si el navegador bloquea la pestaña, queda un botón visible para abrir el mensaje manualmente. Si falla el guardado, la pestaña reservada se cierra. WhatsApp exige que el operador pulse **Enviar** y que tenga una sesión vinculada; esta aplicación estática no puede confirmar ni automatizar la entrega. Un envío automático requeriría una integración de servidor con WhatsApp Business Platform.
+
+Las lecturas de Firestore independientes ahora se ejecutan en paralelo. Cuando la base usa registros V2, completar o cambiar el estado de un turno usa una transacción sobre ese turno sin volver a descargar todas las colecciones. La creación de turnos sigue consultando los datos actuales para verificar disponibilidad. También se redujo el trabajo repetido al calcular recordatorios. Las mejoras están verificadas con pruebas locales; la latencia real depende de la conexión y de Firebase y debe medirse en el entorno publicado.
+
+El administrador usa la misma identidad visual azul oscuro y naranja, el logo y los componentes de la vista de clientes. Se rediseñaron la entrada, el acceso, la cabecera, el panel, las tarjetas y los formularios para pantallas grandes y celulares. La autenticación conserva el mismo usuario y la misma contraseña de Firebase; no se modificaron las credenciales.
+
 ## Alcance de esta revisión
 
 Se mantienen el catálogo de servicios, los intervalos de mantenimiento y el ingreso por patente por decisión del propietario. Se eliminó el generador de QR, conservando el historial y la apertura de enlaces antiguos del Libretito.

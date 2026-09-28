@@ -6,7 +6,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="theme-color" content="#0e0e0f"/>
 <title>Lubricentro Esquiú — Administrador</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -102,6 +105,15 @@ input,select,textarea,button{font-family:'DM Sans',sans-serif;}
 
 /* ══ CONTENT ════════════════════════════════════════ */
 .content{padding:1.2rem;max-width:1050px;margin:0 auto;width:100%;flex:1;}
+.wa-followup{display:none;position:fixed;bottom:1rem;left:50%;z-index:250;
+  transform:translateX(-50%);width:min(640px,calc(100vw - 2rem));
+  box-shadow:0 12px 40px rgba(0,0,0,.55);align-items:center;justify-content:space-between;gap:.8rem;
+  flex-wrap:wrap;background:#123125;border:1px solid #277a4a;border-radius:12px;
+  padding:.85rem 1rem;line-height:1.45;font-size:.83rem;}
+.wa-followup.active{display:flex;}
+.wa-followup strong{display:block;color:#b8f7cf;margin-bottom:.12rem;}
+.wa-followup-actions{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;}
+.wa-followup a{min-height:36px;}
 
 /* ══ CARD ════════════════════════════════════════════ */
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.05rem;}
@@ -292,6 +304,126 @@ select.fi option{background:var(--bg2);}
   background:var(--bg3);border-radius:8px;}
 .reminder-stat-num{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;font-weight:700;}
 .reminder-stat-label{color:var(--muted);font-size:.7rem;}
+
+/* ══ ADMINISTRADOR · MISMA IDENTIDAD QUE CLIENTES ═════════════════ */
+:root{
+  --bg:#020b1b;--bg2:#07162d;--bg3:#0d203d;--card:#091a34;
+  --border:rgba(188,203,225,.18);--orange:#ff7200;--orange2:#e85b00;
+  --text:#f7f8fb;--muted:#9ca9bb;--success:#33c36b;--warn:#f4b33b;
+  --danger:#f16262;--wa:#25d366;--wa2:#18a94d;--blue:#77a8ff;
+}
+body{background:radial-gradient(circle at 85% 8%,rgba(255,114,0,.08),transparent 28%),
+  linear-gradient(135deg,#020914,#03132e 55%,#020b1b);}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  opacity:.18;background-image:radial-gradient(rgba(255,255,255,.11) .55px,transparent .55px);
+  background-size:7px 7px;}
+.logo,.tbrand,.st,.card-title,.stat-num,.mtitle,.libretito-service,.stitle,.login-title,
+.admin-entry-card h1,.admin-hero h1,.reminder-stat-num{font-family:'Barlow Condensed',sans-serif;}
+#pgLanding,#pgAdminLogin{background:radial-gradient(circle at 50% 35%,rgba(21,49,88,.72),transparent 38%),
+  linear-gradient(140deg,#020914,#03132e 58%,#020b1b);}
+#pgLanding{padding:1rem;}
+#pgLanding::before{inset:-10%;width:auto;height:auto;top:auto;left:auto;
+  background:repeating-radial-gradient(ellipse at -8% 8%,transparent 0 32px,rgba(255,114,0,.12) 33px 34px,transparent 35px 52px);
+  opacity:.38;}
+.admin-entry{width:min(100%,720px);position:relative;z-index:1;display:flex;
+  flex-direction:column;align-items:center;padding:1rem 0;}
+.admin-logo-large{display:block;width:clamp(260px,36vw,520px);height:auto;object-fit:contain;}
+.admin-kicker{color:#aab4c2;font-size:.72rem;letter-spacing:.27em;margin:.1rem 0 1.6rem;}
+.admin-entry-card,.login-box{background:linear-gradient(155deg,rgba(11,29,56,.97),rgba(3,15,35,.98));
+  border:1px solid rgba(255,114,0,.64);border-radius:22px;
+  box-shadow:0 30px 70px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);}
+.admin-entry-card{width:min(100%,450px);padding:1.8rem;text-align:left;}
+.admin-entry-icon{width:54px;height:54px;border-radius:16px;background:rgba(255,114,0,.12);
+  display:grid;place-items:center;color:var(--orange);font-size:2rem;margin-bottom:1.05rem;}
+.admin-entry-label{color:var(--orange);font-size:.68rem;font-weight:700;letter-spacing:.18em;margin-bottom:.5rem;}
+.admin-entry-card h1{font-size:clamp(2.1rem,5vw,3rem);line-height:.95;font-style:italic;
+  letter-spacing:-.02em;margin-bottom:.85rem;}
+.admin-entry-card h1 span{color:var(--orange);}
+.admin-entry-card p,.login-subtitle{color:#a9b4c4;font-size:.85rem;line-height:1.55;}
+.admin-entry-card p{margin-bottom:1.3rem;}
+.admin-entry-button{width:100%;justify-content:space-between;}
+.admin-logo-login{display:block;width:min(90vw,360px);height:auto;margin-bottom:.25rem;}
+.login-box{max-width:410px;padding:1.7rem;}
+.login-title{font-size:2rem;line-height:1;text-transform:uppercase;margin-bottom:.35rem;}
+.login-subtitle{margin-bottom:1.35rem;}
+#pgAdmin{background:linear-gradient(145deg,#020914,#03132e 55%,#020b1b);}
+.topbar{min-height:72px;padding:.5rem clamp(.85rem,3vw,2rem);background:rgba(2,11,27,.9);
+  backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,114,0,.35);}
+.admin-brand{display:flex;align-items:center;gap:.45rem;min-width:0;}
+.admin-brand img{display:block;width:170px;height:48px;object-fit:contain;object-position:left center;}
+.admin-brand span{font-size:.62rem;font-weight:700;letter-spacing:.12em;color:var(--orange);
+  border-left:1px solid var(--border);padding-left:.7rem;}
+.topbar-r{gap:.5rem;}
+.tabs{position:sticky;top:72px;z-index:90;gap:.35rem;padding:.55rem clamp(.85rem,3vw,2rem);
+  background:rgba(5,19,42,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.tab{min-height:40px;border:1px solid transparent;border-radius:10px;padding:.5rem .85rem;
+  color:#aeb9c9;font-size:.79rem;font-weight:600;}
+.tab.active{color:white;background:rgba(255,114,0,.16);border-color:rgba(255,114,0,.55);}
+.tab:hover:not(.active){background:rgba(255,255,255,.05);color:white;}
+.content{max-width:1180px;padding:clamp(1rem,3vw,2rem);}
+.admin-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;
+  margin-bottom:1.25rem;padding:1.2rem 0 1.35rem;border-bottom:1px solid var(--border);}
+.admin-hero-kicker{color:var(--orange);font-size:.66rem;letter-spacing:.18em;font-weight:700;
+  margin-bottom:.4rem;}
+.admin-hero h1{font-size:clamp(2.6rem,5vw,4.2rem);font-style:italic;
+  text-transform:uppercase;line-height:.9;letter-spacing:-.035em;}
+.admin-hero h1 span{color:var(--orange);}
+.admin-hero p{color:#a9b4c4;font-size:.83rem;margin-top:.6rem;}
+.admin-hero-actions{display:flex;gap:.55rem;flex-wrap:wrap;}
+.card,.stat,.reminder-card,.appt-card,.libretito-card{background:linear-gradient(155deg,rgba(11,29,56,.94),rgba(4,17,39,.96));
+  border:1px solid var(--border);border-radius:17px;box-shadow:0 16px 38px rgba(0,0,0,.18);}
+.card{padding:clamp(1rem,2vw,1.35rem);}
+.card-title{font-size:1.25rem;letter-spacing:.02em;}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;}
+.stat{padding:1.1rem 1.2rem;border-top:2px solid rgba(255,114,0,.65);}
+.stat-num{font-size:2.6rem;line-height:1;}
+.stat-lbl{color:#a8b5c7;font-size:.69rem;margin-top:.35rem;}
+.btn{min-height:42px;border-radius:10px;padding:.56rem .95rem;}
+.btn-p{background:linear-gradient(135deg,var(--orange),#ff8b16);box-shadow:0 9px 22px rgba(255,114,0,.19);}
+.btn-p:hover,.btn-p:active{background:linear-gradient(135deg,#ff8520,var(--orange));}
+.btn-g,.back-btn{background:rgba(255,255,255,.025);border:1px solid var(--border);}
+.back-btn{min-height:40px;border-radius:10px;color:#cad2df;padding:.45rem .8rem;}
+.btn-g:hover,.back-btn:hover{background:rgba(255,114,0,.08);border-color:var(--orange);color:white;}
+.fi,.search-bar input{background:#07172f;border:1px solid rgba(188,203,225,.22);border-radius:11px;
+  color:var(--text);}
+.fi{min-height:46px;padding:.67rem .8rem;font-size:.9rem;}
+.fi[type="date"]{color-scheme:dark;}
+.fi:focus,.search-bar input:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(255,114,0,.1);}
+.fl{color:#a8b5c7;font-weight:700;}
+.search-bar input{min-height:44px;}
+.modal{background:linear-gradient(155deg,#0b1d38,#041127);border-color:rgba(188,203,225,.25);
+  border-radius:19px;box-shadow:0 30px 80px rgba(0,0,0,.6);}
+.modal-sticky-head{background:#0b1d38;}
+.mtitle{font-size:1.65rem;text-transform:uppercase;}
+th{color:#a5b3c5;border-bottom-color:var(--border);}
+td{border-bottom-color:rgba(188,203,225,.09);}
+tr:hover td{background:rgba(255,255,255,.035);}
+.empty{border:1px dashed rgba(188,203,225,.2);border-radius:14px;background:rgba(255,255,255,.018);}
+.cl-neutral,.libretito-pill{background:#07172f;}
+.wa-followup{background:#0d2d2a;}
+@media(max-width:760px){
+  .admin-logo-large{width:min(92vw,390px);}
+  .admin-entry-card{padding:1.35rem;border-radius:18px;}
+  .topbar{min-height:62px;padding:.35rem .7rem;}
+  .admin-brand img{width:128px;height:42px;}
+  .admin-brand span{font-size:.53rem;padding-left:.45rem;}
+  .topbar-r{gap:.3rem;}.topbar-r .btn{font-size:.68rem;padding:.4rem .55rem;}
+  .tabs{top:62px;padding:.45rem .65rem;}
+  .tab{min-height:38px;padding:.45rem .65rem;font-size:.72rem;}
+  .content{padding:1rem;}
+  .admin-hero{display:block;padding-top:.6rem;}
+  .admin-hero-actions{margin-top:1rem;}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .stat{padding:.9rem;}.stat-num{font-size:2.2rem;}
+  .fr{grid-template-columns:1fr;gap:0;}
+  .modal{padding:1rem;border-radius:16px;max-height:94vh;}
+  .modal-sticky-head{top:-1rem;margin:-1rem -1rem 1rem;padding:1rem;}
+}
+@media(max-width:390px){
+  .admin-brand span{display:none;}
+  .admin-entry-card h1{font-size:2.15rem;}
+  .stats{gap:.55rem;}
+}
 </style>
 </head>
 <body>
@@ -309,11 +441,15 @@ select.fi option{background:var(--bg2);}
 
 <!-- ═══════════ LANDING ═══════════ -->
 <div class="page" id="pgLanding">
-  <div class="logo">LUBRICENTRO <span>ESQUIÚ</span></div>
-  <div class="land-sub">Panel Administrador · Córdoba</div>
-  <div class="land-cards">
-    <div class="lcard" onclick="go('pgAdminLogin')">
-      <div class="lcard-ico">⚙️</div><h3>ADMINISTRAR</h3><p>Panel del lubricentro</p>
+  <div class="admin-entry">
+    <img class="admin-logo-large" src="assets/lubricentro-logo-transparent.png" alt="Lubricentro Esquiú"/>
+    <div class="admin-kicker">ÁREA DE TRABAJO · CÓRDOBA</div>
+    <div class="admin-entry-card">
+      <div class="admin-entry-icon">⚙</div>
+      <div class="admin-entry-label">ACCESO PRIVADO</div>
+      <h1>TODO EL TALLER<br/><span>EN UN SOLO LUGAR.</span></h1>
+      <p>Turnos, clientes, recordatorios y Libretitos digitales.</p>
+      <button class="btn btn-p admin-entry-button" onclick="go('pgAdminLogin')">Ingresar al administrador <span aria-hidden="true">→</span></button>
     </div>
   </div>
 </div>
@@ -321,11 +457,11 @@ select.fi option{background:var(--bg2);}
 <!-- ═══════════ ADMIN LOGIN ═══════════ -->
 <div class="page" id="pgAdminLogin"
   style="align-items:center;justify-content:center;padding:2rem;">
-  <div class="logo" style="font-size:1.85rem;margin-bottom:1.4rem;">
-    LUBRICENTRO <span style="color:var(--orange)">ESQUIÚ</span></div>
+  <img class="admin-logo-login" src="assets/lubricentro-logo-transparent.png" alt="Lubricentro Esquiú"/>
   <div class="login-box">
-    <div style="font-family:'Bebas Neue';font-size:1.32rem;letter-spacing:1px;margin-bottom:1.05rem;">
-      ACCESO ADMINISTRADOR</div>
+    <div class="admin-entry-label">ACCESO PRIVADO</div>
+    <h1 class="login-title">Bienvenido al taller</h1>
+    <p class="login-subtitle">Ingresá con tu usuario y contraseña habituales.</p>
     <div id="loginErr" class="alert ar" style="display:none"></div>
     <input type="text" style="opacity:0;position:absolute;height:0;width:0;z-index:-1" tabindex="-1"/>
     <input type="password" style="opacity:0;position:absolute;height:0;width:0;z-index:-1" tabindex="-1"/>
@@ -347,8 +483,9 @@ select.fi option{background:var(--bg2);}
 <!-- ═══════════ ADMIN APP ═══════════ -->
 <div class="page" id="pgAdmin">
   <div class="topbar">
-    <div class="tbrand">LUBRICENTRO <span>ESQUIÚ</span>
-      <span style="font-size:.67rem;color:var(--muted);font-family:'DM Sans';letter-spacing:0"> ADMIN</span>
+    <div class="admin-brand">
+      <img src="assets/lubricentro-logo-transparent.png" alt="Lubricentro Esquiú"/>
+      <span>ADMINISTRADOR</span>
     </div>
     <div class="topbar-r">
       <button class="btn btn-g btn-sm" onclick="refreshAdmin()">Actualizar</button>
@@ -363,6 +500,14 @@ select.fi option{background:var(--bg2);}
     <button class="tab" onclick="aTab(this,'tConfig')">⚙️ Config</button>
   </div>
   <div class="content">
+    <div class="wa-followup" id="waFollowup" role="status" aria-live="polite">
+      <div><strong id="waFollowupTitle">Service guardado</strong>
+        <span id="waFollowupText">Revisá WhatsApp y tocá Enviar para compartir el Libretito.</span></div>
+      <div class="wa-followup-actions">
+        <a class="btn btn-wa" id="waFollowupLink" href="#" target="_blank" rel="noopener">Abrir WhatsApp</a>
+        <button class="btn btn-g btn-sm" onclick="document.getElementById('waFollowup').classList.remove('active')">Cerrar</button>
+      </div>
+    </div>
     <div id="tDash"></div>
     <div id="tTurnos" style="display:none"></div>
     <div id="tClientes" style="display:none"></div>
@@ -507,7 +652,7 @@ select.fi option{background:var(--bg2);}
         placeholder="Anotaciones extras, filtros específicos, etc."></textarea></div>
     <div class="mact">
       <button class="btn btn-g" onclick="closeM('mComplete')">Cancelar</button>
-      <button class="btn btn-p" onclick="doCompleteAppt()">Guardar y Completar</button>
+      <button class="btn btn-p" id="mCompleteSaveBtn" onclick="doCompleteAppt()">Guardar y abrir WhatsApp</button>
     </div>
   </div>
 </div>
@@ -630,17 +775,20 @@ const store = Lubri.createStore(db, DEFAULT_SVC);
 
 let adminBusy = false;
 let editingClient = null, editingService = null, completingAppointment = null;
-async function adminAction(operation, success) {
+async function adminAction(operation, success, apply = data => AppState.apply(data)) {
   if (adminBusy) return false;
   adminBusy = true; showSavingIndicator(true);
   try {
     const data = await operation();
-    if (data) AppState.apply(data);
+    if (data) apply(data);
     if (data && success) success();
     return true;
   } catch (error) {
     console.error(error); toast(Lubri.message(error), "error", 6500); return false;
   } finally { adminBusy = false; showSavingIndicator(false); }
+}
+function applyAppointmentRecord(appt) {
+  AppState.appointments = AppState.appointments.map(a => a.id === appt.id ? appt : a);
 }
 async function refreshAdmin() {
   await adminAction(() => store.read(), () => { reDrawCur(); toast("Datos actualizados"); });
@@ -935,6 +1083,17 @@ function drawDash() {
   const remCount = calcAllReminders().filter(r => !r.notified).length;
   
   document.getElementById("tDash").innerHTML = `
+    <div class="admin-hero">
+      <div>
+        <div class="admin-hero-kicker">PANEL DE TRABAJO · ${esc(fmtD(Lubri.today()))}</div>
+        <h1>Buen día, <span>Roger.</span></h1>
+        <p>Tenés todo lo que pasa en el taller a mano.</p>
+      </div>
+      <div class="admin-hero-actions">
+        <button class="btn btn-p" onclick="openNewAppt()">+ Nuevo turno</button>
+        <button class="btn btn-g" onclick="aTab(document.querySelectorAll('#adminTabs .tab')[2],'tClientes')">Ver clientes</button>
+      </div>
+    </div>
     <div class="stats">
       <div class="stat"><div class="stat-num">${todayA.length}</div><div class="stat-lbl">Hoy</div></div>
       <div class="stat"><div class="stat-num">${pending.length}</div><div class="stat-lbl">Pendientes</div></div>
@@ -1043,29 +1202,32 @@ function drawClientes() {
 function calcAllReminders() {
   const result = [];
   const now = new Date();
+  const apptsByClient = new Map();
+  for (const appt of AppState.appointments) {
+    if (!appt.km) continue;
+    if (!apptsByClient.has(appt.clientId)) apptsByClient.set(appt.clientId, []);
+    apptsByClient.get(appt.clientId).push(appt);
+  }
+  for (const appts of apptsByClient.values()) appts.sort((a,b) => b.date.localeCompare(a.date));
 
   for (const cl of AppState.clients) {
     const vtype = cl.vehicleType || "auto";
     const iv = SVC_INTERVAL[vtype] || SVC_INTERVAL.auto;
-    const oilAppts = AppState.appointments
-      .filter(a => a.clientId === cl.id && a.status === "completado" && a.km)
-      .filter(a => {
-        const n = (a.serviceName || "").toLowerCase();
-        return n.includes("aceite") || n.includes("oil") || n.includes("service");
-      })
-      .sort((a, b) => b.date.localeCompare(a.date));
-    if (!oilAppts.length) continue;
+    const clientAppts = apptsByClient.get(cl.id) || [];
+    const last = clientAppts.find(a => {
+      if (a.status !== "completado") return false;
+      const n = (a.serviceName || "").toLowerCase();
+      return n.includes("aceite") || n.includes("oil") || n.includes("service");
+    });
+    if (!last) continue;
 
-    const last = oilAppts[0];
     const lastDate = new Date(last.date + "T12:00:00");
     const lastKm = parseInt(last.km) || 0;
     const limitDate = new Date(lastDate);
     limitDate.setMonth(limitDate.getMonth() + iv.months);
     const limitKm = lastKm + iv.km;
 
-    const latestKmAppt = AppState.appointments
-      .filter(a => a.clientId === cl.id && a.km)
-      .sort((a, b) => b.date.localeCompare(a.date))[0];
+    const latestKmAppt = clientAppts[0];
     const currentKm = latestKmAppt ? parseInt(latestKmAppt.km) || 0 : 0;
     const overdueByKm = currentKm > 0 && currentKm >= limitKm;
     const daysUntil = Math.ceil((limitDate - now) / (1000 * 60 * 60 * 24));
@@ -1442,9 +1604,9 @@ async function updAppt(id, status) {
   id = decodeURIComponent(id);
   const expected = AppState.appointments.find(a => a.id === id);
   if (!expected) return;
-  await adminAction(() => store.updateAppointment(id, {status}, expected), () => {
+  await adminAction(() => store.updateAppointmentRecord(id, {status}, expected), () => {
     toast("Estado actualizado", "success"); reDrawCur();
-  });
+  }, applyAppointmentRecord);
 }
 
 async function delAppt(id) {
@@ -1521,23 +1683,42 @@ PD: Si te sirvió nuestra atención, nos ayuda mucho que nos dejes 5 estrellas a
 ¡Gracias por confiar en nosotros!`;
 }
 
-function openCompletedServiceWhatsApp(appt, cl) {
+function completedServiceWhatsAppUrl(appt, cl) {
   if(!cl || !validateWA(cl.whatsapp)) {
     toast("El cliente no tiene un WhatsApp válido", "error");
-    return false;
+    return "";
   }
+  const phone = cleanWA(cl.whatsapp);
+  const base = isDesktop() ? "https://web.whatsapp.com/send" : "https://wa.me/" + phone;
+  const params = isDesktop() ? `?phone=${phone}&text=` : "?text=";
+  return base + params + encodeURIComponent(buildCompletedServiceMessage(appt, cl));
+}
 
-  const phone = cleanWA(cl?.whatsapp);
-  const safariIOS = isSafariIOS();
-  const message = buildCompletedServiceMessage(appt, cl);
-  const url = safariIOS
-    ? `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`
-    : `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+function showWhatsAppFollowup(url, opened) {
+  const panel = document.getElementById("waFollowup");
+  document.getElementById("waFollowupTitle").textContent = opened
+    ? "Service guardado · WhatsApp abierto" : "Service guardado · Abrí WhatsApp";
+  document.getElementById("waFollowupText").textContent = opened
+    ? "Revisá la pestaña de WhatsApp y tocá Enviar. Si pide vincular el dispositivo, seguí las instrucciones allí."
+    : "El navegador bloqueó la pestaña. Tocá Abrir WhatsApp y luego Enviar para compartir el Libretito.";
+  document.getElementById("waFollowupLink").href = url;
+  panel.classList.add("active");
+}
 
-  if(safariIOS) { window.location.href = url; return true; }
-  const opened = window.open(url, "_blank");
-  if (!opened) toast("El navegador bloqueó WhatsApp. Usá «Enviar este service por WhatsApp» en el Libretito.", "warn", 6500);
-  return !!opened;
+function openCompletedServiceWhatsApp(appt, cl, reservedTab) {
+  const url = completedServiceWhatsAppUrl(appt, cl);
+  if (!url) { if (reservedTab && !reservedTab.closed) reservedTab.close(); return false; }
+  let opened = false;
+  try {
+    if (reservedTab && !reservedTab.closed) {
+      reservedTab.location.replace(url);
+      opened = true;
+    } else if (reservedTab === undefined) {
+      opened = !!window.open(url, "_blank");
+    }
+  } catch(error) { console.error("No se pudo abrir WhatsApp:", error); }
+  showWhatsAppFollowup(url, opened);
+  return opened;
 }
 
 function resendCompletedService(apptId) {
@@ -1555,6 +1736,7 @@ function resendCompletedService(apptId) {
 }
 
 async function doCompleteAppt() {
+  if (adminBusy) return;
   const id = document.getElementById("mCompId").value;
   const km = document.getElementById("mCompKm").value.trim();
   const oil = document.getElementById("mCompOil").value.trim();
@@ -1564,15 +1746,31 @@ async function doCompleteAppt() {
   const appt = completingAppointment;
   if (!appt || appt.id !== id) return;
   const cl = AppState.clients.find(c => c.id === appt.clientId);
+  if (!cl || !validateWA(cl.whatsapp)) { toast("Revisá el WhatsApp del cliente antes de guardar.", "error"); return; }
   const {nextKm,nextDate} = calcNextService(km, Lubri.today(), cl?.vehicleType || "auto");
   const patch = {status:"completado",km,nextKm,nextDate,oilBrand:oil,notes:obs,checklist:{...clItems}};
-  await adminAction(() => store.updateAppointment(id,patch,appt), () => {
-    closeM("mComplete"); reDrawCur();
-    const saved = AppState.appointments.find(a => a.id === id);
-    toast("Service guardado", "success");
-    const savedClient = AppState.clients.find(c => c.id === saved.clientId);
-    if (!openCompletedServiceWhatsApp(saved, savedClient)) openViewClient(arg(saved.clientId));
-  });
+  // Reserve the tab while the save click still has user activation. Navigating
+  // it after the Firebase request avoids popup blocking on slow connections.
+  let reservedTab = null;
+  try {
+    reservedTab = window.open("about:blank", "_blank");
+    if (reservedTab) {
+      reservedTab.document.title = "Guardando service · Lubricentro Esquiú";
+      reservedTab.document.body.textContent = "Guardando el service. WhatsApp se abrirá en unos segundos…";
+    }
+  } catch(error) { console.error("No se pudo reservar la pestaña de WhatsApp:", error); }
+  const btn = document.getElementById("mCompleteSaveBtn");
+  showOptimisticUI(btn, true);
+  try {
+    const savedOK = await adminAction(() => store.updateAppointmentRecord(id,patch,appt), () => {
+      closeM("mComplete"); reDrawCur();
+      const saved = AppState.appointments.find(a => a.id === id);
+      toast("Service guardado", "success");
+      const savedClient = AppState.clients.find(c => c.id === saved.clientId);
+      openCompletedServiceWhatsApp(saved, savedClient, reservedTab);
+    }, applyAppointmentRecord);
+    if (!savedOK && reservedTab && !reservedTab.closed) reservedTab.close();
+  } finally { showOptimisticUI(btn, false); }
 }
 
 /* ════════════════════════════════════════════════════════

@@ -210,6 +210,31 @@ test('active mode rejects a write racing an edit to the same record',async()=>{
   assert.equal(out.filter(r=>r.status==='fulfilled').length,1);
   assert.equal(out.filter(r=>r.status==='rejected').length,1);
 });
+test('V2 quick appointment update writes only its record and rejects a stale copy',async()=>{
+  const db=new FakeDB(),store=L.createStore(db);
+  await store.reserve(appointment());
+  const expected=(await store.read()).appointments[0];
+  let collectionQueries=0;
+  const original=db.collection.bind(db);
+  db.collection=name=>{
+    const col=original(name);
+    return {...col,get:async options=>{collectionQueries++;return col.get(options);}};
+  };
+  db.set('appointmentRecords/other',appointment('other','11:00'));
+  const updated=await store.updateAppointmentRecord('a1',{status:'completado'},expected);
+  assert.equal(updated.status,'completado');
+  assert.equal(collectionQueries,0);
+  assert.equal(db.docs.get('appointmentRecords/other').status,'pendiente');
+  await assert.rejects(store.updateAppointmentRecord('a1',{status:'cancelado'},expected),/CONFLICT/);
+});
+test('quick appointment update falls back safely for legacy data',async()=>{
+  const store=L.createStore(new FakeDB(false));
+  await store.reserve(appointment());
+  const expected=(await store.read()).appointments[0];
+  const updated=await store.updateAppointmentRecord('a1',{status:'confirmado'},expected);
+  assert.equal(updated.status,'confirmado');
+  assert.equal((await store.read()).appointments[0].status,'confirmado');
+});
 test('active mode documents the remaining unseen-insert race (coordination disabled by request)',async()=>{
   const store=L.createStore(new FakeDB());
   const results=await Promise.allSettled([store.reserve(appointment('a1')),store.reserve(appointment('a2','09:30'))]);
@@ -265,4 +290,53 @@ test('admin failed status change leaves in-memory appointment unchanged',async()
   await vm.runInContext('AppState.loadAll()',context);db.rejectCommit=true;
   await vm.runInContext('updAppt("a1","confirmado")',context);
   assert.equal(vm.runInContext('AppState.appointments[0].status',context),'pendiente');
+});
+test('completing a service reserves WhatsApp on the click, then opens its message after saving',async()=>{
+  const {context,document,db}=pageContext('admin.html');
+  db.set('appointmentRecords/a1',{...appointment(),status:'confirmado'});
+  await vm.runInContext('AppState.loadAll()',context);
+  document.getElementById('mCompId').value='a1';
+  document.getElementById('mCompKm').value='15000';
+  document.getElementById('mCompOil').value='Shell';
+  const events=[];
+  const tab={closed:false,document:{body:{}},location:{replace(url){events.push(['navigate',url]);}},close(){this.closed=true;}};
+  context.navigator.userAgent='Windows';
+  context.window.open=(url)=>{events.push(['open',url]);return tab;};
+  vm.runInContext('completingAppointment=AppState.appointments[0]',context);
+  await vm.runInContext('doCompleteAppt()',context);
+  assert.equal(events[0][1],'about:blank');
+  assert.match(events[1][1],/^https:\/\/web\.whatsapp\.com\/send\?phone=5493513880155&text=/);
+  assert.equal(db.docs.get('appointmentRecords/a1').status,'completado');
+  assert.match(document.getElementById('waFollowupText').textContent,/tocá Enviar/);
+});
+test('failed service save closes its reserved WhatsApp tab',async()=>{
+  const {context,document,db}=pageContext('admin.html');
+  db.set('appointmentRecords/a1',{...appointment(),status:'confirmado'});
+  await vm.runInContext('AppState.loadAll()',context);
+  document.getElementById('mCompId').value='a1';
+  document.getElementById('mCompKm').value='15000';
+  document.getElementById('mCompOil').value='Shell';
+  db.rejectCommit=true;
+  const tab={closed:false,document:{body:{}},location:{replace(){throw Error('should not navigate');}},close(){this.closed=true;}};
+  context.window.open=()=>tab;
+  vm.runInContext('completingAppointment=AppState.appointments[0]',context);
+  await vm.runInContext('doCompleteAppt()',context);
+  assert.equal(tab.closed,true);
+  assert.equal(db.docs.get('appointmentRecords/a1').status,'confirmado');
+});
+test('blocked popup keeps a direct WhatsApp link after the service is saved',async()=>{
+  const {context,document,db}=pageContext('admin.html');
+  db.set('appointmentRecords/a1',{...appointment(),status:'confirmado'});
+  await vm.runInContext('AppState.loadAll()',context);
+  document.getElementById('mCompId').value='a1';
+  document.getElementById('mCompKm').value='15000';
+  document.getElementById('mCompOil').value='Shell';
+  let opens=0;
+  context.window.open=()=>{opens++;return null;};
+  vm.runInContext('completingAppointment=AppState.appointments[0]',context);
+  await vm.runInContext('doCompleteAppt()',context);
+  assert.equal(opens,1);
+  assert.equal(db.docs.get('appointmentRecords/a1').status,'completado');
+  assert.match(document.getElementById('waFollowupText').textContent,/bloqueó/);
+  assert.match(document.getElementById('waFollowupLink').href,/^https:\/\/wa\.me\/5493513880155\?text=/);
 });

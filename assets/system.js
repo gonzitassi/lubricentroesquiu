@@ -118,6 +118,7 @@
   function createStore(db, defaults = [], options = {}) {
     const ref = key => db.collection('lubricentro').doc(key);
     const guardRef = options.coordinated ? db.collection('systemLocks').doc('writes') : null;
+    let knownSchema = null;
     const serverGet = async r => {
       const snap = await r.get({source:'server'});
       if (snap.metadata?.fromCache) fail('OFFLINE');
@@ -135,13 +136,18 @@
         const schema = dataValue(schemaRaw, {});
         const keys = ['schema','services', ...(!options.public ? ['notified'] : []),
           ...(!schema.clientsV2 ? ['clients'] : []), ...(!schema.appointmentsV2 ? ['appointments'] : [])];
-        const entries = await Promise.all(keys.map(async k => [k,docValue(await serverGet(ref(k)))]));
+        // Once the schema is known, independent document and record reads can
+        // share one network round trip. Keep the second schema read so a
+        // concurrent migration still causes a retry.
+        const [entries, clientsSnapshot, appointmentsSnapshot] = await Promise.all([
+          Promise.all(keys.map(async k => [k,docValue(await serverGet(ref(k)))])),
+          schema.clientsV2 ? serverGet(db.collection('clientRecords')).then(recordList) : Promise.resolve(null),
+          schema.appointmentsV2 ? serverGet(db.collection('appointmentRecords')).then(recordList) : Promise.resolve(null)
+        ]);
         const raw = Object.fromEntries(entries);
         if (!same(raw.schema,schemaRaw)) continue;
-        const [clients, appointments] = await Promise.all([
-          schema.clientsV2 ? serverGet(db.collection('clientRecords')).then(recordList) : dataValue(raw.clients, []),
-          schema.appointmentsV2 ? serverGet(db.collection('appointmentRecords')).then(recordList) : dataValue(raw.appointments, [])
-        ]);
+        const clients = schema.clientsV2 ? clientsSnapshot : dataValue(raw.clients, []);
+        const appointments = schema.appointmentsV2 ? appointmentsSnapshot : dataValue(raw.appointments, []);
         const after = options.coordinated ? docValue(await serverGet(guardRef)) : null;
         if (!same(before, after)) continue;
         const data = {clients, appointments, services:dataValue(raw.services, defaults), notified:dataValue(raw.notified, {})};
@@ -149,6 +155,7 @@
         if (Array.isArray(data.notified) && data.notified.length === 0) data.notified = {};
         if (!['clients','appointments','services'].every(k => Array.isArray(data[k])) ||
           !data.notified || typeof data.notified !== 'object' || Array.isArray(data.notified)) fail('INVALID_BACKUP');
+        knownSchema = schema;
         return {data, raw, schema, guard:after, keys};
       }
       fail('TOO_BUSY');
@@ -253,6 +260,28 @@
           validateAppointment(next);
           data.appointments = data.appointments.map(a => a.id === id ? next : a);
         });
+      },
+      async updateAppointmentRecord(id, patch, expected) {
+        // The administrator already loaded the V2 schema. This transaction
+        // needs only the one appointment, so a status or Libretito save does
+        // not download every client and appointment again.
+        if (!knownSchema?.appointmentsV2 || options.coordinated) {
+          const data = await this.updateAppointment(id, patch, expected);
+          return data.appointments.find(a => a.id === id);
+        }
+        if (!idOK(id) || !expected) fail('NOT_FOUND');
+        const appointmentRef = db.collection('appointmentRecords').doc(id);
+        let updated;
+        await db.runTransaction(async tx => {
+          const [schemaSnap, apptSnap] = await Promise.all([tx.get(ref('schema')),tx.get(appointmentRef)]);
+          if (!dataValue(docValue(schemaSnap),{}).appointmentsV2) fail('CONFLICT');
+          const actual = apptSnap.exists ? {...apptSnap.data(),id:apptSnap.id} : null;
+          checkExpected(actual,expected);
+          updated = {...actual,...patch};
+          validateAppointment(updated);
+          tx.set(appointmentRef,updated);
+        });
+        return updated;
       },
       deleteAppointment(id, expected) {
         return mutate(data => { checkExpected(data.appointments.find(a => a.id === id),expected); data.appointments = data.appointments.filter(a => a.id !== id); });
