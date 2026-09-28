@@ -118,7 +118,9 @@
   function createStore(db, defaults = [], options = {}) {
     const ref = key => db.collection('lubricentro').doc(key);
     const guardRef = options.coordinated ? db.collection('systemLocks').doc('writes') : null;
-    let knownSchema = null;
+    let knownSchema = options.schemaHint && typeof options.schemaHint === 'object' &&
+      typeof options.schemaHint.clientsV2 === 'boolean' &&
+      typeof options.schemaHint.appointmentsV2 === 'boolean' ? clone(options.schemaHint) : null;
     const serverGet = async r => {
       const snap = await r.get({source:'server'});
       if (snap.metadata?.fromCache) fail('OFFLINE');
@@ -132,8 +134,8 @@
         // All updated clients coordinate through one version document. Reading the
         // guard before the queries prevents a query/transaction race in the web SDK.
         const before = options.coordinated ? docValue(await serverGet(guardRef)) : null;
-        const schemaRaw = docValue(await serverGet(ref('schema')));
-        const schema = dataValue(schemaRaw, {});
+        const schemaRaw = knownSchema ? null : docValue(await serverGet(ref('schema')));
+        const schema = knownSchema || dataValue(schemaRaw, {});
         const keys = ['schema','services', ...(!options.public ? ['notified'] : []),
           ...(!schema.clientsV2 ? ['clients'] : []), ...(!schema.appointmentsV2 ? ['appointments'] : [])];
         // Once the schema is known, independent document and record reads can
@@ -145,7 +147,11 @@
           schema.appointmentsV2 ? serverGet(db.collection('appointmentRecords')).then(recordList) : Promise.resolve(null)
         ]);
         const raw = Object.fromEntries(entries);
-        if (!same(raw.schema,schemaRaw)) continue;
+        const freshSchema = dataValue(raw.schema, {});
+        if ((schemaRaw && !same(raw.schema,schemaRaw)) || !same(schema,freshSchema)) {
+          knownSchema = freshSchema;
+          continue;
+        }
         const clients = schema.clientsV2 ? clientsSnapshot : dataValue(raw.clients, []);
         const appointments = schema.appointmentsV2 ? appointmentsSnapshot : dataValue(raw.appointments, []);
         const after = options.coordinated ? docValue(await serverGet(guardRef)) : null;
@@ -223,6 +229,17 @@
       fail('TOO_BUSY');
     }
     const checkExpected = (current, expected) => { if (!current) fail('NOT_FOUND'); if (expected && !same(current,expected)) fail('CONFLICT'); };
+    function buildReservation(appt, client, svc, dayAppointments, services) {
+      if (!future(appt.date,appt.time)) fail('PAST_DATE');
+      if (!client || !svc) fail('NOT_FOUND');
+      if ((svc.type || 'auto') !== (client.vehicleType || 'auto')) fail('INVALID_APPOINTMENT');
+      const required = slots(appt.time,svc.duration || 30,appt.date), pit = svc.type || 'auto';
+      if (!required) fail('INVALID_APPOINTMENT');
+      const taken = dayAppointments.filter(a => a.status !== 'cancelado' && (a.pit || 'auto') === pit)
+        .flatMap(a => a.blockedSlots || slots(a.time,services.find(s => s.id === a.service)?.duration || 30,a.date) || [a.time]);
+      if (required.some(t => taken.includes(t))) fail('SLOT_TAKEN');
+      return {...clone(appt),serviceName:svc.name,pit,blockedSlots:required};
+    }
     return {
       snapshot,
       read: async () => (await snapshot()).data,
@@ -239,18 +256,77 @@
       async reserve(appt) {
         validateAppointment(appt);
         return mutate(data => {
-          if (!future(appt.date,appt.time)) fail('PAST_DATE');
           const client = data.clients.find(c => c.id === appt.clientId), svc = data.services.find(s => s.id === appt.service);
-          if (!client || !svc) fail('NOT_FOUND');
-          if ((svc.type || 'auto') !== (client.vehicleType || 'auto')) fail('INVALID_APPOINTMENT');
-          const required = slots(appt.time,svc.duration || 30,appt.date), pit = svc.type || 'auto';
-          if (!required) fail('INVALID_APPOINTMENT');
           if (data.appointments.some(a => a.id === appt.id)) fail('CONFLICT');
-          const taken = data.appointments.filter(a => a.date === appt.date && a.status !== 'cancelado' && (a.pit || 'auto') === pit)
-            .flatMap(a => a.blockedSlots || slots(a.time,data.services.find(s => s.id === a.service)?.duration || 30,a.date) || [a.time]);
-          if (required.some(t => taken.includes(t))) fail('SLOT_TAKEN');
-          data.appointments.push({...clone(appt),serviceName:svc.name,pit,blockedSlots:required});
+          data.appointments.push(buildReservation(appt,client,svc,
+            data.appointments.filter(a => a.date === appt.date),data.services));
         });
+      },
+      async reserveAppointmentRecord(appt) {
+        validateAppointment(appt);
+        if (!knownSchema || options.coordinated) {
+          const data = await this.reserve(appt);
+          return data.appointments.find(a => a.id === appt.id);
+        }
+        for (let attempt = 0; attempt < 6; attempt++) {
+          const schema = clone(knownSchema);
+          // V2 only needs the chosen day, not the entire appointment history.
+          let day = [];
+          if (schema.appointmentsV2) {
+            try {
+              day = recordList(await serverGet(db.collection('appointmentRecords').where('date','==',appt.date)));
+            } catch (error) {
+              // Older Firebase rules or an absent index may reject this query.
+              // Keep the proven full-read reservation as a safe fallback.
+              if (!['permission-denied','failed-precondition'].includes(error.code)) throw error;
+              const data = await this.reserve(appt);
+              return data.appointments.find(a => a.id === appt.id);
+            }
+          }
+          const appointmentRef = schema.appointmentsV2
+            ? db.collection('appointmentRecords').doc(appt.id) : ref('appointments');
+          const clientRef = schema.clientsV2
+            ? db.collection('clientRecords').doc(appt.clientId) : ref('clients');
+          let saved;
+          try {
+            await db.runTransaction(async tx => {
+              const reads = await Promise.all([
+                tx.get(ref('schema')), tx.get(ref('services')),
+                tx.get(clientRef), tx.get(appointmentRef),
+                ...day.map(a => tx.get(db.collection('appointmentRecords').doc(a.id)))
+              ]);
+              const [schemaSnap, servicesSnap, clientSnap, appointmentSnap, ...daySnaps] = reads;
+              const currentSchema = dataValue(docValue(schemaSnap),{});
+              if (!same(currentSchema,schema)) {
+                knownSchema = currentSchema;
+                fail('LEGACY_CHANGED');
+              }
+              const services = dataValue(docValue(servicesSnap),defaults);
+              const svc = services.find(s => s.id === appt.service);
+              const client = schema.clientsV2
+                ? clientSnap.exists ? {...clientSnap.data(),id:clientSnap.id} : null
+                : dataValue(docValue(clientSnap),[]).find(c => c.id === appt.clientId);
+              let dayAppointments;
+              if (schema.appointmentsV2) {
+                if (appointmentSnap.exists) fail('CONFLICT');
+                if (daySnaps.some((snap,i) => !same(snap.exists ? {...snap.data(),id:snap.id} : null,day[i])))
+                  fail('LEGACY_CHANGED');
+                dayAppointments = day;
+              } else {
+                const all = dataValue(docValue(appointmentSnap),[]);
+                if (all.some(a => a.id === appt.id)) fail('CONFLICT');
+                dayAppointments = all.filter(a => a.date === appt.date);
+              }
+              saved = buildReservation(appt,client,svc,dayAppointments,services);
+              if (schema.appointmentsV2) tx.set(appointmentRef,saved);
+              else tx.set(appointmentRef,{...docValue(appointmentSnap),data:[...dataValue(docValue(appointmentSnap),[]),saved]});
+            });
+            return saved;
+          } catch (error) {
+            if (error.message !== 'LEGACY_CHANGED') throw error;
+          }
+        }
+        fail('TOO_BUSY');
       },
       updateAppointment(id, patch, expected) {
         return mutate(data => {
@@ -262,24 +338,29 @@
         });
       },
       async updateAppointmentRecord(id, patch, expected) {
-        // The administrator already loaded the V2 schema. This transaction
-        // needs only the one appointment, so a status or Libretito save does
-        // not download every client and appointment again.
-        if (!knownSchema?.appointmentsV2 || options.coordinated) {
+        // A status or Libretito save only needs its appointment document.
+        // Legacy mode stores all appointments in one document; V2 stores one
+        // document per appointment. Both can be changed in one transaction.
+        if (!knownSchema || options.coordinated) {
           const data = await this.updateAppointment(id, patch, expected);
           return data.appointments.find(a => a.id === id);
         }
         if (!idOK(id) || !expected) fail('NOT_FOUND');
-        const appointmentRef = db.collection('appointmentRecords').doc(id);
+        const appointmentRef = knownSchema.appointmentsV2
+          ? db.collection('appointmentRecords').doc(id) : ref('appointments');
         let updated;
         await db.runTransaction(async tx => {
           const [schemaSnap, apptSnap] = await Promise.all([tx.get(ref('schema')),tx.get(appointmentRef)]);
-          if (!dataValue(docValue(schemaSnap),{}).appointmentsV2) fail('CONFLICT');
-          const actual = apptSnap.exists ? {...apptSnap.data(),id:apptSnap.id} : null;
+          if (!same(dataValue(docValue(schemaSnap),{}),knownSchema)) fail('CONFLICT');
+          const legacyAppointments = knownSchema.appointmentsV2 ? null : dataValue(docValue(apptSnap),[]);
+          const actual = knownSchema.appointmentsV2
+            ? apptSnap.exists ? {...apptSnap.data(),id:apptSnap.id} : null
+            : legacyAppointments.find(a => a.id === id);
           checkExpected(actual,expected);
           updated = {...actual,...patch};
           validateAppointment(updated);
-          tx.set(appointmentRef,updated);
+          if (knownSchema.appointmentsV2) tx.set(appointmentRef,updated);
+          else tx.set(appointmentRef,{...docValue(apptSnap),data:legacyAppointments.map(a => a.id === id ? updated : a)});
         });
         return updated;
       },

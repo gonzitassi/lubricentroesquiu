@@ -28,6 +28,13 @@ class FakeDB {
         if(this.publicOnly && (name==='lubricentro' && ['notified','clients','appointments'].includes(id))) throw Error('permission-denied');
         return this.snap(name+'/'+id);
       }}),
+      where: (field,operator,value) => {
+        assert.equal(operator,'==');
+        return {get:async options => {
+          assert.equal(options.source,'server'); if(this.offline)throw Error('offline');
+          return {docs:[...this.docs.keys()].filter(p=>p.startsWith(name+'/') && this.docs.get(p)?.[field]===value).map(p=>this.snap(p))};
+        }};
+      },
       get: async options => { assert.equal(options.source,'server'); if(this.offline)throw Error('offline'); return {docs:[...this.docs.keys()].filter(p=>p.startsWith(name+'/')).map(p=>this.snap(p))}; }
     };
   }
@@ -227,13 +234,96 @@ test('V2 quick appointment update writes only its record and rejects a stale cop
   assert.equal(db.docs.get('appointmentRecords/other').status,'pendiente');
   await assert.rejects(store.updateAppointmentRecord('a1',{status:'cancelado'},expected),/CONFLICT/);
 });
-test('quick appointment update falls back safely for legacy data',async()=>{
-  const store=L.createStore(new FakeDB(false));
+test('legacy quick appointment update uses only the appointment transaction',async()=>{
+  const db=new FakeDB(false),store=L.createStore(db);
   await store.reserve(appointment());
   const expected=(await store.read()).appointments[0];
+  let serverReads=0;
+  const original=db.collection.bind(db);
+  db.collection=name=>{
+    const col=original(name);
+    return {...col,doc:id=>{const doc=col.doc(id);return {...doc,get:async options=>{
+      serverReads++;return doc.get(options);
+    }};}};
+  };
   const updated=await store.updateAppointmentRecord('a1',{status:'confirmado'},expected);
   assert.equal(updated.status,'confirmado');
+  assert.equal(serverReads,0);
   assert.equal((await store.read()).appointments[0].status,'confirmado');
+});
+for (const v2 of [false,true]) {
+  test(`${v2 ? 'V2' : 'legacy'}: quick reservation checks the occupied slots and avoids a full reload`,async()=>{
+    const db=new FakeDB(v2),store=L.createStore(db);
+    await store.read();
+    let fullQueries=0,dayQueries=0,serverDocReads=0;
+    const original=db.collection.bind(db);
+    db.collection=name=>{
+      const col=original(name);
+      return {
+        ...col,
+        doc:id=>{const doc=col.doc(id);return {...doc,get:async options=>{serverDocReads++;return doc.get(options);}};},
+        get:async options=>{fullQueries++;return col.get(options);},
+        where:(field,operator,value)=>{dayQueries++;return col.where(field,operator,value);}
+      };
+    };
+    const saved=await store.reserveAppointmentRecord(appointment());
+    assert.equal(saved.id,'a1');
+    assert.equal(fullQueries,0);
+    assert.equal(serverDocReads,0);
+    assert.equal(dayQueries,v2 ? 1 : 0);
+    await assert.rejects(store.reserveAppointmentRecord(appointment('overlap','09:30')),/SLOT_TAKEN/);
+    assert.equal((await store.read()).appointments.length,1);
+  });
+}
+test('quick reservation does not change records when the transaction fails',async()=>{
+  const db=new FakeDB(),store=L.createStore(db);
+  await store.read();db.rejectCommit=true;
+  await assert.rejects(store.reserveAppointmentRecord(appointment()));
+  assert.equal(db.docs.has('appointmentRecords/a1'),false);
+});
+test('quick reservation keeps the existing safe path if Firebase rejects the day query',async()=>{
+  const db=new FakeDB(),store=L.createStore(db);
+  await store.read();
+  const original=db.collection.bind(db);
+  db.collection=name=>{
+    const col=original(name);
+    return name==='appointmentRecords'
+      ? {...col,where:()=>({get:async()=>{throw Object.assign(Error('missing index'),{code:'failed-precondition'});}})}
+      : col;
+  };
+  const saved=await store.reserveAppointmentRecord(appointment());
+  assert.equal(saved.id,'a1');
+  assert.equal(db.docs.get('appointmentRecords/a1').time,'09:00');
+});
+test('legacy quick reservations cannot take overlapping slots concurrently',async()=>{
+  const db=new FakeDB(false),store=L.createStore(db);
+  await store.read();
+  const results=await Promise.allSettled([
+    store.reserveAppointmentRecord(appointment('a1')),
+    store.reserveAppointmentRecord(appointment('a2','09:30'))
+  ]);
+  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+  assert.match(results.find(r=>r.status==='rejected').reason.message,/SLOT_TAKEN/);
+});
+test('schema hint avoids the first extra schema round trip and recovers if stale',async()=>{
+  const db=new FakeDB();
+  let schemaReads=0;
+  const original=db.collection.bind(db);
+  db.collection=name=>{
+    const col=original(name);
+    return {...col,doc:id=>{const doc=col.doc(id);return {...doc,get:async options=>{
+      if(name==='lubricentro' && id==='schema')schemaReads++;
+      return doc.get(options);
+    }};}};
+  };
+  const store=L.createStore(db,[],{schemaHint:{clientsV2:true,appointmentsV2:true}});
+  assert.equal((await store.read()).clients.length,1);
+  assert.equal(schemaReads,1);
+  const legacy=new FakeDB(false);
+  const stale=L.createStore(legacy,[],{schemaHint:{clientsV2:true,appointmentsV2:true}});
+  assert.equal((await stale.read()).clients.length,1);
+  const saved=await stale.reserveAppointmentRecord(appointment());
+  assert.equal(saved.id,'a1');
 });
 test('active mode documents the remaining unseen-insert race (coordination disabled by request)',async()=>{
   const store=L.createStore(new FakeDB());
@@ -290,6 +380,15 @@ test('admin failed status change leaves in-memory appointment unchanged',async()
   await vm.runInContext('AppState.loadAll()',context);db.rejectCommit=true;
   await vm.runInContext('updAppt("a1","confirmado")',context);
   assert.equal(vm.runInContext('AppState.appointments[0].status',context),'pendiente');
+});
+test('admin saves a new appointment through the quick path and updates its visible state',async()=>{
+  const {context,document,db}=pageContext('admin.html');
+  await vm.runInContext('AppState.loadAll()',context);
+  for(const [id,value] of Object.entries({mApptClientId:'c1',mAService:'s1',mADate:date,mATime:'09:00',mAKm:'15000'}))
+    document.getElementById(id).value=value;
+  await vm.runInContext('doSaveAppt()',context);
+  assert.equal(vm.runInContext('AppState.appointments.length',context),1);
+  assert.equal([...db.docs.keys()].filter(path=>path.startsWith('appointmentRecords/')).length,1);
 });
 test('completing a service reserves WhatsApp on the click, then opens its message after saving',async()=>{
   const {context,document,db}=pageContext('admin.html');

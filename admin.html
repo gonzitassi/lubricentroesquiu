@@ -728,6 +728,8 @@ const AppState = {
       this.clientsV2 = schema.clientsV2 === true;
       this.appointmentsV2 = schema.appointmentsV2 === true;
       this.apply(data);
+      try { if (typeof localStorage !== "undefined") localStorage.setItem("lubri-admin-schema", JSON.stringify(schema)); }
+      catch (_) { /* La carga funciona aunque el navegador impida guardar esta pista. */ }
       return true;
     } catch(e) {
       toast(Lubri.message(e), "error");
@@ -772,7 +774,10 @@ const DEFAULT_SVC = [
   {id:"s8",name:"Aceite + Filtros Camión",price:"$25.000",duration:120,type:"camion"},
   {id:"s9",name:"Revisión Camión",price:"$12.000",duration:120,type:"camion"},
 ];
-const store = Lubri.createStore(db, DEFAULT_SVC);
+let schemaHint = null;
+try { if (typeof localStorage !== "undefined") schemaHint = JSON.parse(localStorage.getItem("lubri-admin-schema") || "null"); }
+catch (_) { /* La pista local es opcional. */ }
+const store = Lubri.createStore(db, DEFAULT_SVC, {schemaHint});
 
 let adminBusy = false;
 let editingClient = null, editingService = null, completingAppointment = null;
@@ -790,6 +795,9 @@ async function adminAction(operation, success, apply = data => AppState.apply(da
 }
 function applyAppointmentRecord(appt) {
   AppState.appointments = AppState.appointments.map(a => a.id === appt.id ? appt : a);
+}
+function applyReservedAppointment(appt) {
+  AppState.appointments = [...AppState.appointments, appt];
 }
 async function refreshAdmin() {
   await adminAction(() => store.read(), () => { reDrawCur(); toast("Datos actualizados"); });
@@ -879,9 +887,9 @@ function getBrandVal(sid, oid) {
   return v === "Otro" ? (document.getElementById(oid)?.value || "").trim() || "Otro" : v;
 }
 
-function getMotor(appt) {
+function getMotor(appt, clientsById) {
   if(appt.motor) return appt.motor;
-  return AppState.clients.find(c => c.id === appt.clientId)?.motor || "—";
+  return (clientsById ? clientsById.get(appt.clientId) : AppState.clients.find(c => c.id === appt.clientId))?.motor || "—";
 }
 
 /* ════════════════════════════════════════════════════════
@@ -1082,6 +1090,7 @@ function drawDash() {
   const todayA = AppState.appointments.filter(a => a.date === Lubri.today());
   const pending = AppState.appointments.filter(a => a.status === "pendiente");
   const remCount = calcAllReminders().filter(r => !r.notified).length;
+  const clientsById = new Map(AppState.clients.map(c => [c.id,c]));
   
   document.getElementById("tDash").innerHTML = `
     <div class="admin-hero">
@@ -1107,11 +1116,11 @@ function drawDash() {
       <div class="tw"><table>
         <thead><tr><th>Hora</th><th>Cliente</th><th>Patente</th><th>Motor</th><th>Servicio</th><th>Fosa</th><th>Estado</th><th></th></tr></thead>
         <tbody>${todayA.sort((a,b) => a.time.localeCompare(b.time)).map(a => {
-          const cl = AppState.clients.find(c => c.id === a.clientId);
+          const cl = clientsById.get(a.clientId);
           const pit = a.pit || "auto";
           return `<tr>
             <td><strong>${esc(a.time)}</strong></td><td>${esc(cl?.name || "—")}</td>
-            <td>${esc(a.patent)}</td><td>${esc(getMotor(a))}</td>
+            <td>${esc(a.patent)}</td><td>${esc(getMotor(a,clientsById))}</td>
             <td>${esc(a.serviceName)}</td>
             <td><span class="pit-badge pit-${esc(pit)}">${pit === "camion" ? "🚛" : "🚗"}</span></td>
             <td>${bdg(a.status)}</td>
@@ -1130,6 +1139,7 @@ function drawDash() {
 function drawTurnos() {
   const sorted = [...AppState.appointments].sort((a,b) => 
     b.date.localeCompare(a.date) || a.time.localeCompare(b.time));
+  const clientsById = new Map(AppState.clients.map(c => [c.id,c]));
   
   document.getElementById("tTurnos").innerHTML = `
     <div class="sh">
@@ -1145,12 +1155,12 @@ function drawTurnos() {
         <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Patente</th>
           <th>Motor</th><th>Servicio</th><th>Fosa</th><th>Estado</th><th></th></tr></thead>
         <tbody id="tbTurnos">${sorted.map(a => {
-          const cl = AppState.clients.find(c => c.id === a.clientId);
+          const cl = clientsById.get(a.clientId);
           const pit = a.pit || "auto";
           return `<tr data-search="${esc(cl?.name || "")} ${esc(a.patent)}">
             <td>${esc(fmtD(a.date))}</td><td>${esc(a.time)}</td>
             <td>${esc(cl?.name || "—")}</td><td>${esc(a.patent)}</td>
-            <td>${esc(getMotor(a))}</td><td>${esc(a.serviceName)}</td>
+            <td>${esc(getMotor(a,clientsById))}</td><td>${esc(a.serviceName)}</td>
             <td><span class="pit-badge pit-${esc(pit)}">${pit === "camion" ? "🚛" : "🚗"}</span></td>
             <td>${bdg(a.status)}</td>
             <td style="display:flex;gap:.2rem;flex-wrap:wrap">
@@ -1167,6 +1177,9 @@ function drawTurnos() {
    CLIENTES TAB
 ════════════════════════════════════════════════════════ */
 function drawClientes() {
+  const appointmentCounts = new Map();
+  for (const appt of AppState.appointments)
+    appointmentCounts.set(appt.clientId,(appointmentCounts.get(appt.clientId) || 0) + 1);
   document.getElementById("tClientes").innerHTML = `
     <div class="sh">
       <div class="st">CLIENTES</div>
@@ -1186,7 +1199,7 @@ function drawClientes() {
             <td>${esc(c.patent)}</td>
             <td>${c.vehicleType === "camion" ? "🚛" : "🚗"} ${esc(c.brand)} ${esc(c.model)} ${esc(c.year)}</td>
             <td>${esc(c.motor || "—")}</td>
-            <td>${AppState.appointments.filter(a => a.clientId === c.id).length}</td>
+            <td>${appointmentCounts.get(c.id) || 0}</td>
             <td style="display:flex;gap:.2rem;flex-wrap:wrap">
               <button class="btn btn-g btn-sm"  onclick="openViewClient('${arg(c.id)}')">Ver</button>
               <button class="btn btn-g btn-sm"  onclick="openEditClient('${arg(c.id)}')">✏️</button>
@@ -2023,9 +2036,9 @@ function buildAdminTimes() {
 }
 
 async function createAppointmentAtomic(appt) {
-  return await adminAction(() => store.reserve(appt), () => {
+  return await adminAction(() => store.reserveAppointmentRecord(appt), () => {
     closeM("mAppt"); toast("Turno guardado"); reDrawCur();
-  });
+  }, applyReservedAppointment);
 }
 
 async function doSaveAppt() {
