@@ -13,7 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="assets/system.js"></script>
+<script src="assets/system.js?v=20261023"></script>
 <style>
 /* ══ RESET & VARIABLES ══════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -1358,7 +1358,8 @@ function remCard(r) {
 
 async function markNotified(key) {
   key = decodeURIComponent(key);
-  await adminAction(() => store.markNotified(key), () => { toast("Marcado como avisado"); drawRecord(); });
+  await adminAction(() => store.markNotifiedRecord(key), () => { toast("Marcado como avisado"); drawRecord(); },
+    notified => { AppState.notified = notified; });
 }
 
 function sendReminder(cid, lastDate, patent, notifKey) {
@@ -1371,9 +1372,10 @@ function sendReminder(cid, lastDate, patent, notifKey) {
   const msg = `Hola ${cl.name.trim()}! 👋 Te recuerda *Lubricentro Esquiú* que tu ` +
     `*${cl.brand} ${cl.model}* (Patente: *${patent}*) ya cumplió *${iv.months} meses* o ` +
     `superó los *${fmtNum(iv.km)} km* desde el último cambio de aceite del ${esc(fmtD(lastDate))}.\n\n` +
-    `¡Es momento de cuidar tu motor! 🔧\n\nSacá tu turno: ${APP_URL}`;
+    `Sacá tu turno: ${APP_URL}`;
 
   const phone = cleanWA(cl.whatsapp);
+  if (!phone) { toast("El cliente no tiene un WhatsApp válido", "error"); return; }
   
   if(isSafariIOS()) {
     window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(msg)}`;
@@ -2092,7 +2094,7 @@ async function doSaveAppt() {
     serviceName: sv?.name || "",
     pit,
     blockedSlots: slots,
-    status: "pendiente",
+    status: "confirmado",
     km,
     notes: ""
   };

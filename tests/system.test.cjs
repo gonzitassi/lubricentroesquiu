@@ -191,7 +191,7 @@ test('HTML inline scripts compile and every local script exists',()=>{
   for(const name of ['index.html','admin.html']) {
     const html=fs.readFileSync(require('node:path').join(__dirname,'..',name),'utf8');
     for(const m of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new vm.Script(m[1]);
-    for(const m of html.matchAll(/<script src="(?!https:)([^"]+)"/g))assert.ok(fs.existsSync(require('node:path').join(__dirname,'..',m[1])));
+    for(const m of html.matchAll(/<script src="(?!https:)([^"]+)"/g))assert.ok(fs.existsSync(require('node:path').join(__dirname,'..',m[1].split('?')[0])));
   }
 });
 
@@ -388,7 +388,40 @@ test('admin saves a new appointment through the quick path and updates its visib
     document.getElementById(id).value=value;
   await vm.runInContext('doSaveAppt()',context);
   assert.equal(vm.runInContext('AppState.appointments.length',context),1);
+  assert.equal(vm.runInContext('AppState.appointments[0].status',context),'confirmado');
+  const saved = [...db.docs.entries()].find(([path]) => path.startsWith('appointmentRecords/'))[1];
+  assert.equal(saved.status,'confirmado');
   assert.equal([...db.docs.keys()].filter(path=>path.startsWith('appointmentRecords/')).length,1);
+});
+test('client-created appointments remain pending for administrator confirmation',async()=>{
+  const {context,db}=pageContext('index.html');
+  context.window.location.assign=()=>{};
+  await vm.runInContext('refreshData()',context);
+  vm.runInContext('ME=CLIENTS[0]; BK='+JSON.stringify({service:'s1',date,time:'09:00',km:'15000'}),context);
+  await vm.runInContext('confirmBk()',context);
+  const saved=[...db.docs.entries()].find(([path])=>path.startsWith('appointmentRecords/'));
+  assert.ok(saved);
+  assert.equal(saved[1].status,'pendiente');
+});
+test('marking reminders only reads notification data and preserves concurrent marks',async()=>{
+  const db=new FakeDB(), store=L.createStore(db), paths=[];
+  db.set('lubricentro/notified',{data:{existing:{ts:1}},metadata:'preserve'});
+  const transaction=db.runTransaction.bind(db);
+  db.runTransaction=action=>transaction(tx=>action({...tx,get:ref=>{paths.push(ref.path);return tx.get(ref);}}));
+  await Promise.all([store.markNotifiedRecord('c1_2026-01-01'),store.markNotifiedRecord('c2_2026-02-01')]);
+  assert.deepEqual([...new Set(paths)],['lubricentro/notified']);
+  const saved=db.docs.get('lubricentro/notified');
+  assert.equal(Object.keys(saved.data).length,3);
+  assert.equal(saved.metadata,'preserve');
+  assert.ok(saved.data.existing && saved.data['c1_2026-01-01'] && saved.data['c2_2026-02-01']);
+});
+test('failed reminder save keeps the visible and persisted notification state unchanged',async()=>{
+  const {context,db}=pageContext('admin.html');
+  await vm.runInContext('AppState.loadAll()',context);
+  db.rejectCommit=true;
+  await vm.runInContext('markNotified("c1_2026-01-01")',context);
+  assert.equal(vm.runInContext('Object.keys(AppState.notified).length',context),0);
+  assert.deepEqual(db.docs.get('lubricentro/notified').data,{});
 });
 test('completing a service reserves WhatsApp on the click, then opens its message after saving',async()=>{
   const {context,document,db}=pageContext('admin.html');

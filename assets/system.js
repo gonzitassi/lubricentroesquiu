@@ -213,11 +213,11 @@
                 watched.set(clientRef.path,{ref:clientRef,expected:base.data.clients.find(c => c.id === appt.clientId)});
               }
             }
-            for (const {ref:record,expected} of watched.values()) {
+            await Promise.all([...watched.values()].map(async ({ref:record,expected}) => {
               const snap = await tx.get(record);
               const actual = snap.exists ? {...snap.data(),id:snap.id} : undefined;
               if (!same(actual,expected)) fail('LEGACY_CHANGED');
-            }
+            }));
             for (const op of ops) op.remove ? tx.delete(op.ref) : tx.set(op.ref,op.value);
             if (options.coordinated) tx.set(guardRef, {revision:(base.guard?.revision || 0) + 1});
           });
@@ -384,6 +384,20 @@
       markNotified(key) {
         if (!/^[A-Za-z0-9_-]{1,160}$/.test(key)) fail('INVALID_BACKUP');
         return mutate(data => { data.notified[key] = {ts:Date.now()}; });
+      },
+      async markNotifiedRecord(key) {
+        if (!/^[A-Za-z0-9_-]{1,160}$/.test(key)) fail('INVALID_BACKUP');
+        if (options.coordinated) return (await this.markNotified(key)).notified;
+        let notified;
+        await db.runTransaction(async tx => {
+          const raw = docValue(await tx.get(ref('notified')));
+          let current = dataValue(raw, {});
+          if (Array.isArray(current) && current.length === 0) current = {};
+          if (!current || typeof current !== 'object' || Array.isArray(current)) fail('INVALID_BACKUP');
+          notified = {...current, [key]: {ts:Date.now()}};
+          tx.set(ref('notified'), {...raw, data:notified});
+        });
+        return notified;
       },
       restore(backup, expected) {
         const verified = validateBackup(backup);
