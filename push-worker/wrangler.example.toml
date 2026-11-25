@@ -1,0 +1,17 @@
+name = "lubricentro-push"
+main = "worker.mjs"
+compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+SITE_ORIGIN = "https://gonzitassi.github.io"
+FIREBASE_PROJECT = "lubricentroesquiu-1759a"
+FIREBASE_API_KEY = "FIREBASE_WEB_API_KEY"
+ADMIN_UID = "FIREBASE_ADMIN_USER_UID"
+VAPID_SUBJECT = "https://gonzitassi.github.io/lubricentroesquiu/"
+VAPID_PUBLIC_KEY = "WEB_PUSH_PUBLIC_KEY"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lubricentro-push"
+database_id = "CLOUDFLARE_D1_DATABASE_ID"

@@ -1,0 +1,11 @@
+{
+  "id": "./admin.html",
+  "name": "Lubricentro Esquiú Admin",
+  "short_name": "Lubri Admin",
+  "start_url": "./admin.html",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#0e0e0f",
+  "background_color": "#0e0e0f",
+  "icons": [{"src": "./assets/lubricentro-logo.jpg", "sizes": "any", "type": "image/jpeg"}]
+}

@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="assets/system.js?v=20261023"></script>
+<script src="assets/push-config.js"></script>
 <style>
 /* ══ RESET & VARIABLES ══════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -944,12 +945,18 @@ async function confirmBk(btn) {
   };
   clientBusy = true;
   let saved;
+  if (globalThis.LUBRI_PUSH_URL) appt.requestedAt = new Date().toISOString();
   try { saved = await reserveAppointmentAtomic(appt); } finally { clientBusy = false; }
   if (!saved) {
     if (btn) { btn.disabled = false; btn.textContent = originalBtnText; }
     BK.time = "";
     drawBooking();
     return;
+  }
+  if (globalThis.LUBRI_PUSH_URL) {
+    fetch(new URL("/booking", globalThis.LUBRI_PUSH_URL), {
+      method: "POST", body: appt.id, keepalive: true
+    }).catch(() => { /* Push delivery must not interrupt the confirmed reservation. */ });
   }
   const waMsg = `Hola, Lubricentro Esquiú. Acabo de reservar un turno a través de la página web.\n\n*Datos de la reserva*\n*Servicio:* ${sv.name}\n*Fecha:* ${esc(fmtD(BK.date))}\n*Horario:* ${BK.time}\n*Vehículo:* ${ME.brand} ${ME.model} ${esc(ME.year)}\n*Patente:* ${esc(ME.patent)}\n*Motor:* ${ME.motor || "—"}${BK.km ? `\n*Kilometraje:* ${fmtNum(BK.km)} km` : ""}\n\nQuedo a la espera de la confirmación. Muchas gracias.`;
   const waURL = `https://wa.me/${PHONE_LUBRI}?text=${encodeURIComponent(waMsg)}`;

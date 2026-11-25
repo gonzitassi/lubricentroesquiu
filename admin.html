@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="theme-color" content="#0e0e0f"/>
 <title>Lubricentro Esquiú — Administrador</title>
+<link rel="manifest" href="admin.webmanifest"/>
+<link rel="apple-touch-icon" href="assets/lubricentro-logo.jpg"/>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -14,6 +16,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="assets/system.js?v=20261023"></script>
+<script src="assets/push-config.js"></script>
+<script src="assets/admin-push.js" defer></script>
 <style>
 /* ══ RESET & VARIABLES ══════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -322,6 +326,7 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 #pgLanding,#pgAdminLogin{background:radial-gradient(circle at 50% 35%,rgba(21,49,88,.72),transparent 38%),
   linear-gradient(140deg,#020914,#03132e 58%,#020b1b);}
 #pgLanding{padding:1rem;}
+#adminPushSettings button[hidden]{display:none;}
 #pgLanding::before{inset:-10%;width:auto;height:auto;top:auto;left:auto;
   background:repeating-radial-gradient(ellipse at -8% 8%,transparent 0 32px,rgba(255,114,0,.12) 33px 34px,transparent 35px 52px);
   opacity:.38;}
@@ -1434,6 +1439,7 @@ function drawConfig() {
         ? '<div class="alert ag" style="margin:0">✔ Datos separados y activos</div>'
         : '<button class="btn btn-g" onclick="migrateDataToRecords()">🔒 Separar clientes y turnos</button>'}
     </div>
+    <div id="adminPushSettings"></div>
     <div class="card">
       <div class="card-title">💾 BACKUP DE DATOS</div>
       <p style="color:var(--muted);font-size:.8rem;margin:.2rem 0 .8rem">
@@ -1445,6 +1451,7 @@ function drawConfig() {
       </div>
       <input id="backupFileInput" type="file" accept="application/json,.json" style="display:none" onchange="restoreBackup(this.files[0])"/>
     </div>`;
+  globalThis.LubriAdminPush?.render(document.getElementById("adminPushSettings"), auth);
 }
 
 async function migrateDataToRecords() {
