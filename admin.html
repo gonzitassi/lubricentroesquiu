@@ -15,7 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="assets/system.js?v=20261023"></script>
+<script src="assets/system.js?v=20261125"></script>
 <script src="assets/push-config.js"></script>
 <script src="assets/admin-push.js" defer></script>
 <style>
@@ -782,7 +782,7 @@ const DEFAULT_SVC = [
 let schemaHint = null;
 try { if (typeof localStorage !== "undefined") schemaHint = JSON.parse(localStorage.getItem("lubri-admin-schema") || "null"); }
 catch (_) { /* La pista local es opcional. */ }
-const store = Lubri.createStore(db, DEFAULT_SVC, {schemaHint});
+const store = Lubri.createStore(db, DEFAULT_SVC, {schemaHint, allowPastAppointments:true});
 
 let adminBusy = false;
 let editingClient = null, editingService = null, completingAppointment = null;
@@ -961,7 +961,7 @@ function getSlots(startTime, durMins, dateStr) { return Lubri.slots(startTime, d
 
 function isAvail(time, durMins, takenSet, dateStr) {
   const slots = getSlots(time, durMins, dateStr);
-  return Lubri.future(dateStr, time) && slots !== null && !slots.some(t => takenSet.has(t));
+  return slots !== null && !slots.some(t => takenSet.has(t));
 }
 
 /* ════════════════════════════════════════════════════════
@@ -1995,7 +1995,6 @@ function openNewAppt() {
   document.getElementById("mApptId").value = "";
   acClear();
   document.getElementById("mADate").value = Lubri.today();
-  document.getElementById("mADate").min = Lubri.today();
   document.getElementById("mAKm").value = "";
   
   document.getElementById("mAService").innerHTML = `<option value="">— Seleccioná un cliente primero —</option>`;
@@ -2037,11 +2036,16 @@ function buildAdminTimes() {
     return;
   }
   
+  const now = Lubri.nowParts();
+  let nextTime;
   tmSel.innerHTML = dayH.map(h => {
     const ok = isAvail(h, dur, taken, dt);
-    const reason = !Lubri.future(dt,h) ? " (pasado)" : " (no disponible)";
-    return `<option value="${h}" ${ok ? "" : "disabled"}>${h}${ok ? "" : reason}</option>`;
+    const passed = dt < now.date || (dt === now.date && h <= now.time);
+    if (ok && !passed && !nextTime) nextTime = h;
+    const label = ok ? (passed ? " (ya pasó)" : "") : " (no disponible)";
+    return `<option value="${h}" ${ok ? "" : "disabled"}>${h}${label}</option>`;
   }).join("");
+  if (nextTime) tmSel.value = nextTime;
 }
 
 async function createAppointmentAtomic(appt) {
@@ -2072,7 +2076,6 @@ async function doSaveAppt() {
   }
   
   if (adminBusy) return;
-  if (!Lubri.future(dt,tm)) { toast("Elegí una fecha y un horario futuros.", "error"); return; }
   if (!Lubri.kilometres(km)) { toast("Ingresá un kilometraje válido.", "error"); return; }
   showOptimisticUI(btn, true);
   

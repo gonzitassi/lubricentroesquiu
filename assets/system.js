@@ -230,7 +230,8 @@
     }
     const checkExpected = (current, expected) => { if (!current) fail('NOT_FOUND'); if (expected && !same(current,expected)) fail('CONFLICT'); };
     function buildReservation(appt, client, svc, dayAppointments, services) {
-      if (!future(appt.date,appt.time)) fail('PAST_DATE');
+      const canBackdate = options.allowPastAppointments === true && appt.status === 'confirmado';
+      if (!canBackdate && !future(appt.date,appt.time)) fail('PAST_DATE');
       if (!client || !svc) fail('NOT_FOUND');
       if ((svc.type || 'auto') !== (client.vehicleType || 'auto')) fail('INVALID_APPOINTMENT');
       const required = slots(appt.time,svc.duration || 30,appt.date), pit = svc.type || 'auto';

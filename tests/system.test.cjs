@@ -393,10 +393,35 @@ test('admin saves a new appointment through the quick path and updates its visib
   assert.equal(saved.status,'confirmado');
   assert.equal([...db.docs.keys()].filter(path=>path.startsWith('appointmentRecords/')).length,1);
 });
-test('client-created appointments remain pending for administrator confirmation',async()=>{
+test('admin can save a confirmed appointment in a past slot without double booking',async()=>{
+  const {context,document,db}=pageContext('admin.html');
+  const pastDate='2020-01-06';
+  await vm.runInContext('AppState.loadAll()',context);
+  for(const [id,value] of Object.entries({mApptClientId:'c1',mAService:'s1',mADate:pastDate,mATime:'09:00'}))
+    document.getElementById(id).value=value;
+  const timeSelect=document.getElementById('mATime');
+  vm.runInContext('buildAdminTimes()',context);
+  assert.match(timeSelect.innerHTML,/<option value="09:00"\s*>09:00 \(ya pasó\)<\/option>/);
+  await vm.runInContext('doSaveAppt()',context);
+  const saved=vm.runInContext('AppState.appointments[0]',context);
+  assert.equal(saved?.date,pastDate);
+  assert.equal(saved.status,'confirmado');
+  assert.equal(db.docs.get('appointmentRecords/'+saved.id).time,'09:00');
+  vm.runInContext('buildAdminTimes()',context);
+  assert.match(timeSelect.innerHTML,/<option value="09:00" disabled>/);
+  await vm.runInContext('doSaveAppt()',context);
+  assert.equal(db.writes.length,1);
+});
+test('client bookings require a future slot and remain pending for administrator confirmation',async()=>{
   const {context,db}=pageContext('index.html');
   context.window.location.assign=()=>{};
   await vm.runInContext('refreshData()',context);
+  const pastDate='2020-01-06';
+  vm.runInContext('ME=CLIENTS[0]; BK='+JSON.stringify({service:'s1',date:pastDate,time:'09:00',km:'15000'}),context);
+  await vm.runInContext('confirmBk()',context);
+  assert.equal(db.writes.length,0);
+  const past={...appointment(),date:pastDate};
+  await assert.rejects(L.createStore(db,[],{public:true}).reserve(past),/PAST_DATE/);
   vm.runInContext('ME=CLIENTS[0]; BK='+JSON.stringify({service:'s1',date,time:'09:00',km:'15000'}),context);
   await vm.runInContext('confirmBk()',context);
   const saved=[...db.docs.entries()].find(([path])=>path.startsWith('appointmentRecords/'));
