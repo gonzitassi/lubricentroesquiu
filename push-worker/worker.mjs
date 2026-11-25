@@ -70,8 +70,9 @@ async function deliver(env, subscription, kind, tag) {
   });
   const headers = new Headers(details.headers);
   headers.delete("Content-Length");
+  // Workers supports manual redirects. A redirect is a failed delivery.
   const result = await fetch(details.endpoint, {
-    method: "POST", headers, body: details.body, redirect: "error"
+    method: "POST", headers, body: details.body, redirect: "manual"
   });
   if (result.status === 404 || result.status === 410) {
     await env.DB.prepare("DELETE FROM devices WHERE endpoint = ?").bind(subscription.endpoint).run();
